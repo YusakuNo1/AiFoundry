@@ -1,5 +1,9 @@
 # Install
 
+Setup video:
+
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/J0kkLQt_ZIU/0.jpg)](https://www.youtube.com/watch?v=J0kkLQt_ZIU)
+
 ## Install AI Foundry VS Code extension
 * Download [VS Code](https://code.visualstudio.com/download) and install
 * Download AI Foundry VS Code extension [version 0.1.0](https://drive.google.com/file/d/1s-7jCrmDTwXigOZPuooSUP7JfkkezLiM/view?usp=sharing)
