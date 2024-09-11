@@ -1,0 +1,15 @@
+FROM mcr.microsoft.com/devcontainers/python:3.10
+
+RUN apt update -y && apt upgrade -y
+RUN apt install curl -y
+
+# Install Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh | bash
+RUN rm nodesource_setup.sh
+RUN apt-get install -y nodejs
+
+USER vscode
+
+COPY ./server/dev_requirements.txt ./requirements.txt  
+RUN pip install -r requirements.txt
+# CMD ./start_server.dev.sh

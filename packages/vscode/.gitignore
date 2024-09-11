@@ -1,0 +1,14 @@
+out
+node_modules
+
+# Python
+.env
+*.pyc
+*.faiss
+*.pkl
+nohup.out
+
+# AI Foundry
+media/index.js
+media/index.js.LICENSE.txt
+media/index.js.map

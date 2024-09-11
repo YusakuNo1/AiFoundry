@@ -1,0 +1,301 @@
+{
+	"name": "aifoundry",
+	"displayName": "AI Foundry",
+	"description": "AI Foundry is your local LLM/SLM development environment",
+	"version": "0.1.0",
+	"publisher": "aifoundry",
+	"private": true,
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Microsoft/vscode-extension-samples"
+	},
+	"engines": {
+		"vscode": "^1.74.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onLanguage:json",
+		"onLanguage:jsonc"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "aifoundry",
+					"title": "AI Foundry",
+					"icon": "media/icon-main.svg"
+				}
+			]
+		},
+		"views": {
+			"aifoundry": [
+				{
+					"id": "aiFoundryMainViewId",
+					"icon": "media/icon-main.svg",
+					"name": "AIF Main",
+					"contextualTitle": "AIF Main"
+				},
+				{
+					"id": "aiFoundryAgentsViewId",
+					"icon": "media/icon-main.svg",
+					"name": "AIF Agents",
+					"contextualTitle": "AIF Agents"
+				},
+				{
+					"id": "aiFoundryEmbeddingsViewId",
+					"icon": "media/icon-main.svg",
+					"name": "AIF Embeddings",
+					"contextualTitle": "AIF Embeddings"
+				},
+				{
+					"id": "aiFoundryFunctionsViewId",
+					"icon": "media/icon-main.svg",
+					"name": "AIF Functions",
+					"contextualTitle": "AIF Functions"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "AiFoundry.showPanel",
+				"title": "Show AI Foundry",
+				"icon": {
+					"light": "resources/light/folder.svg",
+					"dark": "resources/dark/folder.svg"
+				}
+			},
+			{
+				"command": "AiFoundry.refreshAllViews",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "AiFoundry.refreshMainView",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "AiFoundry.installDocker",
+				"title": "Install Docker"
+			},
+			{
+				"command": "AiFoundry.startDockerApp",
+				"title": "Start Docker app"
+			},
+			{
+				"command": "AiFoundry.startDockerServer",
+				"title": "Start Docker server"
+			},
+			{
+				"command": "AiFoundry.startDockerDevContainer",
+				"title": "Start Docker Dev Container"
+			},
+			{
+				"command": "AiFoundryEmbeddings.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "AiFoundryEmbeddings.create",
+				"title": "Create",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "AiFoundryEmbeddings.updateDoc",
+				"title": "Update",
+				"icon": {
+					"light": "resources/light/document.svg",
+					"dark": "resources/dark/document.svg"
+				}
+			},
+			{
+				"command": "AiFoundryEmbeddings.updateName",
+				"title": "Update Name",
+				"icon": {
+					"light": "resources/light/edit.svg",
+					"dark": "resources/dark/edit.svg"
+				}
+			},
+			{
+				"command": "AiFoundryEmbeddings.delete",
+				"title": "Delete",
+				"icon": {
+					"light": "resources/light/trash.svg",
+					"dark": "resources/dark/trash.svg"
+				}
+			},
+			{
+				"command": "AiFoundryAgents.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "AiFoundryAgents.create",
+				"title": "Create",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "AiFoundryAgents.updateName",
+				"title": "Update",
+				"icon": {
+					"light": "resources/light/document.svg",
+					"dark": "resources/dark/document.svg"
+				}
+			},
+			{
+				"command": "AiFoundryAgents.delete",
+				"title": "Delete",
+				"icon": {
+					"light": "resources/light/trash.svg",
+					"dark": "resources/dark/trash.svg"
+				}
+			},
+			{
+				"command": "AiFoundryFunctions.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "AiFoundryFunctions.create",
+				"title": "Create",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "AiFoundryFunctions.update",
+				"title": "Update",
+				"icon": {
+					"light": "resources/light/document.svg",
+					"dark": "resources/dark/document.svg"
+				}
+			},
+			{
+				"command": "AiFoundryFunctions.delete",
+				"title": "Delete",
+				"icon": {
+					"light": "resources/light/trash.svg",
+					"dark": "resources/dark/trash.svg"
+				}
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "AiFoundry.installDocker",
+					"when": "view == aiFoundryMainViewId",
+					"group": "aiFoundryMainViewId@1"
+				},
+				{
+					"command": "AiFoundry.startDockerApp",
+					"when": "view == aiFoundryMainViewId",
+					"group": "aiFoundryMainViewId@2"
+				},
+				{
+					"command": "AiFoundry.refreshMainView",
+					"when": "view == aiFoundryMainViewId",
+					"group": "aiFoundryMainViewId@3"
+				},
+				{
+					"command": "AiFoundryEmbeddings.refresh",
+					"when": "view == aiFoundryEmbeddingsViewId"
+				},
+				{
+					"command": "AiFoundryEmbeddings.create",
+					"when": "view == aiFoundryEmbeddingsViewId"
+				},
+				{
+					"command": "AiFoundryAgents.refresh",
+					"when": "view == aiFoundryAgentsViewId"
+				},
+				{
+					"command": "AiFoundryAgents.create",
+					"when": "view == aiFoundryAgentsViewId"
+				},
+				{
+					"command": "AiFoundryFunctions.refresh",
+					"when": "view == aiFoundryFunctionsViewId"
+				},
+				{
+					"command": "AiFoundryFunctions.create",
+					"when": "view == aiFoundryFunctionsViewId"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "AiFoundryEmbeddings.delete",
+					"when": "view == aiFoundryEmbeddingsViewId && viewItem != ui_placeholder",
+					"group": "inline"
+				},
+				{
+					"command": "AiFoundryEmbeddings.updateDoc",
+					"when": "view == aiFoundryEmbeddingsViewId && viewItem != ui_placeholder",
+					"group": "inline"
+				},
+				{
+					"command": "AiFoundryEmbeddings.updateName",
+					"when": "view == aiFoundryEmbeddingsViewId && viewItem != ui_placeholder",
+					"group": "inline"
+				},
+				{
+					"command": "AiFoundryAgents.delete",
+					"when": "view == aiFoundryAgentsViewId && viewItem != ui_placeholder",
+					"group": "inline"
+				},
+				{
+					"command": "AiFoundryAgents.updateName",
+					"when": "view == aiFoundryAgentsViewId && viewItem != ui_placeholder",
+					"group": "inline"
+				},
+				{
+					"command": "AiFoundryFunctions.delete",
+					"when": "view == aiFoundryFunctionsViewId && viewItem != ui_placeholder",
+					"group": "inline"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"lint": "eslint \"src/**/*.ts\""
+	},
+	"dependencies": {
+		"aifoundry-vscode-shared": "file:../vscode-shared"
+	},
+	"devDependencies": {
+		"@types/node": "^18",
+		"@types/vscode": "^1.73.0",
+		"@typescript-eslint/eslint-plugin": "^6.7.0",
+		"@typescript-eslint/parser": "^6.7.0",
+		"eslint": "^8.26.0",
+		"typescript": "^5.4.2"
+	}
+}

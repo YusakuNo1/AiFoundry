@@ -1,0 +1,10 @@
+{
+  "name": "aifoundry-root",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "workspaces": [
+    "packages/vscode-shared",
+    "packages/vscode-ui"
+  ]
+}

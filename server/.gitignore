@@ -1,0 +1,12 @@
+# Custom
+src/notebooks/test-rag
+
+# Python
+.env
+*.pyc
+*.faiss
+*.pkl
+nohup.out
+
+# AI Foundry
+/media/webview-main.js

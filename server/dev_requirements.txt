@@ -1,0 +1,39 @@
+langchain-chroma
+langchain-community
+langchain-openai
+langserve
+
+python-dotenv
+pytest
+faiss-cpu
+tiktoken
+python-multipart
+sqlmodel
+sse_starlette
+fastapi
+docstring_parser
+pillow
+
+# Google Gemini
+langchain-google-genai
+
+# AWS Bedrock
+langchain_aws
+
+# Claude
+langchain-anthropic
+
+# HuggingFace
+langchain_huggingface
+
+# Debug
+argparse
+
+# Jupyter
+jupyter
+debugpy
+
+# Test
+pytest
+pytest-describe
+requests-mock

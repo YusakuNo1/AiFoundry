@@ -1,0 +1,14 @@
+ipykernel
+
+# Community
+openai>1.0
+python-dotenv
+langchain
+langchain-openai
+langchain-community
+pytest
+
+# Dev server
+langserve
+faiss-cpu
+sse_starlette

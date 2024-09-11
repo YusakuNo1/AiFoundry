@@ -1,0 +1,15 @@
+.vscode/**
+.vscode-test/**
+out/test/**
+test/**
+src/**
+**/*.map
+.gitignore
+tsconfig.json
+vsc-extension-quickstart.md
+
+!node_modules/aifoundry-vscode-shared/**
+!node_modules/rxjs/**
+node_modules/**
+../../**
+../**
