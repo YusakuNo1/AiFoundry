@@ -1,0 +1,25 @@
+services:
+  aifoundry_server:
+    build:
+      context: ./
+      target: aifoundry_server
+    image: davidwuno1/aifoundry
+    volumes:
+      - ~/.aifoundry/assets:/home/vscode/assets/
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # for accessing host machine for Ollama
+    restart: always
+
+  aifoundry_server_dev:
+    build:
+      context: ./
+      target: aifoundry_server_dev
+    image: davidwuno1/aifoundry-dev
+    volumes:
+      - ~/.aifoundry/assets:/home/vscode/assets/
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # for accessing host machine for Ollama

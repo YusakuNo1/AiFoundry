@@ -1,4 +1,6 @@
-FROM mcr.microsoft.com/devcontainers/python:3.10
+# Prod image -----------------------------------------------------------
+
+FROM mcr.microsoft.com/devcontainers/python:3.10 AS aifoundry_server_dev
 
 RUN apt update -y && apt upgrade -y
 RUN apt install curl -y
@@ -10,6 +12,14 @@ RUN apt-get install -y nodejs
 
 USER vscode
 WORKDIR /home/vscode/aifoundry
+
+COPY ./server/dev_requirements.txt ./requirements.txt  
+RUN pip install -r requirements.txt
+
+
+# Dev image ------------------------------------------------------------
+
+FROM aifoundry_server_dev AS aifoundry_server
 
 COPY --chown=vscode:vscode server /home/vscode/aifoundry/server
 COPY --chown=vscode:vscode start_server.dev.sh /home/vscode/aifoundry/start_server.dev.sh
@@ -23,6 +33,3 @@ RUN find /home/vscode/aifoundry/server -name '.DS_Store' -type f -delete
 RUN find /home/vscode/aifoundry/server -name '__pycache__' -type d -exec rm -r {} +
 RUN find /home/vscode/aifoundry/server -name '.pytest_cache' -type d -exec rm -r {} +
 
-COPY ./server/dev_requirements.txt ./requirements.txt  
-RUN pip install -r requirements.txt
-# CMD ./start_server.prod.sh
