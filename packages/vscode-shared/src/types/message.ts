@@ -13,7 +13,7 @@ export type IMessage = {
 
 // Set page message (extension to UI)
 
-export type IPageContextPageType = "home" | "embeddings" | "agents" | "modelPlayground" | "functions" | "updateLmProvider";
+export type IPageContextPageType = "home" | "embeddings" | "agents" | "modelPlayground" | "functions" | "page:updateLmProvider";
 export type IPageContext = {
     pageType: IPageContextPageType;
 };
@@ -140,7 +140,15 @@ export type MessageHostMsgShowMessage = MessageHostMsg & {
 
 // API messages (UI to extension)
 
-export const MessageApiTypes = ['chat:history:get', 'chat:sendMessage', "updateLmProvider", "listLmProviders", "getEmbeddings", "listFunctions"] as const;
+export const MessageApiTypes = [
+    "chat:history:get",
+    "chat:sendMessage",
+    "api:updateLmProvider",
+    "api:updateLmProvider:modelSelection",
+    "api:listLmProviders",
+    "api:getEmbeddings",
+    "api:listFunctions",
+] as const;
 export type MessageApiType = typeof MessageApiTypes[number];
 export type MessageApi = IMessage & {
     aifMessageType: "api",
@@ -163,19 +171,19 @@ export type MessageApiChatSendMessage = MessageApi & {
     };
 };
 export type MessageApiUpdateLmProvider = MessageApi & {
-    type: 'updateLmProvider',
+    type: "api:updateLmProvider" | "api:updateLmProvider:modelSelection",
     data: UpdateLmProviderRequest;
 };
 export type MessageApiListLmProviders = MessageApi & {
-    type: 'listLmProviders',
+    type: "api:listLmProviders",
     data: {};
 };
 export type MessageApiGetEmbeddings = MessageApi & {
-    type: 'getEmbeddings',
+    type: "api:getEmbeddings",
     data: {};
 };
 export type MessageApiListFunctions = MessageApi & {
-    type: 'listFunctions',
+    type: "api:listFunctions",
     data: {};
 };
 

@@ -54,26 +54,28 @@ namespace AifPanelEvenHandlers {
                     // console.log('* * ChatAPI complete');
                 },
             });
-        } else if (apiMessage.type === 'updateLmProvider') {
+        } else if (apiMessage.type === "api:updateLmProvider" || apiMessage.type === "api:updateLmProvider:modelSelection") {
             const message = apiMessage as types.MessageApiUpdateLmProvider;
             LanguageModelsAPI.updateLmProvider(message.data as types.api.UpdateLmProviderRequest)
                 .then(response => _postMessageUpdateLmProviders(response, postMessage))
                 .then(() => vscode.commands.executeCommand('AiFoundry.refreshMainView', 1))
                 .then(() => {
-                    vscode.window.showInformationMessage("Language model provider setup successfully");
-                    const setPageMessage = AifPanelUtils.createMessageSetPageHome();
-                    postMessage(setPageMessage);
+                    if (apiMessage.type === "api:updateLmProvider") {
+                        vscode.window.showInformationMessage("Language model provider setup successfully");
+                        const setPageMessage = AifPanelUtils.createMessageSetPageHome();
+                        postMessage(setPageMessage);
+                    }
                 })
                 .catch((error) => {
                     vscode.window.showErrorMessage("Error updating language model provider: " + error);
                 });
-        } else if (apiMessage.type === 'listLmProviders') {
+        } else if (apiMessage.type === "api:listLmProviders") {
             LanguageModelsAPI.listLmProviders()
                 .then(response => _postMessageUpdateLmProviders(response, postMessage))
                 .catch((error) => {
                     vscode.window.showErrorMessage("Error listing language model providers: " + error);
                 });
-        } else if (apiMessage.type === "getEmbeddings") {
+        } else if (apiMessage.type === "api:getEmbeddings") {
             EmbeddingsAPI.getEmbeddings()
                 .then(response => {
                     const message: types.MessageStoreUpdateEmbeddings = {
@@ -88,7 +90,7 @@ namespace AifPanelEvenHandlers {
                 .catch((error) => {
                     vscode.window.showErrorMessage("Error getting embeddings: " + error);
                 });
-        } else if (apiMessage.type === "listFunctions") {
+        } else if (apiMessage.type === "api:listFunctions") {
             FunctionsAPI.listFunctions()
                 .then(response => {
                     const message: types.MessageStoreUpdateFunctions = {

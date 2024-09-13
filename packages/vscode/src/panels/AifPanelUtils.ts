@@ -64,6 +64,23 @@ namespace AifPanelUtils {
 			arguments: [message],
 		};
 	}	
+
+
+
+	export function createMessageSetPageContextUpdateLmProvider(lmProviderId: string): types.MessageSetPageContextUpdateLmProvider {
+		return {
+			aifMessageType: "setPageType",
+			pageType: "page:updateLmProvider",
+			data: {
+				lmProviderId,
+			}
+		};
+	}
+
+	export function createCommandSetPageContextUpdateLmProvider(lmProviderId: string): vscode.Command {
+		const message = createMessageSetPageContextUpdateLmProvider(lmProviderId);
+		return createCommandShowAifPanel(message);
+	}
 }
 
 export default AifPanelUtils;

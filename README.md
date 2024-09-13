@@ -72,6 +72,7 @@ Download source code: https://github.com/YusakuNo1/AiFoundry
   * For the frist time of using remote explorer:
     * Choose `aifoundry` from the containers and choose `Attach in New Window` button on the right (the button was hidden until mouse over), a new VS Code instance will be launched, let's call it `VS Code Instance 3`
     * Choose `File -> Open Folder`, insert path `/home/vscode/aifoundry/server/` and then click `OK`
+    * Copy file `.env_example` to `.env` from the folder: `cp .env_example .env`
   * For the 2nd or later time of using remote explorer:
     * Choose the folder `server` under container `aifounry`, a new VS Code instance will be launched, let's call it `VS Code Instance 3`
   * Start backend server from debugger:

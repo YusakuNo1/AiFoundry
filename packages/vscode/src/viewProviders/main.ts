@@ -78,10 +78,14 @@ export class AifMainViewProvider implements IViewProvider {
 			const iconName = component.status === "unknown" ? "icon-questionmark.svg"
 				: component.status === "checking" ? "refresh.svg"
 				: component.status === "unavailable" ? "icon-cross.svg" : component.iconName;
+
+			const command = componentKey === consts.DOCKER_SERVER_ID
+				? AifPanelUtils.createCommandShowAifPanelHome()
+				: AifPanelUtils.createCommandSetPageContextUpdateLmProvider(component.id);
 			return new AifTreeItem(
 				component.name,
 				vscode.TreeItemCollapsibleState.None,
-				AifPanelUtils.createCommandShowAifPanelHome(),
+				command,
 				component.id,
 				iconName,
 			);

@@ -21,14 +21,14 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
     React.useEffect(() => {
         const messageApiGetEmbeddings: types.MessageApiGetEmbeddings = {
             aifMessageType: "api",
-            type: "getEmbeddings",
+            type: "api:getEmbeddings",
             data: {},
         };
         props.onPostMessage(messageApiGetEmbeddings);
 
         const messageApiGetFunctions: types.MessageApiListFunctions = {
             aifMessageType: "api",
-            type: "listFunctions",
+            type: "api:listFunctions",
             data: {},
         };
         props.onPostMessage(messageApiGetFunctions);

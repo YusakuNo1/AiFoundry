@@ -29,7 +29,7 @@ const LmProviderUpdatePage = (props: Props) => {
         if (!lmProviders) {
             const message: types.MessageApiListLmProviders = {
                 aifMessageType: "api",
-                type: "listLmProviders",
+                type: "api:listLmProviders",
                 data: {},
             };
             props.onPostMessage(message);
@@ -71,41 +71,18 @@ const LmProviderUpdatePage = (props: Props) => {
             }
         }
         const _weight = parseInt(weight) ?? null;
-        const _selectedModels = models.filter(model => model.selected);
+        const { selectedModels, embeddingModelIndexes, visionModelIndexes, toolsModelIndexes } = getSelectedModelData(models);
 
-        const embeddingTag: types.api.LlmFeature = "embedding";
-        const visionTag: types.api.LlmFeature = "vision";
-        const toolsTag: types.api.LlmFeature = "tools";
-        const _embeddingModelIndexes: number[] = [];
-        const _visionModelIndexes: number[] = [];
-        const _toolsModelIndexes: number[] = [];
-        for (const model of _selectedModels) {
-            if (model.tags.includes(embeddingTag)) {
-                _embeddingModelIndexes.push(_selectedModels.indexOf(model));
-            }
-            if (model.tags.includes(visionTag)) {
-                _visionModelIndexes.push(_selectedModels.indexOf(model));
-            }
-            if (model.tags.includes(toolsTag)) {
-                _toolsModelIndexes.push(_selectedModels.indexOf(model));
-            }
-        }
-
-        const request: types.api.UpdateLmProviderRequest = {
-            lmProviderId: props.lmProviderId,
-            properties: _properties,
-            weight: _weight,
-            selectedModels: _selectedModels.map(model => model.id),
-            embeddingModelIndexes: _embeddingModelIndexes,
-            visionModelIndexes: _visionModelIndexes,
-            toolsModelIndexes: _toolsModelIndexes,
-        };
-
-        const message: types.MessageApiUpdateLmProvider = {
-            aifMessageType: "api",
-            type: "updateLmProvider",
-            data: request,
-        };
+        const message = createMessageApiUpdateLmProvider(
+            "api:updateLmProvider",
+            props.lmProviderId,
+            _properties,
+            _weight,
+            selectedModels,
+            embeddingModelIndexes,
+            visionModelIndexes,
+            toolsModelIndexes,
+        );
         props.onPostMessage(message);
     }, [props, properties, weight, models]);
 
@@ -132,9 +109,25 @@ const LmProviderUpdatePage = (props: Props) => {
         setWeight(event.target.value);
     }, [setWeight]);
 
-    const onChangeModels = React.useCallback((selectedModels: types.api.LmProviderBaseModelInfo[]) => {
-        setModels(selectedModels);
-    }, [setModels]);
+    const onChangeModels = React.useCallback((_selectedModels: types.api.LmProviderBaseModelInfo[]) => {
+        if (consts.EXP_LM_PROVIDER_MODEL_SELECTION_INSTANT_UPDATE) {
+            const { selectedModels, embeddingModelIndexes, visionModelIndexes, toolsModelIndexes } = getSelectedModelData(_selectedModels);
+
+            const message = createMessageApiUpdateLmProvider(
+                "api:updateLmProvider:modelSelection",
+                props.lmProviderId,
+                null,
+                null,
+                selectedModels,
+                embeddingModelIndexes,
+                visionModelIndexes,
+                toolsModelIndexes,
+            );
+            props.onPostMessage(message);    
+        }
+
+        setModels(_selectedModels);
+    }, [props, setModels]);
 
     const onAddUserDefinedModel = React.useCallback((modelName: string, llmFeature: types.api.LlmFeature) => {
         const newModel: types.api.LmProviderBaseModelInfo = {
@@ -244,5 +237,65 @@ const LmProviderUpdatePage = (props: Props) => {
         </>);    
     }
 };
+
+function getSelectedModelData(models: types.api.LmProviderBaseModelInfo[]): {
+    selectedModels: string[],
+    embeddingModelIndexes: number[],
+    visionModelIndexes: number[],
+    toolsModelIndexes: number[],
+} {
+    const selectedModels = models.filter(model => model.selected);
+    const embeddingTag: types.api.LlmFeature = "embedding";
+    const visionTag: types.api.LlmFeature = "vision";
+    const toolsTag: types.api.LlmFeature = "tools";
+    const embeddingModelIndexes: number[] = [];
+    const visionModelIndexes: number[] = [];
+    const toolsModelIndexes: number[] = [];
+    for (const model of selectedModels) {
+        if (model.tags.includes(embeddingTag)) {
+            embeddingModelIndexes.push(selectedModels.indexOf(model));
+        }
+        if (model.tags.includes(visionTag)) {
+            visionModelIndexes.push(selectedModels.indexOf(model));
+        }
+        if (model.tags.includes(toolsTag)) {
+            toolsModelIndexes.push(selectedModels.indexOf(model));
+        }
+    }
+    return {
+        selectedModels: selectedModels.map(model => model.id),
+        embeddingModelIndexes,
+        visionModelIndexes,
+        toolsModelIndexes,
+    };    
+}
+
+function createMessageApiUpdateLmProvider(
+    messageApiType: "api:updateLmProvider" | "api:updateLmProvider:modelSelection",
+    lmProviderId: string,
+    properties: Record<string, string> | null,
+    weight: number | null,
+    selectedModels: string[],
+    embeddingModelIndexes: number[],
+    visionModelIndexes: number[],
+    toolsModelIndexes: number[]
+): types.MessageApiUpdateLmProvider {
+    const request: types.api.UpdateLmProviderRequest = {
+        lmProviderId,
+        properties,
+        weight,
+        selectedModels,
+        embeddingModelIndexes,
+        visionModelIndexes,
+        toolsModelIndexes,
+    };
+
+    const message: types.MessageApiUpdateLmProvider = {
+        aifMessageType: "api",
+        type: messageApiType,
+        data: request,
+    };
+    return message;
+}
 
 export default LmProviderUpdatePage;

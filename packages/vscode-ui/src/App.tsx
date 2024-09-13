@@ -61,7 +61,7 @@ function App(props: Props) {
             (pageContext?.pageType === "agents") ? "Agent Details" :
             (pageContext?.pageType === "modelPlayground") ? "Playground" :
             (pageContext?.pageType === "functions") ? "Function Details" : 
-            (pageContext?.pageType === "updateLmProvider") ? "Update Language Model Provider" : null;
+            (pageContext?.pageType === "page:updateLmProvider") ? "Update Language Model Provider" : null;
 
         if (!pageName) {
             return null;
@@ -92,7 +92,7 @@ function App(props: Props) {
             data={(pageContext as types.PageContextFunctions).data}
             onPostMessage={onPostMessage}
         />,
-        "updateLmProvider": <LmProviderUpdatePage
+        "page:updateLmProvider": <LmProviderUpdatePage
             lmProviderId={(pageContext as types.PageContextUpdateLmProvider).data?.lmProviderId}
             onPostMessage={onPostMessage}
         />,
