@@ -86,6 +86,7 @@ class LmProviderAzureOpenAI(LmBaseProvider):
             weight=os.environ.get(self.props.keyPrefix + "MODELS_DEFAULT_WEIGHT"),
             supportUserDefinedModels=self.props.supportUserDefinedModels,
             models=models,
+            status=self._getStatus(),
         )
 
     def updateLmProvider(self, request: UpdateLmProviderRequest):

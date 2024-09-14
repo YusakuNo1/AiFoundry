@@ -66,6 +66,7 @@ class LmProviderOllama(LmBaseProvider):
             properties=properties,
             weight=os.environ.get(self.props.keyPrefix + "MODELS_DEFAULT_WEIGHT"),
             models=models,
+            status=self._getStatus(),
         )
 
 

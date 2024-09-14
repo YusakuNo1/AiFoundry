@@ -76,6 +76,7 @@ class LmProviderAwsBedrock(LmBaseProvider):
             weight=os.environ.get(self.props.keyPrefix + "MODELS_DEFAULT_WEIGHT"),
             supportUserDefinedModels=self.props.supportUserDefinedModels,
             models=models,
+            status=self._getStatus(),
         )
 
 

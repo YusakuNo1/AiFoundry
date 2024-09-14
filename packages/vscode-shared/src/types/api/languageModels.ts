@@ -36,6 +36,7 @@ export type LmProviderInfo = {
 	weight: number,
 	supportUserDefinedModels: boolean,
     models: LmProviderBaseModelInfo[],
+	status: string,
 }
 
 export type ListLmProvidersResponse = {

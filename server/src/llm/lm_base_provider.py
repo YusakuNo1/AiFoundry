@@ -7,7 +7,6 @@ from langchain_core.language_models.base import BaseLanguageModel
 from langchain_core.embeddings.embeddings import Embeddings
 from aif_types.languagemodels import LanguageModelInfo, LmProviderBaseModelInfo, LmProviderInfo, LmProviderProperty, UpdateLmProviderRequest
 from aif_types.llm import LlmFeature, LlmProvider
-from aif_types.system import LmProviderStatus
 from llm.i_lm_provider import ILmProvider
 from llm.llm_tools_utils import create_tool
 from llm.llm_uri_utils import BaseLlmInfo, getUriParams
@@ -43,13 +42,6 @@ class LmBaseProvider(ILmProvider):
         key = os.environ.get(self.props.keyPrefix + "API_KEY")
         return key is not None and len(key) > 0
 
-    def getLmProviderStatus(self) -> LmProviderStatus:
-        return LmProviderStatus(
-            id=self.getId(),
-            name=self.getName(),
-            status="available" if self.isHealthy() else "unavailable",
-        )
-    
     def canHandle(self, aif_uri: str):
         return aif_uri.startswith(f"{self.getId()}://")
 
@@ -155,6 +147,10 @@ class LmBaseProvider(ILmProvider):
         raise NotImplementedError("Subclasses must implement this method")
 
 
+    def _getStatus(self) -> str:
+        return "available" if self.isHealthy() else "unavailable"
+
+
     def getLanguageProviderInfo(self) -> LmProviderInfo:
         properties: dict[str, LmProviderProperty] = {
             self.props.keyPrefix + "API_KEY": {
@@ -175,6 +171,7 @@ class LmBaseProvider(ILmProvider):
             weight= weight if weight else DEFAULT_MODEL_WEIGHT,
             models=models,
             supportUserDefinedModels=self.props.supportUserDefinedModels,
+            status=self._getStatus(),
         )
 
     def _getModelsFromFile(self) -> LmProviderInfo:

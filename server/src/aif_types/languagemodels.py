@@ -38,6 +38,7 @@ class LmProviderInfo(BaseModel):
     weight: int
     supportUserDefinedModels: bool = False
     models: List[LmProviderBaseModelInfo]
+    status: str     # available or unavailable
 
 
 class ListLmProvidersResponse(BaseModel):

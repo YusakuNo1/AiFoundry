@@ -1,14 +1,14 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import type { types } from 'aifoundry-vscode-shared';
 import { consts } from 'aifoundry-vscode-shared';
 import DockerUtils from '../utils/DockerUtils';
 import MiscUtils from '../utils/MiscUtils';
-import { IViewProvider, VIEW_PROVIDER_RETRY_COUNT, VIEW_PROVIDER_RETRY_INTERVAL } from './base';
+import { IViewProvider, VIEW_PROVIDER_RETRY_INTERVAL } from './base';
 import AifPanel from '../panels/AifPanel';
 import AifTreeItem from '../types/AifTreeItem';
 import SystemAPI from '../api/SystemAPI';
 import AifPanelUtils from '../panels/AifPanelUtils';
+import LanguageModelsAPI from '../api/LanguageModelsAPI';
 
 
 const DefaultLmProviderWeight = 1000;
@@ -182,14 +182,17 @@ export class AifMainViewProvider implements IViewProvider {
 	private async _refreshLmProviders(): Promise<boolean> {
 		// Update the status of LM components
 		try {
-			const systemConfig: types.SystemConfig = await SystemAPI.getSystemConfig();
-			for (const key in systemConfig.lmProviderStatus) {
-				this._systemMenuItemMap[key] = {
-					...systemConfig.lmProviderStatus[key],
-					iconName: LmProviderIconMap[key] ?? UnknownLmProviderIcon,
-					weight: LmProviderWeightMap[key] ?? DefaultLmProviderWeight,
+			const lmProviders: types.api.ListLmProvidersResponse = await LanguageModelsAPI.listLmProviders();
+			for (const provider of lmProviders.providers) {
+				this._systemMenuItemMap[provider.lmProviderId] = {
+					id: provider.lmProviderId,
+					name: provider.name,
+					status: provider.status,
+					iconName: LmProviderIconMap[provider.lmProviderId] ?? UnknownLmProviderIcon,
+					weight: LmProviderWeightMap[provider.lmProviderId] ?? DefaultLmProviderWeight,
 				};
 			}
+
 			this._updateStoreSystemMenuItemMap();
 			this._onDidChangeTreeData.fire();
 			return true;	

@@ -1,9 +1,9 @@
 import { FunctionMetadata } from './api/functions';
 import { EmbeddingInfo } from './api/embeddings';
 import { AgentInfo } from './api/agents';
-import { SystemMenuItem } from './api/system';
 import { TextFormat } from './api/chat';
 import { UpdateLmProviderRequest, LmProviderInfo } from './api/languageModels';
+import { SystemMenuItem } from './menu';
 
 
 export type IMessage = {

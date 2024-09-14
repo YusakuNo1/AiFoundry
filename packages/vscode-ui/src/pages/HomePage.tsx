@@ -14,7 +14,7 @@ const HomePage = (props: Props) => {
     const systemMenuItemMap = useSelector((state: RootState) => state.serverData.systemMenuItemMap);
     const menuItemList = Object.values(systemMenuItemMap).sort((a, b) => a.weight - b.weight);
     const serverStatus = React.useMemo(() => {
-        const dockerSystemMenuItem = systemMenuItemMap[consts.DOCKER_SERVER_ID] as types.api.DockerSystemMenuItem;
+        const dockerSystemMenuItem = systemMenuItemMap[consts.DOCKER_SERVER_ID] as types.DockerSystemMenuItem;
         return dockerSystemMenuItem?.serverStatus ?? "unavailable";
     }, [systemMenuItemMap]);
 

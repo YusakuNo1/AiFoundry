@@ -31,14 +31,6 @@ class ILmProvider(metaclass=ABCMeta):
         """
         pass
 
-
-    @abstractmethod
-    def getLmProviderStatus(self) -> LmProviderStatus:
-        """
-        Get the status of language model providers
-        """
-        pass
-
     @abstractmethod
     def canHandle(self, aif_uri: str):
         """

@@ -1,5 +1,3 @@
-import * as api from './api';
-export { api };
-
+export * as api from './api';
 export * from './message';
-export * from './api/system';
+export * from './menu';

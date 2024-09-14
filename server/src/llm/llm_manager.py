@@ -60,13 +60,6 @@ class LlmManager:
 		return healthMap
 	
 
-	def getGetSystemConfig(self) -> GetSystemConfigResponse:
-		lmProviderStatus = {}
-		for provider in self.lmProviderMap.values():
-			lmProviderStatus[provider.getId()] = provider.getLmProviderStatus()
-		return GetSystemConfigResponse(lmProviderStatus=lmProviderStatus)
-
-
 	async def chat(self,
 		  request: CreateChatRequest,
 		  aif_session_id: str,
