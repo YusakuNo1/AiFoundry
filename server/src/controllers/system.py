@@ -12,13 +12,3 @@ def create_routers(llm_manager: LlmManager):
         return { "status": "ok" }
 
     return router
-
-
-def create_admin_routers(llm_manager: LlmManager):
-    router = APIRouter()
-
-    @router.get(ADMIN_CTRL_PREFIX + "/system/", tags=["system"])
-    async def get_system_config():
-        return exceptionHandler(llm_manager.getGetSystemConfig)
-
-    return router

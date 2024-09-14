@@ -12,7 +12,6 @@ def setup_controllers(app: FastAPI, llm_manager: LlmManager, debug: bool, author
 		app.include_router(languagemodels.create_admin_routers(llm_manager))
 		app.include_router(agents.create_admin_routers(llm_manager))
 		app.include_router(functions.create_admin_routers(llm_manager))
-		app.include_router(system.create_admin_routers(llm_manager))
 
 	if debug:
 		app.include_router(embeddings.create_debug_routers(llm_manager))

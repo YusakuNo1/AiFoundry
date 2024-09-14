@@ -4,9 +4,7 @@ from abc import ABCMeta, abstractmethod
 from langchain_core.language_models.base import BaseLanguageModel
 from langchain_core.embeddings.embeddings import Embeddings
 from aif_types.languagemodels import LanguageModelInfo, LmProviderInfo, UpdateLmProviderRequest
-from llm.llm_uri_utils import BaseLlmInfo
 from aif_types.llm import LlmFeature
-from aif_types.system import LmProviderStatus
 
 
 class ILmProvider(metaclass=ABCMeta):

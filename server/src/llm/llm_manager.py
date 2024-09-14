@@ -14,7 +14,6 @@ from aif_types.agents import CreateAgentRequest, CreateOrUpdateAgentResponse, Ag
 from aif_types.embeddings import CreateEmbeddingsRequest, CreateOrUpdateEmbeddingsResponse, EmbeddingMetadata, ListEmbeddingsResponse, UpdateEmbeddingMetadataRequest
 from aif_types.languagemodels import ListLanguageModelsResponse, LanguageModelInfo, UpdateLmProviderRequest, ListLmProvidersResponse
 from aif_types.functions import AifFunctionType, ListFunctionsResponse, CreateFunctionRequest, UpdateFunctionRequest, CreateOrUpdateFunctionResponse, FunctionMetadata
-from aif_types.system import GetSystemConfigResponse
 from llm._llm_manager_prompt_utils import get_prompt_template
 from database.database_manager import DatabaseManager
 from utils.aif_utils import create_aif_agent_uri
