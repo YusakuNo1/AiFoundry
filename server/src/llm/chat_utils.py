@@ -17,7 +17,6 @@ class ProcessAifAgentUriResponse(BaseModel):
 def process_aif_agent_uri(
     database_manager: DatabaseManager,
     aif_agent_uri: str,
-    system_prompt: str | None = None,
 ) -> ProcessAifAgentUriResponse:
     if is_aif_agent_uri(aif_agent_uri):
         agents = database_manager.list_agents()
@@ -27,12 +26,11 @@ def process_aif_agent_uri(
         else:
             agent = agents[0]
             aif_agent_uri = agent.base_model_uri
-            system_prompt = system_prompt if system_prompt else agent.system_prompt
             functions = [_load_local_functions(database_manager, function_asset_id) for function_asset_id in agent.function_asset_ids]
             return ProcessAifAgentUriResponse(
                 agent_uri=aif_agent_uri,
                 aif_rag_asset_ids=agent.rag_asset_ids,
-                system_prompt=system_prompt,
+                system_prompt=agent.system_prompt,
                 functions=functions,
             )
     else:

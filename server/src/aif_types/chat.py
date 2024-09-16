@@ -1,8 +1,9 @@
-from typing import List
 from enum import Enum
 from pydantic import BaseModel
-from sqlmodel import Field, SQLModel, JSON, Column
-from sqlalchemy.orm import relationship
+from sqlmodel import Field, SQLModel
+from fastapi import UploadFile
+from io import BytesIO
+
 
 class ChatRole(str, Enum):
     ASSISTANT = "assistant"
@@ -16,12 +17,12 @@ TextFormatPrompts = {
     "latex": "The response is in LaTeX format."
 }
 
-class CreateChatRequest(BaseModel):
-    system_prompt: str | None = None # mutually exclusive with header `aif-session-id`, if `aif-session-id` is present, this field will be ignored
-    # rag_asset_hint: str # how to use the hint, e.g. "use the following context to answer questions"
-    input: str | List[str]
-    outputFormat: str = "markdown"
-    name: str | None = None
+class ChatRequestFile:
+    file_name: str
+    file_buffer: BytesIO
+    def __init__(self, file: UploadFile):
+        self.file_name = file.filename
+        self.file_buffer = BytesIO(file.file.read())
 
 class CreateChatResponse(BaseModel):
     session_id: str
