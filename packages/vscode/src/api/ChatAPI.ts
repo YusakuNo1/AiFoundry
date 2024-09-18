@@ -2,35 +2,38 @@ import { Observable } from 'rxjs';
 import { consts, types } from 'aifoundry-vscode-shared';
 import { APIConfig } from "./config";
 import CookiesUtils from "./CookiesUtils";
-import ApiUtils from "../utils/ApiUtils";
 
 
 namespace ChatAPI {
     export function chat(
-        isStream: boolean,
+        input: string,
+        files: File[],
+        outputFormat: types.api.TextFormat,
         aifSessionId: string | null,
         aifAgentUri: string,
-        content: string,
-        outputFormat: types.api.TextFormat,
     ): Observable<string> {
-        const endpoint = `${APIConfig.getApiEndpoint()}/chat/${isStream ? "stream/" : ""}`;
+        const endpoint = `${APIConfig.getApiEndpoint()}/chat/?outputFormat=${outputFormat}`;
         const headers = new Headers();
-        headers.append("Content-Type", "application/json");
         if (aifSessionId) {
             headers.append("Cookie", `${consts.COOKIE_AIF_SESSION_ID}=${aifSessionId}`);
         }
         headers.append(consts.HEADER_AIF_AGENT_URI, aifAgentUri);
 
-        const body = {
-            input: content,
-            outputFormat,
-        };
+        const formData = new FormData();
+        formData.append("input", input);      
+
+        // Read files from FileList object "files", and then append them to formData
+        if (files) {
+            for (const file of files) {
+                formData.append("files", file);
+            }
+        }
 
         return new Observable<string>((subscriber) => {
             fetch(endpoint, {
                 method: "POST",
                 headers: headers,
-                body: JSON.stringify(body),
+                body: formData,
             }).then(async (response) => {
                 function outputError(message: string) {
                     subscriber.next(consts.Markup.ErrorPrefix);
@@ -39,7 +42,6 @@ namespace ChatAPI {
                 }
 
                 if (!response.ok || !response.body || !response.headers) {
-                    // throw new Error("Failed to send chat message");
                     outputError("Failed to send chat message");
                     return;
                 }
@@ -51,7 +53,6 @@ namespace ChatAPI {
 
                 const reader = response.body.getReader();
                 if (!reader) {
-                    // throw new Error("Failed to send chat message");
                     outputError("Failed to send chat message");
                     return;
                 }

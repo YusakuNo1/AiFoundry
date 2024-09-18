@@ -35,7 +35,7 @@ function App(props: Props) {
         if (message.aifMessageType === "api") {
             if ((message as types.MessageApi).type === "chat:sendMessage") {
                 store.dispatch(appendChatUserMessage({
-                    content: (message as types.MessageApiChatSendMessage).data.content,
+                    content: (message as types.MessageApiChatSendMessage).data.input,
                     contentTextFormat: (message as types.MessageApiChatSendMessage).data.contentTextFormat,
                 }));
             }

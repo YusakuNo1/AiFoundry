@@ -17,13 +17,6 @@ TextFormatPrompts = {
     "latex": "The response is in LaTeX format."
 }
 
-class ChatRequestFile:
-    file_name: str
-    file_buffer: BytesIO
-    def __init__(self, file: UploadFile):
-        self.file_name = file.filename
-        self.file_buffer = BytesIO(file.file.read())
-
 class CreateChatResponse(BaseModel):
     session_id: str
     response: str

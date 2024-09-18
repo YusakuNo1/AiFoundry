@@ -1,9 +1,9 @@
 from typing import List
-from sqlmodel import Field, SQLModel, JSON, Column
 from enum import Enum
 
 
-class LmProviderStatus(SQLModel):
-    id: str = Field(primary_key=True)
-    name: str
-    status: str     # available or unavailable
+class SystemConfig:
+    supported_file_exts: List[str]
+
+    def __init__(self, supported_file_exts: List[str]):
+        self.supported_file_exts = supported_file_exts

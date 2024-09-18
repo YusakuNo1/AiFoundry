@@ -1,66 +1,94 @@
 import * as vscode from 'vscode';
-import type { types } from 'aifoundry-vscode-shared';
-import { consts } from 'aifoundry-vscode-shared';
+import { consts, types } from 'aifoundry-vscode-shared';
+import AifPanelTypes from './types';
 import ChatAPI from '../api/ChatAPI';
 import LanguageModelsAPI from '../api/LanguageModelsAPI';
 import AifPanelUtils from './AifPanelUtils';
 import EmbeddingsAPI from '../api/EmbeddingsAPI';
 import FunctionsAPI from '../api/FunctionsAPI';
+import EmbeddingsCommands from '../commands/embeddings';
+import AgentsCommands from '../commands/agents';
+import FunctionsCommands from '../commands/functions';
+import FileUtils from '../utils/FileUtils';
 
 
 namespace AifPanelEvenHandlers {
+    export function webviewHostMsgEventHandler(message: types.IMessage, postMessage: (message: types.IMessage) => void): void {
+        const _message = message as types.MessageHostMsg;
+        if (_message.type === 'executeCommand') {
+            const _message = message as types.MessageHostMsgExecuteCommand;
+            vscode.commands.executeCommand(_message.data.command);
+        } else if (_message.type === 'showMessage') {
+            const _message = message as types.MessageHostMsgShowMessage;
+            if (_message.data.type === 'info') {
+                vscode.window.showInformationMessage(_message.data.message);
+            } else if (_message.data.type === 'warning') {
+                vscode.window.showWarningMessage(_message.data.message);
+            } else {
+                vscode.window.showErrorMessage(_message.data.message);
+            }
+        } else if (_message.type === 'chooseImageFiles') {
+            FileUtils.chooseFiles().then((fileSelection) => {
+                const message: types.MessageStoreUpdateFileSelection = {
+                    aifMessageType: "store:update",
+                    type: 'updateFileSelection',
+                    data: fileSelection,
+                };
+                postMessage(message);
+            });
+        }
+    }
+
+    export function webviewEditInfoEventHandler(message: types.IMessage, viewProviderMap: AifPanelTypes.ViewProviderMap | undefined): void {
+        const _message = message as types.MessageEditInfo;
+        if (viewProviderMap?.embeddings && types.MessageEditInfoEmbeddingsTypes.includes(_message.type as types.MessageEditInfoEmbeddingsType)) {
+            if (_message.type === 'UpdateEmbeddingName') {
+                const messageEditInfo = message as types.MessageEditInfoEmbeddingName;
+                EmbeddingsCommands.startUpdateEmbeddingNameFlow(viewProviderMap.embeddings, messageEditInfo.data.aifEmbeddingAssetId, messageEditInfo.data.name);
+            } else if (_message.type === 'UpdateEmbeddingDoc') {
+                const messageEditInfo = message as types.MessageEditInfoEmbeddingUpdateDoc;
+                EmbeddingsCommands.startUpdateEmbeddingDocumentFlow(viewProviderMap.embeddings, messageEditInfo.data.aifEmbeddingAssetId);
+            } else if (_message.type === 'DeleteEmbedding') {
+                const messageEditInfo = message as types.MessageEditInfoDeleteEmbedding;
+                EmbeddingsCommands.startDeleteEmbeddingFlow(viewProviderMap.embeddings, messageEditInfo.data.aifEmbeddingAssetId);
+            }
+        } else if (viewProviderMap?.agents && types.MessageEditInfoAgentsTypes.includes(_message.type as types.MessageEditInfoAgentsType)) {
+            if (_message.type === 'agent:update:name') {
+                const messageEditInfo = message as types.MessageEditInfoAgentName;
+                AgentsCommands.startupdateAgentNameFlow(viewProviderMap.agents, messageEditInfo.data.id, messageEditInfo.data.name);
+            } else if (_message.type === 'agent:update:systemPrompt') {
+                const messageEditInfo = message as types.MessageEditInfoAgentsystemPrompt;
+                AgentsCommands.startupdateAgentSystemPromptFlow(viewProviderMap.agents, messageEditInfo.data.id, messageEditInfo.data.system_prompt);
+            } else if (_message.type === 'agent:delete') {
+                const messageEditInfo = message as types.MessageEditInfodeleteAgent;
+                AgentsCommands.startdeleteAgentFlow(viewProviderMap.agents, messageEditInfo.data.id);
+            }
+        } else if (viewProviderMap?.functions && types.MessageEditInfoFunctionsTypes.includes(_message.type as types.MessageEditInfoFunctionsType)) {
+            if (_message.type === 'function:update:name') {
+                const updateNameMessage = message as types.MessageEditInfoFunctionUpdateName;
+                FunctionsCommands.startUpdateFunctionNameFlow(viewProviderMap.functions, updateNameMessage.data.id, updateNameMessage.data.name);
+            } else if (_message.type === 'function:openfile') {
+                const openFileMessage = message as types.MessageEditInfoFunctionOpenFile;
+                vscode.window.showTextDocument(vscode.Uri.file(openFileMessage.data.uri));
+            }
+        }
+    }
+
     export function webviewApiEventHandler(message: types.IMessage, postMessage: (message: types.IMessage) => void): void {
-        const apiMessage = message as types.MessageApi;
-        if (apiMessage.type === 'chat:history:get') {
-            const chatHistoryApiMessage = apiMessage as types.MessageApiGetChatHistory;
+        const _message = message as types.MessageApi;
+        if (_message.type === 'chat:history:get') {
+            const chatHistoryApiMessage = _message as types.MessageApiGetChatHistory;
             // ChatAPI.getChatHistory(chatHistoryApiMessage.data).then((response) => {
             // TODO: Implement ChatAPI.getChatHistory
-        } else if (apiMessage.type === 'chat:sendMessage') {
-            const chatSendApiMessage = apiMessage as types.MessageApiChatSendMessage;
-            const observable = ChatAPI.chat(
-                chatSendApiMessage.data.isStream,
-                chatSendApiMessage.data.aifSessionId,
-                chatSendApiMessage.data.aifAgentUri,
-                chatSendApiMessage.data.content,
-                chatSendApiMessage.data.contentTextFormat,
-            );
-
-            let aifSessionId: string | null = null;
-            observable.subscribe({
-                next: (content) => {
-                    if (!aifSessionId) {
-                        const result = consts.Markup.Varialbe.GetKeyValue(content);
-                        if (result && result.key === consts.COOKIE_AIF_SESSION_ID) {
-                            aifSessionId = result.value;
-                        }
-                    } else {
-                        const messsage: types.MessageStoreAppendToLastChatAssistantMessage = {
-                            aifMessageType: 'store:update',
-                            type: 'appendToLastChatAssistantMessage',
-                            data: {
-                                aifSessionId,
-                                chunk: content,
-                                contentTextFormat: chatSendApiMessage.data.contentTextFormat,
-                            },
-                        };
-                        postMessage(messsage);	
-                    }
-                },
-                error: (error) => {
-                    // TODO: show error in UI
-                    // console.error('* * ChatAPI error:', error);
-                },
-                complete: () => {
-                    // console.log('* * ChatAPI complete');
-                },
-            });
-        } else if (apiMessage.type === "api:updateLmProvider" || apiMessage.type === "api:updateLmProvider:modelSelection") {
-            const message = apiMessage as types.MessageApiUpdateLmProvider;
+        } else if (_message.type === 'chat:sendMessage') {
+            _chatSendMessage(_message, postMessage);
+        } else if (_message.type === "api:updateLmProvider" || _message.type === "api:updateLmProvider:modelSelection") {
+            const message = _message as types.MessageApiUpdateLmProvider;
             LanguageModelsAPI.updateLmProvider(message.data as types.api.UpdateLmProviderRequest)
                 .then(response => _postMessageUpdateLmProviders(response, postMessage))
                 .then(() => vscode.commands.executeCommand('AiFoundry.refreshMainView', 1))
                 .then(() => {
-                    if (apiMessage.type === "api:updateLmProvider") {
+                    if (_message.type === "api:updateLmProvider") {
                         vscode.window.showInformationMessage("Language model provider setup successfully");
                         const setPageMessage = AifPanelUtils.createMessageSetPageHome();
                         postMessage(setPageMessage);
@@ -69,13 +97,13 @@ namespace AifPanelEvenHandlers {
                 .catch((error) => {
                     vscode.window.showErrorMessage("Error updating language model provider: " + error);
                 });
-        } else if (apiMessage.type === "api:listLmProviders") {
+        } else if (_message.type === "api:listLmProviders") {
             LanguageModelsAPI.listLmProviders()
                 .then(response => _postMessageUpdateLmProviders(response, postMessage))
                 .catch((error) => {
                     vscode.window.showErrorMessage("Error listing language model providers: " + error);
                 });
-        } else if (apiMessage.type === "api:getEmbeddings") {
+        } else if (_message.type === "api:getEmbeddings") {
             EmbeddingsAPI.getEmbeddings()
                 .then(response => {
                     const message: types.MessageStoreUpdateEmbeddings = {
@@ -90,7 +118,7 @@ namespace AifPanelEvenHandlers {
                 .catch((error) => {
                     vscode.window.showErrorMessage("Error getting embeddings: " + error);
                 });
-        } else if (apiMessage.type === "api:listFunctions") {
+        } else if (_message.type === "api:listFunctions") {
             FunctionsAPI.listFunctions()
                 .then(response => {
                     const message: types.MessageStoreUpdateFunctions = {
@@ -117,6 +145,56 @@ namespace AifPanelEvenHandlers {
             },
         };
         postMessage(message);
+    }
+
+    async function _chatSendMessage(_message: types.IMessage, postMessage: (message: types.IMessage) => void) {
+        const chatSendApiMessage = _message as types.MessageApiChatSendMessage;
+        const localFileSelection = FileUtils.getLocalFileSelection();
+        const files: File[] = [];
+        if (localFileSelection) {
+            for (const fileInfo of localFileSelection.files) {
+                const file = await FileUtils.getFile(fileInfo.uri);
+                files.push(file);
+            }
+        }
+
+        const observable = ChatAPI.chat(
+            chatSendApiMessage.data.input,
+            files,
+            chatSendApiMessage.data.contentTextFormat,
+            chatSendApiMessage.data.aifSessionId,
+            chatSendApiMessage.data.aifAgentUri,
+        );
+
+        let aifSessionId: string | null = null;
+        observable.subscribe({
+            next: (content) => {
+                if (!aifSessionId) {
+                    const result = consts.Markup.Varialbe.GetKeyValue(content);
+                    if (result && result.key === consts.COOKIE_AIF_SESSION_ID) {
+                        aifSessionId = result.value;
+                    }
+                } else {
+                    const messsage: types.MessageStoreAppendToLastChatAssistantMessage = {
+                        aifMessageType: 'store:update',
+                        type: 'appendToLastChatAssistantMessage',
+                        data: {
+                            aifSessionId,
+                            chunk: content,
+                            contentTextFormat: chatSendApiMessage.data.contentTextFormat,
+                        },
+                    };
+                    postMessage(messsage);	
+                }
+            },
+            error: (error) => {
+                // TODO: show error in UI
+                // console.error('* * ChatAPI error:', error);
+            },
+            complete: () => {
+                // console.log('* * ChatAPI complete');
+            },
+        });
     }
 }
 

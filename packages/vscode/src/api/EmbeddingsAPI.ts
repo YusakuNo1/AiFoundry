@@ -4,6 +4,7 @@ import { APIConfig } from "./config";
 import { File } from "buffer";
 import { consts } from 'aifoundry-vscode-shared';
 import ApiUtils from "../utils/ApiUtils";
+import FileUtils from "../utils/FileUtils";
 
 
 let formData = new FormData();
@@ -73,13 +74,8 @@ namespace EmbeddingsAPI {
 
         formData = new FormData();
         for (const fileUri of fileUriList) {
-            const document = await workspace.fs.readFile(fileUri);
-            const documentBlob = new Blob([document], {
-                type: "application/octet-stream",
-            });
-			const fileName = fileUri.fsPath.split('/').pop() ?? '';
-            const file = new File([documentBlob], fileName);
-            formData.append("files", file);
+            const file = FileUtils.getFile(fileUri);
+            formData.append("files", file as any);
         }
 
         const headers = new Headers();

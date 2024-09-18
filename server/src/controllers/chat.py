@@ -1,10 +1,14 @@
-import uuid
+import io, uuid
 from typing import List, Optional
 from fastapi import APIRouter, Header, Cookie, Query, UploadFile, HTTPException
 from fastapi.responses import StreamingResponse
+from PIL import Image
 from llm.llm_manager import LlmManager
 from consts import HEADER_AIF_AGENT_URI, COOKIE_AIF_SESSION_ID
-from aif_types.chat import ChatRequestFile
+from aif_types.common import RequestFileInfo
+from consts import IMAGE_EXTENSION_INFO
+from utils.image_utils import convert_to_base64
+from utils.request_utils import createRequestFileInfo
 
 
 def create_routers(llm_manager: LlmManager):
@@ -37,12 +41,23 @@ def create_routers(llm_manager: LlmManager):
             else:
                 raise HTTPException(status_code=400, detail="Input must be a string or a list of strings")
 
+        # files = [] if not files else [RequestFileInfo(file) for file in files]
+
+        # Only support image files for now
+        requestFileInfoList: List[RequestFileInfo] = []
+        if files is not None:
+            for file in files:
+                requestFileInfo = await createRequestFileInfo(file)
+                if requestFileInfo:
+                    requestFileInfoList.append(requestFileInfo)
+
+
         process_output = llm_manager.chat(
             aif_session_id=aif_session_id,
             aif_agent_uri=aif_agent_uri,
             outputFormat=output,
             input=input,
-            files=[ChatRequestFile(file) for file in files],
+            requestFileInfoList=requestFileInfoList,
         )
 
         response = StreamingResponse(process_output, media_type="text/event-stream")

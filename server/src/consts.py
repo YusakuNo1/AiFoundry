@@ -16,3 +16,22 @@ EMBEDDINGS_FOLDER_NAME = "embeddings"
 
 # Linkbreak for the response, not sure why "\n" is not working
 RESPONSE_LINEBREAK = "<br />"
+
+IMAGE_EXTENSION_INFO = {
+    "jpeg": {
+        "format": "jpeg",
+        "mime_type": "image/jpeg",
+    },
+    "jpg": {
+        "format": "jpeg",
+        "mime_type": "image/jpeg",
+    },
+    "png": {
+        "format": "png",
+        "mime_type": "image/png",
+    },
+    "gif": {
+        "format": "gif",
+        "mime_type": "image/gif",
+    },
+}

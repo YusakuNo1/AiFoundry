@@ -1,11 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { types } from "aifoundry-vscode-shared";
 
+
 interface ServerDataState {
     lmProviders: types.api.LmProviderInfo[] | null;
     systemMenuItemMap: Record<string, types.SystemMenuItem>;
     embeddings: types.api.EmbeddingInfo[];
 	functions: types.api.FunctionMetadata[];
+    fileSelection: types.FileSelection<types.FileInfo> | null;
 }
 
 const initialState: ServerDataState = {
@@ -13,6 +15,7 @@ const initialState: ServerDataState = {
     systemMenuItemMap: {},
     embeddings: [],
     functions: [],
+    fileSelection: null,
 };
 
 export const serverDataSlice = createSlice({
@@ -33,9 +36,22 @@ export const serverDataSlice = createSlice({
         updateFunctions: (state, action: PayloadAction<types.api.FunctionMetadata[]>) => {
             state.functions = action.payload;
         },
+        updateFileSelection: (state, action: PayloadAction<types.FileSelection<types.FileInfo>>) => {
+            state.fileSelection = action.payload;
+        },
+        clearFileSelection: (state) => {
+            state.fileSelection = null;
+        },
     },
 });
 
-export const { updateEmbeddings, updateFunctions, updateLmProviders, updateSystemMenuItemMap } = serverDataSlice.actions;
+export const {
+    updateEmbeddings,
+    updateFunctions,
+    updateLmProviders,
+    updateSystemMenuItemMap,
+    updateFileSelection,
+    clearFileSelection,
+} = serverDataSlice.actions;
 
 export default serverDataSlice.reducer;

@@ -116,54 +116,12 @@ class AifPanel {
 					}
 
 					case "hostMsg": {
-						if (message.type === 'executeCommand') {
-							const _message = message as types.MessageHostMsgExecuteCommand;
-							vscode.commands.executeCommand(_message.data.command);
-						} else if (message.type === 'showMessage') {
-							const _message = message as types.MessageHostMsgShowMessage;
-							if (_message.data.type === 'info') {
-								vscode.window.showInformationMessage(_message.data.message);
-							} else if (_message.data.type === 'warning') {
-								vscode.window.showWarningMessage(_message.data.message);
-							} else {
-								vscode.window.showErrorMessage(_message.data.message);
-							}
-						}
+						AifPanelEvenHandlers.webviewHostMsgEventHandler(msg as types.MessageHostMsg, AifPanel.postMessage);
 						break;
 					}
 
 					case "editInfo": {
-						if (AifPanel._viewProviderMap?.embeddings && types.MessageEditInfoEmbeddingsTypes.includes(message.type)) {
-							if (message.type === 'UpdateEmbeddingName') {
-								const messageEditInfo = message as types.MessageEditInfoEmbeddingName;
-								EmbeddingsCommands.startUpdateEmbeddingNameFlow(AifPanel._viewProviderMap.embeddings, messageEditInfo.data.aifEmbeddingAssetId, messageEditInfo.data.name);
-							} else if (message.type === 'UpdateEmbeddingDoc') {
-								const messageEditInfo = message as types.MessageEditInfoEmbeddingUpdateDoc;
-								EmbeddingsCommands.startUpdateEmbeddingDocumentFlow(AifPanel._viewProviderMap.embeddings, messageEditInfo.data.aifEmbeddingAssetId);
-							} else if (message.type === 'DeleteEmbedding') {
-								const messageEditInfo = message as types.MessageEditInfoDeleteEmbedding;
-								EmbeddingsCommands.startDeleteEmbeddingFlow(AifPanel._viewProviderMap.embeddings, messageEditInfo.data.aifEmbeddingAssetId);
-							}
-						} else if (AifPanel._viewProviderMap?.agents && types.MessageEditInfoAgentsTypes.includes(message.type)) {
-							if (message.type === 'agent:update:name') {
-								const messageEditInfo = message as types.MessageEditInfoAgentName;
-								AgentsCommands.startupdateAgentNameFlow(AifPanel._viewProviderMap.agents, messageEditInfo.data.id, messageEditInfo.data.name);
-							} else if (message.type === 'agent:update:systemPrompt') {
-								const messageEditInfo = message as types.MessageEditInfoAgentsystemPrompt;
-								AgentsCommands.startupdateAgentSystemPromptFlow(AifPanel._viewProviderMap.agents, messageEditInfo.data.id, messageEditInfo.data.system_prompt);
-							} else if (message.type === 'agent:delete') {
-								const messageEditInfo = message as types.MessageEditInfodeleteAgent;
-								AgentsCommands.startdeleteAgentFlow(AifPanel._viewProviderMap.agents, messageEditInfo.data.id);
-							}
-						} else if (AifPanel._viewProviderMap?.functions && types.MessageEditInfoFunctionsTypes.includes(message.type)) {
-							if (message.type === 'function:update:name') {
-								const updateNameMessage = message as types.MessageEditInfoFunctionUpdateName;
-								FunctionsCommands.startUpdateFunctionNameFlow(AifPanel._viewProviderMap.functions, updateNameMessage.data.id, updateNameMessage.data.name);
-							} else if (message.type === 'function:openfile') {
-								const openFileMessage = message as types.MessageEditInfoFunctionOpenFile;
-								vscode.window.showTextDocument(vscode.Uri.file(openFileMessage.data.uri));
-							}
-						}
+						AifPanelEvenHandlers.webviewEditInfoEventHandler(msg as types.MessageEditInfo, AifPanel._viewProviderMap);
 						break;
 					}
 

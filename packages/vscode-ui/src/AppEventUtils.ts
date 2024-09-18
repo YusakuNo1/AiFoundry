@@ -6,7 +6,13 @@ import {
     appendToLastChatAssistantMessage,
     updateLastChatAssistantMessage,
 } from "./store/chatInfoSlice";
-import { updateEmbeddings, updateFunctions, updateLmProviders, updateSystemMenuItemMap } from "./store/serverDataSlice";
+import {
+    updateEmbeddings,
+    updateFileSelection,
+    updateFunctions,
+    updateLmProviders,
+    updateSystemMenuItemMap,
+} from "./store/serverDataSlice";
 
 
 namespace AppEventUtils {
@@ -63,6 +69,9 @@ namespace AppEventUtils {
                 } else if (message.type === "updateFunctions") {
                     const data = (message as types.MessageStoreUpdateFunctions).data;
                     store.dispatch(updateFunctions(data.functions));
+                } else if (message.type === "updateFileSelection") {
+                    const data = (message as types.MessageStoreUpdateFileSelection).data;
+                    store.dispatch(updateFileSelection(data));
                 }
             }
         });

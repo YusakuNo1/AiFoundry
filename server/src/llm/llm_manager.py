@@ -2,7 +2,7 @@ import uuid
 from typing import Dict, List, Callable, AsyncIterable
 from dotenv import load_dotenv
 from pydantic.v1.error_wrappers import ValidationError as PydanticV1ValidationError
-from fastapi import HTTPException, UploadFile
+from fastapi import HTTPException
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from langchain_core.runnables import RunnablePassthrough
@@ -28,8 +28,8 @@ from llm.lm_provider_googlegemini import LmProviderGoogleGemini
 from llm.lm_provider_anthropic import LmProviderAnthropic
 from llm.lm_provider_huggingface import LmProviderHuggingFace
 from llm.lm_provider_aws_bedrock import LmProviderAwsBedrock
-from llm.debugUtils import DebugPromptHandler
-from aif_types.chat import ChatRequestFile, TextFormats
+from aif_types.common import RequestFileInfo
+from aif_types.system import SystemConfig
 from llm.lm_rag_utils import create_context_id
 from consts import RESPONSE_LINEBREAK
 from utils.exception_utils import extraValidationErrorMessage
@@ -57,20 +57,24 @@ class LlmManager:
 		for provider in self.lmProviderMap.values():
 			healthMap[provider.getId()] = provider.isHealthy()
 		return healthMap
-	
+
+
+	def get_system_config(self) -> SystemConfig:
+		raise NotImplementedError("Not implemented")
+
 
 	async def chat(self,
 		aif_session_id: str,
 		aif_agent_uri: str,
 		outputFormat: str,
 		input: str | List[str],
-		files: List[ChatRequestFile] | None = None,
+		requestFileInfoList: List[RequestFileInfo] | None = None,
 	) -> AsyncIterable[str]:
 		try:
 			request_info = process_aif_agent_uri(self.database_manager, aif_agent_uri)
 			runnable = self._get_chat_runnable(
 				input=input,
-				files=files,
+				requestFileInfoList=requestFileInfoList,
 				outputFormat=outputFormat,
 				aif_session_id=aif_session_id,
 				request_info=request_info,
@@ -138,7 +142,7 @@ class LlmManager:
 		request_info: ProcessAifAgentUriResponse,
 		outputFormat: str,
 		input: str | List[str],
-		files: List[ChatRequestFile] | None = None,
+		requestFileInfoList: List[RequestFileInfo] | None = None,
 	):
 		input_chain = { "input": RunnablePassthrough() }
 		ragRetrieverList = []
@@ -157,7 +161,7 @@ class LlmManager:
 			system_prompt_str=request_info.system_prompt,
 			aif_session_id=aif_session_id,
 			input=input,
-			files=files,
+			requestFileInfoList=requestFileInfoList,
 			outputFormat=outputFormat,
 		)
 
