@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as sharp from 'sharp';
 import * as vscode from 'vscode';
 import { v4 as uuidv4 } from "uuid";
 import type { types } from 'aifoundry-vscode-shared';
@@ -8,13 +9,33 @@ namespace FileUtils {
 		return text.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
 	}
 
-	export async function getFile(uri: vscode.Uri): Promise<File> {
-		const document = await vscode.workspace.fs.readFile(uri);
-		const documentBlob = new Blob([document], {
+	// To save input tokens, scale down the image to smaller size
+	export async function convertToUploadImageFile(fileContent: Uint8Array, size: { width: number | undefined, height: number | undefined }, fsPath: string): Promise<File> {
+		const data = await sharp(fileContent)
+			.resize({
+				width: size.width,
+				height: size.height, 
+				fit: sharp.fit.inside,
+			})
+			.toFormat('jpeg')
+			.toBuffer();
+		const documentBlob = new Blob([data], {
 			type: "application/octet-stream",
 		}) as any;
-		const fileName = uri.fsPath.split('/').pop() ?? '';
+		
+		const fileName = fsPath.split('/').pop() ?? '';
 		return new File([documentBlob], fileName);
+	}
+
+	// Read image file to data URI
+	export async function convertToThumbnailDataUrl(fileContent: Uint8Array, size: { width: number | undefined, height: number | undefined }): Promise<string> {
+		const data = await sharp(fileContent)
+			.resize(size.width, size.height)
+			.toFormat('jpeg')
+			.toBuffer();
+		const base64Encoded = data.toString("base64");
+		const url = `data:image/jpeg;base64,${base64Encoded}`;
+		return url;
 	}
 
 	export type LocalFileInfo = types.FileInfo & {
@@ -60,6 +81,10 @@ namespace FileUtils {
 
 	export function getLocalFileSelection(): LocalFileSelection | null {
 		return _localFileSelection;
+	}
+
+	export function clearLocalFileSelection() {
+		_localFileSelection = null;
 	}
 }
 

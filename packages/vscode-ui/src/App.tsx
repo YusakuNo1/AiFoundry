@@ -30,29 +30,15 @@ type Props = {
 function App(props: Props) {
     const pageContext = useSelector((state: RootState) => state.pageInfo.pageContext);
 
-    const onPostMessage = React.useCallback((message: types.IMessage) => {
-        // For chat messages, update Redux first
-        if (message.aifMessageType === "api") {
-            if ((message as types.MessageApi).type === "chat:sendMessage") {
-                store.dispatch(appendChatUserMessage({
-                    content: (message as types.MessageApiChatSendMessage).data.input,
-                    contentTextFormat: (message as types.MessageApiChatSendMessage).data.contentTextFormat,
-                }));
-            }
-        }
-
-        props.vscode.postMessage(message);
-    }, [props.vscode]);
-
     React.useEffect(() => {
         // For some reasons, this useEffect will be called 2 times when the app is loaded, which causes the event listeners to be registered 2 times
         // and the ready message to be sent twice. The solution is to check it within registerEvents function.
         const result = AppEventUtils.registerEvents();
         if (result) {
             const readyMessage: types.IMessage = { aifMessageType: "webapp:ready" };
-            onPostMessage(readyMessage);
+            props.vscode.postMessage(readyMessage);
         }
-    }, [onPostMessage]);
+    }, [props.vscode]);
 
     const onClickHome = React.useCallback(() => store.dispatch(setPageContext({ pageType: "home" })), []);
 
@@ -73,30 +59,30 @@ function App(props: Props) {
         }
     }
 
-    const routeMap: Record<types.IPageContextPageType, React.ReactNode> = React.useMemo(() => ({
+    const routeMap: Record<types.IPageContextPageType, React.ReactNode> = {
         "home": <HomePage vscode={props.vscode} />,
         "embeddings": <EmbeddingDetailsPage
             data={(pageContext as types.PageContextEmbeddings).data}
-            onPostMessage={onPostMessage}
+            onPostMessage={props.vscode.postMessage}
         />,
         "agents": <AgentDetailsPage
             data={(pageContext as types.PageContextAgentDetails).data}
-            onPostMessage={onPostMessage}
+            onPostMessage={props.vscode.postMessage}
         />,
         "modelPlayground": <ModelPlaygroundPage
             aifAgentUri={(pageContext as types.PageContextModelPlayground).data?.aifAgentUri}
             outputFormat={(pageContext as types.PageContextModelPlayground).data?.outputFormat}
-            onPostMessage={onPostMessage}
+            onPostMessage={props.vscode.postMessage}
         />,
         "functions": <FunctionDetailsPage
             data={(pageContext as types.PageContextFunctions).data}
-            onPostMessage={onPostMessage}
+            onPostMessage={props.vscode.postMessage}
         />,
         "page:updateLmProvider": <LmProviderUpdatePage
             lmProviderId={(pageContext as types.PageContextUpdateLmProvider).data?.lmProviderId}
-            onPostMessage={onPostMessage}
+            onPostMessage={props.vscode.postMessage}
         />,
-    }), [props.vscode, pageContext, onPostMessage]);
+    };
 
     return (
         <BrowserRouter>

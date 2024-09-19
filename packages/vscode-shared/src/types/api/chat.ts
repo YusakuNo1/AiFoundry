@@ -12,10 +12,17 @@ export enum ChatRole {
     ASSISTANT = 'ASSISTANT',
 }
 
+export type ChatHistoryMessageFile = {
+    type: "image",
+    fileName: string,
+    dataUri: string,            // example: "data:image/gif;base64,[base64-content]"
+}
+
 export type ChatHistoryMessage = {
 	role: ChatRole,
     contentTextFormat: TextFormat,
 	content: string,
+    files?: ChatHistoryMessageFile[],
 }
 
 export type ChatHistory = {

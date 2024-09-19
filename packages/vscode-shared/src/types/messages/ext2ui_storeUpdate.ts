@@ -1,6 +1,6 @@
 import { FunctionMetadata } from '../api/functions';
 import { EmbeddingInfo } from '../api/embeddings';
-import { TextFormat } from '../api/chat';
+import { ChatHistoryMessageFile, TextFormat } from '../api/chat';
 import { LmProviderInfo } from '../api/languageModels';
 import { SystemMenuItem } from '../menu';
 import { FileInfo, FileSelection } from '../store/serverData';
@@ -8,6 +8,7 @@ import * as shared from "./shared";
 
 export const IStoreUpdateTypes = [
     "appendChatAssistantMessage",
+    "appendChatUserMessage",
     "appendToLastChatAssistantMessage",
     "updateLastChatAssistantMessage",
     "updateSystemMenuItemMap",
@@ -15,18 +16,27 @@ export const IStoreUpdateTypes = [
     "updateEmbeddings",
     "updateFunctions",
     "updateFileSelection",
+    "clearFileSelection",
 ] as const;
 export type IStoreUpdateType = typeof IStoreUpdateTypes[number];
 export type IStoreUpdate = {
     aifMessageType: "store:update";
     type: IStoreUpdateType;
 }
-export type MessageStoreUpdateChatHistoryMessage = shared.IMessage & IStoreUpdate & {
+export type MessageStoreAppendChatAssistantMessage = shared.IMessage & IStoreUpdate & {
     type: "appendChatAssistantMessage",
     data: {
         aifSessionId: string;
         content: string;
         contentTextFormat: TextFormat;
+    };
+}
+export type MessageStoreAppendChatUserMessage = shared.IMessage & IStoreUpdate & {
+    type: "appendChatUserMessage",
+    data: {
+        content: string;
+        contentTextFormat: TextFormat;
+        files: ChatHistoryMessageFile[],
     };
 }
 export type MessageStoreAppendToLastChatAssistantMessage = shared.IMessage & IStoreUpdate & {
@@ -72,4 +82,8 @@ export type MessageStoreUpdateFunctions = shared.IMessage & IStoreUpdate & {
 export type MessageStoreUpdateFileSelection = shared.IMessage & IStoreUpdate & {
     type: "updateFileSelection",
     data: FileSelection<FileInfo>;
+}
+export type MessageStoreClearFileSelection = shared.IMessage & IStoreUpdate & {
+    type: "clearFileSelection",
+    data: null;
 }

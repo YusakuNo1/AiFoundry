@@ -3,10 +3,12 @@ import { store } from "./store/store";
 import { pageInfoSlice } from "./store/pageInfoSlice";
 import {
     appendChatAssistantMessage,
+    appendChatUserMessage,
     appendToLastChatAssistantMessage,
     updateLastChatAssistantMessage,
 } from "./store/chatInfoSlice";
 import {
+    clearFileSelection,
     updateEmbeddings,
     updateFileSelection,
     updateFunctions,
@@ -32,13 +34,24 @@ namespace AppEventUtils {
                 const message: types.IStoreUpdate = event.data;
                 if (message.type === "appendChatAssistantMessage") {
                     const data = (
-                        message as types.MessageStoreUpdateChatHistoryMessage
+                        message as types.MessageStoreAppendChatAssistantMessage
                     ).data;
                     store.dispatch(
                         appendChatAssistantMessage({
                             aifSessionId: data.aifSessionId,
                             content: data.content,
                             contentTextFormat: data.contentTextFormat,
+                        })
+                    );
+                } else if (message.type === "appendChatUserMessage") {
+                    const data = (
+                        message as types.MessageStoreAppendChatUserMessage
+                    ).data;
+                    store.dispatch(
+                        appendChatUserMessage({
+                            content: data.content,
+                            contentTextFormat: data.contentTextFormat,
+                            files: data.files,
                         })
                     );
                 } else if (message.type === "appendToLastChatAssistantMessage") {
@@ -58,7 +71,7 @@ namespace AppEventUtils {
                     ).data;
                     store.dispatch(updateSystemMenuItemMap(data));
                 } else if (message.type === "updateLastChatAssistantMessage") {
-                    const data = (message as types.MessageStoreUpdateChatHistoryMessage).data;
+                    const data = (message as types.MessageStoreAppendChatAssistantMessage).data;
                     store.dispatch(updateLastChatAssistantMessage(data));
                 } else if (message.type === "updateLmProviders") {
                     const data = (message as types.MessageStoreUpdateLmProviders).data;
@@ -72,6 +85,8 @@ namespace AppEventUtils {
                 } else if (message.type === "updateFileSelection") {
                     const data = (message as types.MessageStoreUpdateFileSelection).data;
                     store.dispatch(updateFileSelection(data));
+                } else if (message.type === "clearFileSelection") {
+                    store.dispatch(clearFileSelection());
                 }
             }
         });

@@ -24,12 +24,17 @@ export const chatInfoSlice = createSlice({
             state.aifSessionId = action.payload.id;
             state.messages = action.payload.messages;
         },
-        appendChatUserMessage: (state, action: PayloadAction<{ content: string, contentTextFormat: types.api.TextFormat }>) => {
+        appendChatUserMessage: (state, action: PayloadAction<{
+            content: string,
+            contentTextFormat: types.api.TextFormat,
+            files: types.api.ChatHistoryMessageFile[],
+        }>) => {
             // For user chat message, always append it since it's from local, we have no session ID
             state.messages.push({
                 role: types.api.ChatRole.USER,
                 content: action.payload.content,
                 contentTextFormat: action.payload.contentTextFormat,
+                files: action.payload.files,
             });
         },
 

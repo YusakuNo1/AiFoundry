@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useSelector } from "react-redux";
 import { DefaultButton, TextField, Stack } from '@fluentui/react';
+import { Image } from '@fluentui/react-components';
 import {
     EmojiLaughRegular as UserIcon,
     LightbulbFilamentRegular as AiIcon,
@@ -120,6 +121,13 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
                     <Text style={{ color: textColor, marginLeft: '8px', marginRight: '8px' }}>
                         <div style={{ marginLeft: '8px', marginRight: '8px' }} dangerouslySetInnerHTML={{ __html: message.convertedContent ?? message.content }} />
                     </Text>
+                    {message.files && <>
+                        {message.files.map((file, index) => {
+                            return (
+                                <Image key={`file-${index}`} src={file.dataUri} alt={file.fileName} style={{ padding: '2px', border: 2, borderColor: 'black' }} />
+                            );
+                        })}
+                    </>}
                 </Stack.Item>
                 <Stack.Item styles={{ root: { width: ICON_SIZE } }}>
                     <AiIcon style={{ width: ICON_SIZE, height: ICON_SIZE, visibility: !isUser ? "visible" : "hidden" }} />

@@ -14,7 +14,7 @@ type Props = {
     onAddUserDefinedModel: (modelName: string, llmFeature: types.api.LlmFeature) => void;
 }
 const LmProviderUpdatePageExpandableInput = (props: Props) => {
-    const addModelInputRef = React.useRef<HTMLInputElement>(null);
+    const [modelName, setModelName] = React.useState<string>("");
     const [modelMap, setModelMap] = React.useState<Record<string, types.api.LmProviderBaseModelInfo>>({});
     const [excludedModels, setExcludedModels] = React.useState<types.api.LmProviderBaseModelInfo[]>([]);
 
@@ -55,15 +55,13 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
         props.onChange([ ...Object.values(newModelMap), ...excludedModels ]);
     }, [modelMap, props, excludedModels]);
 
-    const onAddUserDefinedModel = React.useCallback(() => {
-        const modelName = addModelInputRef.current?.value;
-        if (!modelName || modelName.trim() === "") {
+    const onAddUserDefinedModel = React.useCallback((event: any) => {
+        if (modelName.trim() === "") {
             return;
         }
-
         props.onAddUserDefinedModel(modelName, props.llmFeature);
-        addModelInputRef.current!.value = "";
-    }, [addModelInputRef, props]);
+        setModelName("");
+    }, [props, modelName]);
 
     const inputStyle = { width: "100%" };
 
@@ -77,7 +75,7 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
             />
         )} />
         {props.supportUserDefinedModels && (<Stack horizontal>
-            <Input ref={addModelInputRef} placeholder="<model> or <model>:<version>" style={inputStyle} />
+            <Input placeholder="<model> or <model>:<version>" style={inputStyle} onChange={event => setModelName(event.target.value)} value={modelName} />
             <Button style={{ marginLeft: "8px" }} onClick={onAddUserDefinedModel}>Add</Button>
         </Stack>)}
     </>)
