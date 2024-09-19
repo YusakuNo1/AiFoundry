@@ -74,7 +74,7 @@ namespace EmbeddingsAPI {
 
         formData = new FormData();
         for (const fileUri of fileUriList) {
-            const file = FileUtils.getFile(fileUri);
+            const file = await FileUtils.getFile(fileUri);
             formData.append("files", file as any);
         }
 

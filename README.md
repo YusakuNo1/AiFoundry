@@ -1,3 +1,15 @@
+# Releases
+## Version 0.2.0
+Support image to text
+![Image to text](media/intro_image_to_text.gif)
+
+## Version 0.1.0
+Initial release:
+1. Support 7 LLM providers
+2. RAG/embedding
+3. Function calling
+
+
 # Install
 
 Setup video:

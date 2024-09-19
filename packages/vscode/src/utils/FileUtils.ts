@@ -9,6 +9,15 @@ namespace FileUtils {
 		return text.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
 	}
 
+	export async function getFile(uri: vscode.Uri): Promise<File> {
+		const document = await vscode.workspace.fs.readFile(uri);
+		const documentBlob = new Blob([document], {
+			type: "application/octet-stream",
+		}) as any;
+		const fileName = uri.fsPath.split('/').pop() ?? '';
+		return new File([documentBlob], fileName);
+	}
+
 	// To save input tokens, scale down the image to smaller size
 	export async function convertToUploadImageFile(fileContent: Uint8Array, size: { width: number | undefined, height: number | undefined }, fsPath: string): Promise<File> {
 		const data = await sharp(fileContent)
