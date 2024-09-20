@@ -18,7 +18,7 @@ Setup video:
 
 ## Install AI Foundry VS Code extension
 * Download [VS Code](https://code.visualstudio.com/download) and install
-* Download AI Foundry VS Code extension [version 0.1.0](https://drive.google.com/file/d/1s-7jCrmDTwXigOZPuooSUP7JfkkezLiM/view?usp=sharing)
+* Download AI Foundry VS Code extension [version 0.2.0](https://drive.google.com/file/d/1SeksmC-PxCH1j2EFn_4lxkdY3hnbXO-c/view?usp=sharing)
 * Launch VS Code and choose `Extensions` from the activity bar (on the left by default)
 * Click the 3 dots at top right
 * Click `Install from VSIX` from the menu and choose the VS Code extension file (*.vsix)

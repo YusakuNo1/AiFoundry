@@ -8,8 +8,5 @@ src/**
 tsconfig.json
 vsc-extension-quickstart.md
 
-# !node_modules/aifoundry-vscode-shared/**
-# !node_modules/rxjs/**
-# node_modules/**
 ../../**
 ../**

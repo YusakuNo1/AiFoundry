@@ -6,6 +6,10 @@
 	"publisher": "aifoundry",
 	"keywords": [],
 	"author": "David Wu",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/YusakuNo1/AiFoundry.git"
+	},
 	"private": true,
 	"engines": {
 		"vscode": "^1.74.0"
