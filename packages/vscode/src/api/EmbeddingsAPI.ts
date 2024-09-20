@@ -1,7 +1,6 @@
 import { Uri, workspace } from "vscode";
 import type { types } from 'aifoundry-vscode-shared';
 import { APIConfig } from "./config";
-import { File } from "buffer";
 import { consts } from 'aifoundry-vscode-shared';
 import ApiUtils from "../utils/ApiUtils";
 import FileUtils from "../utils/FileUtils";
