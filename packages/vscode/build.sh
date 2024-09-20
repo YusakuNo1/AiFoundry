@@ -1,12 +1,18 @@
-mkdir -p node_modules/aifoundry-vscode-shared
-cp -r ../../node_modules/aifoundry-vscode-shared/* node_modules/aifoundry-vscode-shared
-rm -rf node_modules/aifoundry-vscode-shared/node_modules
+array=( "aifoundry-vscode-shared" "rxjs" "uuid" )
 
-mkdir -p node_modules/rxjs
-cp -r ../../node_modules/rxjs/* node_modules/rxjs
-rm -rf node_modules/rxjs/node_modules
+for i in "${array[@]}"
+do
+    echo "Copying $i"
+    mkdir -p node_modules/$i
+    cp -r ../../node_modules/$i/* node_modules/$i
+    rm -rf node_modules/$i/node_modules
+done
 
-vsce package
+# TODO: the VSCE is from https://github.com/microsoft/vscode-vsce, but removed dedup related code, fix it later to use the official one
+../../scripts/vsce/vsce package
 
-rm -rf node_modules/aifoundry-vscode-shared
-rm -rf node_modules/rxjs
+for i in "${array[@]}"
+do
+    echo "Deleting $i"
+    rm -rf node_modules/$i
+done

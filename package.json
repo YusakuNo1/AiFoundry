@@ -5,6 +5,7 @@
   "license": "MIT",
   "workspaces": [
     "packages/vscode-shared",
-    "packages/vscode-ui"
+    "packages/vscode-ui",
+    "packages/vscode"
   ]
 }

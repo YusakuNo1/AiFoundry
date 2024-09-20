@@ -1,8 +1,10 @@
 {
   "name": "aifoundry-vscode-shared",
   "version": "0.0.1",
+  "author": "",
+  "types": "./dist/index.d.ts",
+  "description": "",
   "main": "dist/index.js",
-  "license": "MIT",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w"

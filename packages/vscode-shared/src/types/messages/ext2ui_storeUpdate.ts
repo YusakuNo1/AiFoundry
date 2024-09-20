@@ -1,6 +1,6 @@
 import { FunctionMetadata } from '../api/functions';
 import { EmbeddingInfo } from '../api/embeddings';
-import { ChatHistoryMessageFile, TextFormat } from '../api/chat';
+import { TextFormat } from '../api/chat';
 import { LmProviderInfo } from '../api/languageModels';
 import { SystemMenuItem } from '../menu';
 import { FileInfo, FileSelection } from '../store/serverData';
@@ -8,15 +8,12 @@ import * as shared from "./shared";
 
 export const IStoreUpdateTypes = [
     "appendChatAssistantMessage",
-    "appendChatUserMessage",
     "appendToLastChatAssistantMessage",
     "updateLastChatAssistantMessage",
     "updateSystemMenuItemMap",
     "updateLmProviders",
     "updateEmbeddings",
     "updateFunctions",
-    "updateFileSelection",
-    "clearFileSelection",
 ] as const;
 export type IStoreUpdateType = typeof IStoreUpdateTypes[number];
 export type IStoreUpdate = {
@@ -29,14 +26,6 @@ export type MessageStoreAppendChatAssistantMessage = shared.IMessage & IStoreUpd
         aifSessionId: string;
         content: string;
         contentTextFormat: TextFormat;
-    };
-}
-export type MessageStoreAppendChatUserMessage = shared.IMessage & IStoreUpdate & {
-    type: "appendChatUserMessage",
-    data: {
-        content: string;
-        contentTextFormat: TextFormat;
-        files: ChatHistoryMessageFile[],
     };
 }
 export type MessageStoreAppendToLastChatAssistantMessage = shared.IMessage & IStoreUpdate & {

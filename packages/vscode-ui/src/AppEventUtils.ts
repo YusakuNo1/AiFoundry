@@ -3,14 +3,11 @@ import { store } from "./store/store";
 import { pageInfoSlice } from "./store/pageInfoSlice";
 import {
     appendChatAssistantMessage,
-    appendChatUserMessage,
     appendToLastChatAssistantMessage,
     updateLastChatAssistantMessage,
 } from "./store/chatInfoSlice";
 import {
-    clearFileSelection,
     updateEmbeddings,
-    updateFileSelection,
     updateFunctions,
     updateLmProviders,
     updateSystemMenuItemMap,
@@ -43,17 +40,6 @@ namespace AppEventUtils {
                             contentTextFormat: data.contentTextFormat,
                         })
                     );
-                } else if (message.type === "appendChatUserMessage") {
-                    const data = (
-                        message as types.MessageStoreAppendChatUserMessage
-                    ).data;
-                    store.dispatch(
-                        appendChatUserMessage({
-                            content: data.content,
-                            contentTextFormat: data.contentTextFormat,
-                            files: data.files,
-                        })
-                    );
                 } else if (message.type === "appendToLastChatAssistantMessage") {
                     const data = (
                         message as types.MessageStoreAppendToLastChatAssistantMessage
@@ -82,11 +68,6 @@ namespace AppEventUtils {
                 } else if (message.type === "updateFunctions") {
                     const data = (message as types.MessageStoreUpdateFunctions).data;
                     store.dispatch(updateFunctions(data.functions));
-                } else if (message.type === "updateFileSelection") {
-                    const data = (message as types.MessageStoreUpdateFileSelection).data;
-                    store.dispatch(updateFileSelection(data));
-                } else if (message.type === "clearFileSelection") {
-                    store.dispatch(clearFileSelection());
                 }
             }
         });

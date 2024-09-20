@@ -2,6 +2,8 @@
   "name": "aifoundry-vscode-ui",
   "version": "0.0.1",
   "description": "Compile AI Foundry frontend into a single JS file",
+  "keywords": [],
+  "author": "",
   "main": "dist/index.js",
   "scripts": {
     "start": "export REACT_APP_AIF_DEBUG=true && react-scripts start",

@@ -1,16 +1,19 @@
 import * as React from "react";
 import { useSelector } from "react-redux";
 import { DefaultButton, TextField, Stack } from '@fluentui/react';
-import { Image } from '@fluentui/react-components';
+import { Image as FluentUIImage } from '@fluentui/react-components';
 import {
     EmojiLaughRegular as UserIcon,
     LightbulbFilamentRegular as AiIcon,
   } from '@fluentui/react-icons';
 import { Text } from '@fluentui/react/lib/Text';
 import { Marked } from "marked";
-import { types } from "aifoundry-vscode-shared";
+import { types, consts } from "aifoundry-vscode-shared";
+import { appendChatUserMessage } from "../store/chatInfoSlice";
 import { getTextColor, getBackgroundColor, getChatBgColorUser, getChatBgColorAi } from "../Theme";
-import { RootState } from "../store/store";
+import { RootState, store } from "../store/store";
+import WebApiImageUtils from "../utils/WebApiImageUtils";
+
 
 interface Props {
     aifAgentUri: string;
@@ -27,6 +30,7 @@ type PageChatHistoryMessage = types.api.ChatHistoryMessage & {
 };
 
 const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
+    const inputRef = React.useRef<HTMLInputElement>(null);
     const textColor = React.useMemo(() => getTextColor(), []);
     const backgroundColor = React.useMemo(() => getBackgroundColor(), []);
     const chatBgColorUser = React.useMemo(() => getChatBgColorUser(), []);
@@ -35,7 +39,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
     const [pageChatHistoryMessages, setPageChatHistoryMessages] = React.useState<PageChatHistoryMessage[]>(chatHistoryMessages);
     const aifSessionId = useSelector((state: RootState) => state.chatInfo.aifSessionId);
     const [inputText, setInputText] = React.useState('');
-    const fileSelection = useSelector((state: RootState) => state.serverData.fileSelection);
+    const [chatHistoryMessageFiles, setChatHistoryMessageFiles] = React.useState<types.api.ChatHistoryMessageFile[]>([]);
 
     const marked = React.useMemo(() => {
         return new Marked();
@@ -90,25 +94,56 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
                 aifAgentUri: props.aifAgentUri,
                 contentTextFormat: props.outputFormat,
                 input: inputText,
+                files: chatHistoryMessageFiles,
             },
         };
         props.onPostMessage(message);
         setInputText("");
-    }, [props, aifSessionId, inputText]);
+
+        // Update Redux store for user chat message
+        const promises = chatHistoryMessageFiles.map((file) => {
+            return new Promise<types.api.ChatHistoryMessageFile>((resolve, reject) => {
+                WebApiImageUtils.resizeDataUrl(file.dataUri, { maxHeight: consts.THUMBNAIL_HEIGHT }).then((dataUri) => {
+                    resolve({ type: file.type, fileName: file.fileName, dataUri });
+                })
+            });
+        });
+        Promise.all(promises).then((thumbNailFiles) => {
+            store.dispatch(appendChatUserMessage({
+                content: inputText,
+                contentTextFormat: props.outputFormat,
+                files: thumbNailFiles,
+            }));
+        });
+
+        if (inputRef.current) {
+            inputRef.current.value = "";
+        }
+    }, [props, aifSessionId, inputText, chatHistoryMessageFiles, inputRef]);
 
     const onChangeInputText = React.useCallback((event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
         setInputText(newValue || "");
     }, [setInputText]);
 
-    const onClickFileUploadDialog = React.useCallback((event: any) => {
-        const message: types.MessageHostMsgChooseImageFiles = {
-            aifMessageType: "hostMsg",
-            type: "chooseImageFiles",
-            data: {
-            },
-        };
-        props.onPostMessage(message);
-    }, [props]);
+    // Upload file from HTML input element
+    const onClickFileUpload = React.useCallback((event: any) => {
+        async function process() {
+            const files = event?.target?.files ?? [];
+            const imageOptions = { maxWidth: consts.UPLOAD_IMAGE_MAX_WIDTH, maxHeight: consts.UPLOAD_IMAGE_MAX_HEIGHT };
+            const _chatHistoryMessageFiles: types.api.ChatHistoryMessageFile[] = [];
+            for await (const file of files) {
+                const dataUrl = await WebApiImageUtils.readImageFileToDataUrl(file, imageOptions);
+                _chatHistoryMessageFiles.push({
+                    type: "image",
+                    fileName: file.name,
+                    dataUri: dataUrl,
+                });
+            }
+            setChatHistoryMessageFiles(_chatHistoryMessageFiles);
+        }
+
+        process();
+    }, []);
 
     const renderMessageRow = (message: PageChatHistoryMessage, index: number) => {
         const isUser = message.role === types.api.ChatRole.USER;
@@ -124,7 +159,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
                     {message.files && <>
                         {message.files.map((file, index) => {
                             return (
-                                <Image key={`file-${index}`} src={file.dataUri} alt={file.fileName} style={{ padding: '2px', border: 2, borderColor: 'black' }} />
+                                <FluentUIImage key={`file-${index}`} src={file.dataUri} alt={file.fileName} style={{ padding: '2px', border: 2, borderColor: 'black' }} />
                             );
                         })}
                     </>}
@@ -152,8 +187,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
                     onKeyUp={(e) => e.key === 'Enter' && onPostMessage()}
                 />
                 <DefaultButton onClick={() => onPostMessage()}>Send</DefaultButton>
-                <DefaultButton onClick={onClickFileUploadDialog}>Upload</DefaultButton>
-                {fileSelection?.files && fileSelection?.files.length > 0 && <Text style={{ color: textColor, paddingRight: 8 }}>{`${fileSelection.files.length} files selected`}</Text>}
+                <input ref={inputRef} type="file" multiple title="Upload Images" placeholder="Upload Images" accept="image/png, image/jpeg" onChange={onClickFileUpload} />
             </Stack>
         </>
     );

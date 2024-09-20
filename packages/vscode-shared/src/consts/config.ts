@@ -6,5 +6,5 @@ export enum AifConfig {
 }
 
 export const THUMBNAIL_HEIGHT = 100;
-export const UPLOAD_IMAGE_MAX_WEIGHT = 800;
+export const UPLOAD_IMAGE_MAX_WIDTH = 800;
 export const UPLOAD_IMAGE_MAX_HEIGHT = 600;

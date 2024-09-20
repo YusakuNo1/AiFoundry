@@ -1,4 +1,4 @@
-import { TextFormat } from '../api/chat';
+import { ChatHistoryMessageFile, TextFormat } from '../api/chat';
 import { UpdateLmProviderRequest } from '../api/languageModels';
 import * as shared from "./shared";
 
@@ -29,7 +29,7 @@ export type MessageApiChatSendMessage = MessageApi & {
         aifAgentUri: string;
         contentTextFormat: TextFormat;
         input: string;
-        // files: RequestFileInfo[] | null; // It's much more efficient to put file loading logic in the extension side but not in the UI side
+        files: ChatHistoryMessageFile[];
     };
 };
 export type MessageApiUpdateLmProvider = MessageApi & {

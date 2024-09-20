@@ -18,7 +18,6 @@ import LmProviderUpdatePage from "./pages/LmProviderUpdatePage";
 import Layout from "./Layout";
 import { RootState, store } from "./store/store";
 import { setPageContext } from "./store/pageInfoSlice";
-import { appendChatUserMessage } from "./store/chatInfoSlice";
 import type { VSCodeInterface } from './types';
 import AppEventUtils from "./AppEventUtils";
 

@@ -27,15 +27,6 @@ namespace AifPanelEvenHandlers {
             } else {
                 vscode.window.showErrorMessage(_message.data.message);
             }
-        } else if (_message.type === 'chooseImageFiles') {
-            FileUtils.chooseFiles().then((fileSelection) => {
-                const message: types.MessageStoreUpdateFileSelection = {
-                    aifMessageType: "store:update",
-                    type: 'updateFileSelection',
-                    data: fileSelection,
-                };
-                postMessage(message);
-            });
         }
     }
 
@@ -149,46 +140,13 @@ namespace AifPanelEvenHandlers {
 
     async function _chatSendMessage(_message: types.IMessage, postMessage: (message: types.IMessage) => void) {
         const chatSendApiMessage = _message as types.MessageApiChatSendMessage;
-        const localFileSelection = FileUtils.getLocalFileSelection();
         const files: File[] = [];
-        const chatHistoryMessageFiles: types.api.ChatHistoryMessageFile[] = [];
-        const uploadFileImageSize = { width: consts.UPLOAD_IMAGE_MAX_WEIGHT, height: consts.UPLOAD_IMAGE_MAX_HEIGHT };
-        const thumbnailImageSize = { width: undefined, height: consts.THUMBNAIL_HEIGHT };
-        if (localFileSelection) {
-            for (const fileInfo of localFileSelection.files) {
-                const fileContent: Uint8Array = await vscode.workspace.fs.readFile(fileInfo.uri);
 
-                const file = await FileUtils.convertToUploadImageFile(fileContent, uploadFileImageSize, fileInfo.uri.fsPath);
-                files.push(file);
-
-                chatHistoryMessageFiles.push({
-                    type: "image",
-                    fileName: file.name,
-                    dataUri: await FileUtils.convertToThumbnailDataUrl(fileContent, thumbnailImageSize),
-                });
-            }
+        // Convert types.api.ChatHistoryMessageFile to File
+        for (const chatHistoryMessageFile of chatSendApiMessage.data.files) {
+            const file = await FileUtils.convertChatHistoryMessageFileToFile(chatHistoryMessageFile);
+            files.push(file);
         }
-
-        // Remove the list of the selected files
-        FileUtils.clearLocalFileSelection();
-        const messageStoreClearFileSelection: types.MessageStoreClearFileSelection = {
-            aifMessageType: "store:update",
-            type: 'clearFileSelection',
-            data: null,
-        };
-        postMessage(messageStoreClearFileSelection);
-
-        // Append the user message to the chat history
-        const messageStoreAppendChatUserMessage: types.MessageStoreAppendChatUserMessage = {
-            aifMessageType: "store:update",
-            type: 'appendChatUserMessage',
-            data: {
-                content: chatSendApiMessage.data.input,
-                contentTextFormat: chatSendApiMessage.data.contentTextFormat,
-                files: chatHistoryMessageFiles,        
-            }
-        };
-        postMessage(messageStoreAppendChatUserMessage);
 
         const observable = ChatAPI.chat(
             chatSendApiMessage.data.input,
