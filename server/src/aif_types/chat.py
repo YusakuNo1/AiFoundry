@@ -1,8 +1,8 @@
 from enum import Enum
+from typing import List
 from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
-from fastapi import UploadFile
-from io import BytesIO
+from aif_types.common import RequestFileInfo
 
 
 class ChatRole(str, Enum):
@@ -24,6 +24,7 @@ class CreateChatResponse(BaseModel):
 class ChatHistoryMessage(BaseModel):
     role: str
     content: str
+    files: List[RequestFileInfo]
 
 class ChatHistory(SQLModel, table=True):
     id: str = Field(primary_key=True)

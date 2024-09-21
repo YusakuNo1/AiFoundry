@@ -1,6 +1,5 @@
 import os
 import json
-import uuid
 from typing import List
 from fastapi import HTTPException
 from sqlmodel import SQLModel, create_engine
@@ -8,8 +7,9 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import Session
 
 from utils.assets_utils import get_assets_path
-from aif_types.embeddings import EmbeddingMetadata, CreateEmbeddingsRequest, CreateOrUpdateEmbeddingsResponse, ListEmbeddingsResponse, UpdateEmbeddingMetadataRequest
-from aif_types.agents import AgentMetadata, CreateAgentRequest, UpdateAgentRequest, CreateOrUpdateAgentResponse, ListAgentsResponse
+from aif_types.common import RequestFileInfo
+from aif_types.embeddings import EmbeddingMetadata
+from aif_types.agents import AgentMetadata, UpdateAgentRequest, CreateOrUpdateAgentResponse
 from aif_types.functions import FunctionMetadata, UpdateFunctionRequest, CreateOrUpdateFunctionResponse, DeleteFunctionResponse
 from aif_types.chat import ChatHistory, ChatHistoryMessage, ChatRole
 
@@ -76,19 +76,16 @@ class DatabaseManager:
             session.commit()
 
 
-    def add_chat_message(self, aif_agent_uri: str, id: str, role: ChatRole, content: str):
+    def add_chat_message(self, aif_agent_uri: str, id: str, role: ChatRole, content: str, files: List[RequestFileInfo] = []):
         with Session(self._engine) as session:
             chat_history = session.get(ChatHistory, id)
             if chat_history is None:
                 chat_history = ChatHistory(id=id, aif_agent_uri=aif_agent_uri, messages="[]")
                 session.add(chat_history)
 
-            messages_json = json.loads(chat_history.messages) if chat_history.messages else []
-            messages_json.append({
-                "role": role.name,
-                "content": content,
-            })
-
+            chatHistoryMessage = ChatHistoryMessage(role=role.name, content=content, files=files)
+            messages_json = json.loads(chat_history.messages)
+            messages_json.append(chatHistoryMessage.model_dump_json())
             chat_history.messages = json.dumps(messages_json)
             session.commit()
 
@@ -107,7 +104,10 @@ class DatabaseManager:
             messages_json = json.loads(chat_history.messages) if chat_history.messages else []
             messages = []
             for message in messages_json:
-                messages.append(ChatHistoryMessage(**message))
+                chatHistoryMessageJson = json.loads(message)
+                files = [RequestFileInfo(**file) for file in chatHistoryMessageJson["files"]]
+                chatHistoryMessage = ChatHistoryMessage(role=chatHistoryMessageJson["role"], content=chatHistoryMessageJson["content"], files=files)
+                messages.append(chatHistoryMessage)
             return messages
 
 

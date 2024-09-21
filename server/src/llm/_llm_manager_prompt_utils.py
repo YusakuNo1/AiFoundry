@@ -17,10 +17,10 @@ def get_prompt_template(
     database_manager: DatabaseManager,
     ragRetrieverList: List[VectorStoreRetriever],
     system_prompt_str: str | None,
-    aif_session_id: str | None,
+    aif_session_id: str,
     outputFormat: str,
-    input: str | List[str],
-    requestFileInfoList: List[RequestFileInfo] | None = None,
+    input: str,
+    requestFileInfoList: List[RequestFileInfo],
 ):
     system_prompt_template = system_prompt_str if system_prompt_str else ""
     if len(system_prompt_template) > 0 and TextFormatPrompts[outputFormat]:
@@ -40,14 +40,17 @@ def get_prompt_template(
     )
     messages = [system_prompt] if len(system_prompt_template) > 0 else []
 
-    if aif_session_id:
-        history_messages = database_manager.get_chat_history_messages(aif_session_id)
-        if history_messages is not None:
-            for message in history_messages:
-                if message.role == ChatRole.USER.name:
-                    messages.append(HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=[], template=message.content)))
-                else:
-                    messages.append(AIMessagePromptTemplate(prompt=PromptTemplate(input_variables=[], template=message.content)))
+    history_messages = database_manager.get_chat_history_messages(aif_session_id)
+    if history_messages is not None:
+        for message in history_messages:
+            if message.role == ChatRole.USER.name:
+                # messages.append(HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=[], template=message.content)))
+                messages.append(HumanMessage(content=_createInputMessage(
+                    input=message.content,
+                    requestFileInfoList=message.files,
+                )))
+            else:
+                messages.append(AIMessagePromptTemplate(prompt=PromptTemplate(input_variables=[], template=message.content)))
 
     messages.append(HumanMessage(content=_createInputMessage(
         input=input,
@@ -62,8 +65,8 @@ def get_prompt_template(
 
 
 def _createInputMessage(
-    input: str | List[str],
-    requestFileInfoList: List[RequestFileInfo] | None = None,
+    input: str,
+    requestFileInfoList: List[RequestFileInfo],
 ):
     content_parts = []
 

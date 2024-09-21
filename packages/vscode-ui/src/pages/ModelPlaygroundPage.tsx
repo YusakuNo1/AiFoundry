@@ -99,6 +99,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
         };
         props.onPostMessage(message);
         setInputText("");
+        setChatHistoryMessageFiles([]);
 
         // Update Redux store for user chat message
         const promises = chatHistoryMessageFiles.map((file) => {

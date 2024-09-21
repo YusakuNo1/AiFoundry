@@ -67,8 +67,8 @@ class LlmManager:
 		aif_session_id: str,
 		aif_agent_uri: str,
 		outputFormat: str,
-		input: str | List[str],
-		requestFileInfoList: List[RequestFileInfo] | None = None,
+		input: str,
+		requestFileInfoList: List[RequestFileInfo],
 	) -> AsyncIterable[str]:
 		try:
 			request_info = process_aif_agent_uri(self.database_manager, aif_agent_uri)
@@ -90,7 +90,7 @@ class LlmManager:
 					response = response + chunk.content
 					yield chunk.content
 
-				self.database_manager.add_chat_message(id=aif_session_id, aif_agent_uri=aif_agent_uri, role=ChatRole.USER, content=input)
+				self.database_manager.add_chat_message(id=aif_session_id, aif_agent_uri=aif_agent_uri, role=ChatRole.USER, content=input, files=requestFileInfoList)
 				self.database_manager.add_chat_message(id=aif_session_id, aif_agent_uri=aif_agent_uri, role=ChatRole.ASSISTANT, content=response)
 			else:
 				# For function calling, we need the full response to process the tools
@@ -116,7 +116,7 @@ class LlmManager:
 				response += tool_result
 				yield tool_result
 
-				self.database_manager.add_chat_message(id=aif_session_id, aif_agent_uri=aif_agent_uri, role=ChatRole.USER, content=input)
+				self.database_manager.add_chat_message(id=aif_session_id, aif_agent_uri=aif_agent_uri, role=ChatRole.USER, content=input, files=requestFileInfoList)
 				self.database_manager.add_chat_message(id=aif_session_id, aif_agent_uri=aif_agent_uri, role=ChatRole.ASSISTANT, content=response)
 
 		except Exception as e:
@@ -141,8 +141,8 @@ class LlmManager:
 		aif_session_id: str,
 		request_info: ProcessAifAgentUriResponse,
 		outputFormat: str,
-		input: str | List[str],
-		requestFileInfoList: List[RequestFileInfo] | None = None,
+		input: str,
+		requestFileInfoList: List[RequestFileInfo],
 	):
 		input_chain = { "input": RunnablePassthrough() }
 		ragRetrieverList = []
