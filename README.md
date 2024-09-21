@@ -96,3 +96,10 @@ Download source code: https://github.com/YusakuNo1/AiFoundry
 * For VS Code extension debugging, it's Node.js code, use `VS Code Instance 1`
 * For anything from VS Code extension "webview", which is the tab in file editor within VS Code window. Debug the code from `VS Code Instance 2` by launching `Inspect` with menu `Help -> Toggle Developer Tools` -- it's the same inspect like Chromium/Chrome/Edge, because VS Code is an Electron app.
 * For backend debugging, use `VS Code Instance 3`
+
+## Release
+### VS Code extension
+* Download vsce from this special branch: https://github.com/YusakuNo1/vscode-vsce/tree/main.yusakuno1
+* In vscode-vsce run command: `npm i && npm run compile`
+* Update `packages/vscode/build.sh` with the path for `vscode-vsce`, e.g. if `vscode-vsce` is in `/Users/david/vscode-vsce`, set `VSCE_HOME=/Users/david/vscode-vsce`
+ 
