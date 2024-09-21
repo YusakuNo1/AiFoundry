@@ -17,6 +17,13 @@ TextFormatPrompts = {
     "latex": "The response is in LaTeX format."
 }
 
+# class ChatRequest(BaseModel):
+#     system_prompt: str | None = None    # Deprecated. mutually exclusive with header `aif-session-id`, if `aif-session-id` is present, this field will be ignored
+#     # rag_asset_hint: str # how to use the hint, e.g. "use the following context to answer questions"
+#     input: str | List[str]
+#     outputFormat: str = "markdown"
+#     name: str | None = None             # Deprecated. 
+
 class CreateChatResponse(BaseModel):
     session_id: str
     response: str

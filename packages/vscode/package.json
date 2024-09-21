@@ -289,7 +289,10 @@
 		"lint": "eslint \"src/**/*.ts\""
 	},
 	"dependencies": {
+		"aifoundry-server-js": "*",
 		"aifoundry-vscode-shared": "*",
+		"express": "^4.21.0",
+		"server-js": "*",
 		"uuid": "^10.0.0"
 	},
 	"devDependencies": {

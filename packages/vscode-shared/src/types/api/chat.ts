@@ -29,3 +29,8 @@ export type ChatHistory = {
     id: string,
     messages: ChatHistoryMessage[],
 }
+
+export type ChatRequest = {
+    input: string,
+    outputFormat: TextFormat,
+}

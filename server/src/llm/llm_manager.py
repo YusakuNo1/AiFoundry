@@ -10,6 +10,7 @@ from langchain_core.runnables import RunnablePassthrough
 from llm.assets import create_or_update_embeddings, load_embeddings, delete_embedding
 from aif_types.llm import LlmProvider, LlmFeature
 from aif_types.chat import ChatHistory, ChatRole
+# from aif_types.chat import ChatRequest, ChatHistory, ChatRole
 from aif_types.agents import CreateAgentRequest, CreateOrUpdateAgentResponse, AgentMetadata, ListAgentsResponse, UpdateAgentRequest
 from aif_types.embeddings import CreateEmbeddingsRequest, CreateOrUpdateEmbeddingsResponse, EmbeddingMetadata, ListEmbeddingsResponse, UpdateEmbeddingMetadataRequest
 from aif_types.languagemodels import ListLanguageModelsResponse, LanguageModelInfo, UpdateLmProviderRequest, ListLmProvidersResponse
@@ -40,7 +41,7 @@ load_dotenv()  # take environment variables from .env.
 
 class LlmManager:
 	def __init__(self, database_manager: DatabaseManager):
-		self.chat_agent_map = {}
+		# self.chat_agent_map = {}
 		self.database_manager = database_manager
 		self.lmProviderMap: Dict[str, ILmProvider] = {}
 		self.lmProviderMap[LlmProvider.OLLAMA] = LmProviderOllama()

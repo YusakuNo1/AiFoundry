@@ -30,6 +30,7 @@
     "install": "^0.13.0",
     "marked": "^14.0.0",
     "npm": "^10.8.2",
+    "proc-log": "^5.0.0",
     "react": "^17.0.0 || ^18.0.0",
     "react-dom": "^17.0.0 || ^18.0.0",
     "react-redux": "^9.1.2",
@@ -39,6 +40,7 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "@npmcli/redact": "^2.0.1",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.101",
     "@types/react": "^18.3.3",

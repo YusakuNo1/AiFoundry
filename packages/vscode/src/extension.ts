@@ -1,6 +1,7 @@
 'use strict';
 import * as vscode from 'vscode';
-import { consts } from 'aifoundry-vscode-shared';
+import { consts, doSthInShared } from 'aifoundry-vscode-shared';
+import { setupServer } from 'aifoundry-server-js';
 import { VIEW_PROVIDER_RETRY_COUNT } from './viewProviders/base';
 import { AifMainViewProvider } from './viewProviders/main';
 import { AifAgentsViewProvider } from './viewProviders/agents';
@@ -14,6 +15,8 @@ import AifPanelTypes from './panels/types';
 import DockerUtils from './utils/DockerUtils';
 import LaunchUtils from './utils/launchUtils';
 import AifPanelUtils from './panels/AifPanelUtils';
+import { exec } from 'child_process';
+
 
 const mode: "dev" | "prod" = "prod";
 
@@ -23,6 +26,21 @@ export function activate(context: vscode.ExtensionContext) {
 	if (mode === "dev") {
 		LaunchUtils.installDevExtensions();
 	}
+
+
+
+	// exec("/usr/local/bin/node /Users/weiwu/Workspace/1_Ewo/AiFoundry/aifoundry/packages/vscode/media/server.js", (error, stdout, stderr) => {
+	// 	if (error) {
+	// 		console.error(`exec error: ${error}`);
+	// 		return;
+	// 	}
+	// 	console.log(`stdout: ${stdout}`);
+	// 	console.error(`stderr: ${stderr}`);
+	// });
+
+	doSthInShared();
+	setupServer();
+
 
 	const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;

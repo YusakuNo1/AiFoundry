@@ -1,0 +1,45 @@
+// @router.post("/chat/", tags=["chat"])
+// async def chat(
+//     request: CreateChatRequest,
+//     aif_agent_uri: str | None = Header(None, alias=HEADER_AIF_AGENT_URI),
+//     aif_session_id: str | None = Cookie(None, alias=COOKIE_AIF_SESSION_ID),
+// ):
+//     aif_session_id = aif_session_id if aif_session_id else str(uuid.uuid4())
+//     process_output = llm_manager.chat(
+//         request=request,
+//         aif_session_id=aif_session_id,
+//         aif_agent_uri=aif_agent_uri,
+//     )
+
+//     response = StreamingResponse(process_output, media_type="text/event-stream")
+//     response.set_cookie(key=COOKIE_AIF_SESSION_ID, value=aif_session_id)
+//     return response
+
+import * as express from "express";
+import { v4 as uuid } from "uuid";
+import ILmManager from "../lm/ILmManager";
+
+
+export function registerRoutes(router: express.Router, llmManager: ILmManager) {
+    router.post('/chat/', (req, res) => {
+        const aif_session_id = req.cookies.aif_session_id || uuid();
+        res.cookie('aif_session_id', aif_session_id);
+        // const aif_agent_uri = req.headers.aif_agent_uri;
+
+        // if (typeof aif_agent_uri !== 'string') {
+        //     res.status(400).type('text').send('Invalid aif_session_id');
+        //     return;
+        // }
+
+        const aif_agent_uri = (req.headers.aif_agent_uri ?? "mocked_aif_agent_uri") as string;
+        llmManager
+            .chat(req.body, aif_session_id, aif_agent_uri)
+            .subscribe({
+                next: (chunk) => res.write(chunk),
+                complete: () => res.end(),
+                error: (err) => res.status(500).type('text').send(err),
+            });
+    });
+
+    return router;
+}

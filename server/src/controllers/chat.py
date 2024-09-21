@@ -2,7 +2,7 @@ import io, uuid
 from typing import List, Optional
 from fastapi import APIRouter, Header, Cookie, Query, UploadFile, HTTPException
 from fastapi.responses import StreamingResponse
-from PIL import Image
+# from aif_types.chat import ChatHistory
 from llm.llm_manager import LlmManager
 from consts import HEADER_AIF_AGENT_URI, COOKIE_AIF_SESSION_ID
 from aif_types.common import RequestFileInfo

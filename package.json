@@ -4,6 +4,7 @@
   "private": true,
   "license": "MIT",
   "workspaces": [
+    "packages/server-js",
     "packages/vscode-shared",
     "packages/vscode-ui",
     "packages/vscode"
