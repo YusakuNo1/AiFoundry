@@ -23,12 +23,13 @@
             "type": "node",
             "request": "launch",
             "name": "Launch server-js",
-            "runtimeExecutable": "yarn",
             "cwd": "${workspaceFolder}/packages/server-js",
+            "runtimeExecutable": "npm",
             "runtimeArgs": [
-                "dev",
-                "--localserver"
-            ]
+                "run-script",
+                "start:watch"
+            ],
+            "port": 9229
         }
     ]
 }

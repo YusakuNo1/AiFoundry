@@ -28,4 +28,7 @@ export function setupServer() {
         console.log(`AI Foundry Server is running on port ${Config.SERVER_PORT}`);
     });
 }
-// setupServer();
+
+if (process.argv.length === 3 && process.argv[2] === "run") {
+    setupServer();
+}

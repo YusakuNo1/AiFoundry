@@ -4,6 +4,8 @@ import ILmProvider from './ILmProvider';
 import ILmManager from './ILmManager';
 import DatabaseManager from '../database/DatabaseManager';
 
+import { runLm, runEmbedding } from '../lm/LmProviderTmpAzureOpenAI';
+
 
 class LmManager implements ILmManager {
     private _lmProviderMap: Record<string, ILmProvider> = {};
@@ -73,18 +75,31 @@ class LmManager implements ILmManager {
 //           else:
 //               yield "Sorry, something went wrong"
 
-    chat(request: types.api.ChatRequest, aif_session_id: string, aif_agent_uri: string): Observable<string> {
+    chat(
+        aif_session_id: string,
+        aif_agent_uri: string,
+        outputFormat: types.api.TextFormat,
+        input: string,
+        requestFileInfoList: types.api.ChatHistoryMessageFile[],
+    ): Observable<string> {
         // const lmProvider = this._lmProviderMap[aif_agent_uri];
         // if (!lmProvider) {
         //     throw new Error(`No LM provider found for aif_agent_uri: ${aif_agent_uri}`);
         // }
 
+        runEmbedding(input).then(reponse => {
+            console.log(`Embedding response: ${reponse}`);
+        });
+
+
         // return lmProvider.chat(request, aif_session_id);
         return new Observable<string>((subscriber) => {
-            subscriber.next('Hello1~~');
-            subscriber.next('Hello2~~');
-            subscriber.next('Hello3~~');
-            subscriber.complete();
+            runLm(input).then(reponse => {
+                subscriber.next(reponse as any);
+                subscriber.complete();
+            }).catch(err => {
+                subscriber.error(err);
+            });
         });
     }
 }
