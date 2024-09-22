@@ -77,6 +77,4 @@ export function registerRoutes(router: express.Router, llmManager: ILmManager) {
             res.status(500).type('text').send(err);
         }
     });
-
-    return router;
 }

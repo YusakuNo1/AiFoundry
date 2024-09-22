@@ -1,13 +1,5 @@
-// import { OptionValues, program } from 'commander';
+class ServerConfig {
+    static useLocalServer = true;   // TODO: Express is not using in Docker, so it's always using local server
+}
 
-// class ServerConfig {
-//     static useLocalServer = false;
-
-//     static setup(args: OptionValues) {
-//         this.useLocalServer = args.localserver;
-//     }
-// }
-
-// export default ServerConfig;
-
-export const a = 0;
+export default ServerConfig;

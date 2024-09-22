@@ -1,15 +1,7 @@
-import * as dotenv from 'dotenv';
 // import { AzureOpenAI } from 'openai';
 import { AzureChatOpenAI, AzureOpenAIEmbeddings } from '@langchain/openai';
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 // import { MessageContent } from '@langchain/core';
-
-// // Load the .env file if it exists
-// const dotenv = require('dotenv');
-const assetsPath = process.env.ASSETS_PATH || 'assets';
-dotenv.config({
-    path: "~/.aifoundry/assets/.env",
-});
 
 const AZURE_OPENAI_API_DEPLOYMENT_NAME_LLM = "gpt-4o";
 const AZURE_OPENAI_API_DEPLOYMENT_NAME_EMBEDDING = "text-embedding-3-small";

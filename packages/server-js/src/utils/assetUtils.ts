@@ -1,22 +1,23 @@
+import * as os from 'os';
 import Config from '../config';
+import ServerConfig from '../config/ServerConfig';
+import * as path from 'path';
+
 
 namespace AssetUtils {
-//     def get_assets_path() -> str:
-//     projectFolder = AIFOUNDRY_LOCAL_SERVER_FOLDER_NAME if serverConfig.useLocalServer else ""
-//     return os.path.join(expanduser("~"), projectFolder, ASSETS_FOLDER_NAME)
-
-    export function getAssetsPath(useLocalServer: boolean): string {
-        // return `${Config.AIFOUNDRY_LOCAL_SERVER_FOLDER_NAME}/.aifoundry/assets`;
-        throw new Error("Not implemented");
+    export function getAssetsPath(): string {
+        const homedir = os.homedir();
+        const projectFolder = ServerConfig.useLocalServer ? Config.AIFOUNDRY_LOCAL_SERVER_FOLDER_NAME : ""
+        return path.join(homedir, projectFolder, Config.ASSETS_FOLDER_NAME);
     }
 
+    export function getFunctionsAssetPath() {
+        return path.join(getAssetsPath(), Config.FUNCTIONS_FOLDER_NAME);
+    }
 
-// def get_functions_asset_path() -> str:
-//     return os.path.join(get_assets_path(), FUNCTIONS_FOLDER_NAME)
-
-
-// def get_embeddings_asset_path() -> str:
-//     return os.path.join(get_assets_path(), EMBEDDINGS_FOLDER_NAME)
+    export function getEmbeddingsAssetPath() {
+        return path.join(getAssetsPath(), Config.EMBEDDINGS_FOLDER_NAME);
+    }
 }
 
 export default AssetUtils;
