@@ -9,6 +9,8 @@ interface ILmManager {
         input: string,
         requestFileInfoList: types.api.ChatHistoryMessageFile[],
     ): Observable<string>;
+
+    listAgents(): Promise<types.api.ListAgentsResponse>;
 }
 
 export default ILmManager;

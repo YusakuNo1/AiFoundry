@@ -1,15 +1,7 @@
-export type AgentInfo = {
-    id: string,
-    agent_uri: string,
-    name: string,
-    base_model_uri: string,
-    system_prompt: string,
-    rag_asset_ids: string[],
-    function_asset_ids: string[],
-}
+import { AgentMetadata } from "../database/agents";
 
 export type ListAgentsResponse = {
-	agents: AgentInfo[];
+	agents: AgentMetadata[];
 };
 
 export type CreateAgentRequest = {

@@ -8,12 +8,14 @@ import Config from './config';
 import ServerUtils from "./utils/serverUtils";
 import DatabaseManager from "./database/DatabaseManager";
 // import ServerConfig from "./config/ServerConfig";
+import { AgentMetadata } from "aifoundry-vscode-shared/dist/types/database";
+
 
 dotenv.config({
     path: `${os.homedir()}/.aifoundry/assets/.env`,
 });
 
-export function setupServer() {
+export async function setupServer() {
     // ServerConfig.setup(ServerUtils.getArgs());
     // const args = ServerUtils.getArgs();
     const args = {
@@ -24,18 +26,40 @@ export function setupServer() {
     const apiRouter = express.Router();
     app.use(cookieParser());
 
-    const databaseManager = new DatabaseManager(args.localserver);
-    const lmManager = new LmManager(databaseManager);
+    const databaseManager = new DatabaseManager();
 
-    controllers.system.registerRoutes(apiRouter, lmManager);
-    controllers.chat.registerRoutes(apiRouter, lmManager);
-    controllers.agents.registerAdminRoutes(apiRouter, lmManager);
+    try {
+        await databaseManager.setup(Config.SQLITE_FILE_NAME);
 
-    app.use('/', apiRouter);
 
-    app.listen(Config.SERVER_PORT, () => {
-        console.log(`AI Foundry Server is running on port ${Config.SERVER_PORT}`);
-    });
+        // const agentMetadata = new AgentMetadata();
+        // agentMetadata.id = '1';
+        // agentMetadata.name = 'Test Agent';
+        // agentMetadata.agent_uri = 'Test Agent URI';
+        // agentMetadata.system_prompt = 'Test System Prompt';
+        // agentMetadata.base_model_uri = 'Test Base Model URI';
+        // agentMetadata.rag_asset_ids = ['1', '2'];
+        // agentMetadata.function_asset_ids = ['1', '2'];
+        // await databaseManager.saveDbModel(agentMetadata);
+
+        // const agents = databaseManager.listAgents();
+        // console.log('Agents:', agents);
+
+
+        const lmManager = new LmManager(databaseManager);
+    
+        controllers.system.registerRoutes(apiRouter, lmManager);
+        controllers.chat.registerRoutes(apiRouter, lmManager);
+        controllers.agents.registerAdminRoutes(apiRouter, lmManager);
+    
+        app.use('/', apiRouter);
+    
+        app.listen(Config.SERVER_PORT, () => {
+            console.log(`AI Foundry Server is running on port ${Config.SERVER_PORT}`);
+        });    
+    } catch (error) {
+        console.error('Server setup error:', error);
+    }
 }
 
 if (process.argv.length === 3 && process.argv[2] === "run") {

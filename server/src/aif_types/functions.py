@@ -1,5 +1,6 @@
 from typing import List
 from enum import Enum
+from pydantic import BaseModel
 from sqlmodel import Field, SQLModel, JSON, Column
 
 
@@ -18,14 +19,14 @@ class FunctionMetadata(SQLModel, table=True):
     functions_name: str | None = None   # AifFunctionType.LOCAL. name of the function
 
 
-class CreateFunctionRequest(SQLModel):
+class CreateFunctionRequest(BaseModel):
     type: AifFunctionType
     name: str | None = None
     functions_path: str
     functions_name: str
 
 
-class UpdateFunctionRequest(SQLModel):
+class UpdateFunctionRequest(BaseModel):
     id: str
     name: str | None = None
 
@@ -34,9 +35,9 @@ class CreateOrUpdateFunctionResponse(FunctionMetadata):
     pass
 
 
-class DeleteFunctionResponse(SQLModel):
+class DeleteFunctionResponse(BaseModel):
     id: str
 
 
-class ListFunctionsResponse(SQLModel):
+class ListFunctionsResponse(BaseModel):
     functions: List[FunctionMetadata]

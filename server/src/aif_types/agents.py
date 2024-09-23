@@ -1,4 +1,5 @@
 from typing import List
+from pydantic import BaseModel
 from sqlmodel import Field, SQLModel, JSON, Column
 
 
@@ -11,14 +12,14 @@ class AgentMetadata(SQLModel, table=True):
     rag_asset_ids: List[str] = Field(sa_column=Column(JSON))
     function_asset_ids: List[str] = Field(sa_column=Column(JSON))
 
-class CreateAgentRequest(SQLModel):
+class CreateAgentRequest(BaseModel):
     base_model_uri: str
     name: str | None = None
     system_prompt: str | None = None
     rag_asset_ids: List[str] | None = None
     function_asset_ids: List[str] | None = None
 
-class UpdateAgentRequest(SQLModel):
+class UpdateAgentRequest(BaseModel):
     # agent_uri: str
     base_model_uri: str | None = None
     name: str | None = None
@@ -26,8 +27,8 @@ class UpdateAgentRequest(SQLModel):
     rag_asset_ids: List[str] | None = None
     function_asset_ids: List[str] | None = None
 
-class CreateOrUpdateAgentResponse(SQLModel):
+class CreateOrUpdateAgentResponse(BaseModel):
     agent_uri: str
 
-class ListAgentsResponse(SQLModel):
+class ListAgentsResponse(BaseModel):
     agents: List[AgentMetadata]

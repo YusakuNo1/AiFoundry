@@ -31,7 +31,7 @@ namespace AifPanelUtils {
 		return createCommandShowAifPanel(message);
 	}
 
-	export function createMessageSetPageAgents(agentInfo: types.api.AgentInfo): types.MessageSetPageContextAgentDetails {
+	export function createMessageSetPageAgents(agentInfo: types.database.AgentMetadata): types.MessageSetPageContextAgentDetails {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "agents",
@@ -39,7 +39,7 @@ namespace AifPanelUtils {
 		};
 	}
 
-	export function createCommandShowAifPanelAgents(agentInfo: types.api.AgentInfo): vscode.Command {
+	export function createCommandShowAifPanelAgents(agentInfo: types.database.AgentMetadata): vscode.Command {
 		const message = createMessageSetPageAgents(agentInfo);
 		return createCommandShowAifPanel(message);
 	}

@@ -75,7 +75,7 @@ class LmManager implements ILmManager {
 //           else:
 //               yield "Sorry, something went wrong"
 
-    chat(
+    public chat(
         aif_session_id: string,
         aif_agent_uri: string,
         outputFormat: types.api.TextFormat,
@@ -101,6 +101,16 @@ class LmManager implements ILmManager {
                 subscriber.error(err);
             });
         });
+    }
+
+    public async listAgents(): Promise<types.api.ListAgentsResponse> {
+        // // return ListAgentsResponse(agents=self.database_manager.list_agents())
+        // return {
+        //     agents: this.databaseManager.listAgents(),
+        // };
+        return {
+            agents: [],
+        };
     }
 }
 

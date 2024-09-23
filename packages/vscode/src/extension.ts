@@ -38,8 +38,8 @@ export function activate(context: vscode.ExtensionContext) {
 	// 	console.error(`stderr: ${stderr}`);
 	// });
 
-	doSthInShared();
-	setupServer();
+	// doSthInShared();
+	// setupServer();
 
 
 	const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))

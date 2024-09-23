@@ -9,7 +9,7 @@ import { RootState } from '../store/store';
 
 
 interface Props {
-    data: types.api.AgentInfo;
+    data: types.database.AgentMetadata;
     onPostMessage: (message: types.IMessage) => void;
 }
 

@@ -1,82 +1,94 @@
-import * as sqlite3 from 'sqlite3';
+import * as path from 'path';
+import { DataSource } from "typeorm";
+import { types } from "aifoundry-vscode-shared";
 import Config from '../config';
-
-// import os
-// import json
-// import uuid
-// from typing import List
-// from fastapi import HTTPException
-// from sqlmodel import SQLModel, create_engine
-// from sqlalchemy.engine.base import Engine
-// from sqlalchemy.orm import Session
-
-// from utils.assets_utils import get_assets_path
-// from aif_types.embeddings import EmbeddingMetadata, CreateEmbeddingsRequest, CreateOrUpdateEmbeddingsResponse, ListEmbeddingsResponse, UpdateEmbeddingMetadataRequest
-// from aif_types.agents import AgentMetadata, CreateAgentRequest, UpdateAgentRequest, CreateOrUpdateAgentResponse, ListAgentsResponse
-// from aif_types.functions import FunctionMetadata, UpdateFunctionRequest, CreateOrUpdateFunctionResponse, DeleteFunctionResponse
-// from aif_types.chat import ChatHistory, ChatHistoryMessage, ChatRole
+import AssetUtils from '../utils/assetUtils';
 
 
-// class DatabaseManager:
-//     _engine: Engine | None = None
+class DatabaseManager {
+    private _dataSource!: DataSource;
 
-//     def __init__(self) -> None:
-//         file_name = os.environ.get("SQLITE_FILE_NAME")
-//         assets_path = get_assets_path()
-//         database_uri = f"sqlite:///{assets_path}/{file_name}"
-//         self._engine = create_engine(database_uri)
-//         SQLModel.metadata.create_all(self._engine)
+    constructor() {
+    }
 
-//     def save_db_model(self, db_model: SQLModel):
-//         with Session(self._engine) as session:
-//             session.add(db_model)
-//             session.commit()
+    public async setup(databaseName: string) {
+        try {
+            await this._setupDataSource(databaseName);
+        } catch (error) {
+            throw error;
+        }
+    }
 
-//     def load_embeddings_metadata(self, asset_id: str) -> EmbeddingMetadata | None:
-//         with Session(self._engine) as session:
-//             return session.get(EmbeddingMetadata, asset_id)
+    // Shared ------------------------------------------------------------------
 
-//     def list_embeddings_metadata(self) -> List[EmbeddingMetadata]:
-//         with Session(self._engine) as session:
-//             return session.query(EmbeddingMetadata).all()
+    public async saveDbModel(dbModel: types.database.IEntity) {
+        return this._dataSource.manager.save(dbModel);
+    }
 
-//     def delete_embeddings_metadata(self, asset_id: str):
-//         with Session(self._engine) as session:
-//             embedding_metadata = session.get(EmbeddingMetadata, asset_id)
-//             session.delete(embedding_metadata)
-//             session.commit()
+    // Embeddings --------------------------------------------------------------
 
-//     def list_agents(self) -> List[AgentMetadata]:
-//         with Session(self._engine) as session:
-//             return session.query(AgentMetadata).all()
+    public async listEmbeddingsMetadata() {
+        return this._dataSource.manager.find(types.database.EmbeddingMetadata);
+    }
 
-//     def load_model(self, id: str) -> AgentMetadata | None:
-//         with Session(self._engine) as session:
-//             return session.get(AgentMetadata, id)
+    public async loadEmbeddingsMetadata(assetId: string) {
+        return this._dataSource.manager.findOneBy(types.database.EmbeddingMetadata, { id: assetId });
+    }
+
+    public async deleteEmbeddingsMetadata(assetId: string) {
+        this._dataSource.manager.delete(types.database.EmbeddingMetadata, { id: assetId });
+    }
+
+    // Agents ------------------------------------------------------------------
+
+    public async listAgents() {
+        return this._dataSource.manager.find(types.database.AgentMetadata);
+    }
+
+    public async updateAgent(agentId: string, request: types.api.UpdateAgentRequest) {
+        // const agent = this._dataSource.manager.findOne(AgentMetadata, { id: agentId });
+        // if (!agent) {
+        //     throw new Error(`Agent with id ${agentId} not found`);
+        // }
+
+        // agent.base_model_uri = request.base_model_uri || agent.base_model_uri;
+        // agent.name = request.name || agent.name;
+        // agent.system_prompt = request.system_prompt || agent.system_prompt;
+        // agent.rag_asset_ids = request.rag_asset_ids || agent.rag_asset_ids;
+        // agent.function_asset_ids = request.function_asset_ids || agent.function_asset_ids;
+
+        // this._dataSource.manager.save(agent);
+    }
+
+    public deleteAgent(id: string) {
+        this._dataSource.manager.delete(types.database.AgentMetadata, { id });
+    }
+
+    // Private -----------------------------------------------------------------
+
+    private async _setupDataSource(databaseName: string) {
+        const assetsPath = AssetUtils.getAssetsPath();
+        const databaseFilePath = path.join(assetsPath, databaseName);
+        // const databaseFilePath = path.join(assetsPath, "db.sqlite3");     // TODO: only for testing
+
+        this._dataSource = new DataSource({
+            type: 'sqlite',
+            database: databaseFilePath,
+            synchronize: true, // Set to false in production
+            logging: true,
+            entities: [
+                types.database.AgentMetadata,
+                types.database.ChatHistory,
+                types.database.EmbeddingMetadata,
+                types.database.FunctionMetadata,
+            ],
+            migrations: [
+                // List of your migration classes here
+            ],
+        });
         
-//     def update_agent(self, id: str, request: UpdateAgentRequest) -> CreateOrUpdateAgentResponse:
-//         with Session(self._engine) as session:
-//             agent = session.get(AgentMetadata, id)
-//             if agent is None:
-//                 raise Exception(f"Agent with id {id} not found")
-
-//             agent.base_model_uri = request.base_model_uri if request.base_model_uri else agent.base_model_uri
-//             agent.name = request.name if request.name else agent.name
-//             # System prompt can be None
-//             agent.system_prompt = request.system_prompt if request.system_prompt is not None else agent.system_prompt
-//             agent.rag_asset_ids = request.rag_asset_ids if request.rag_asset_ids else agent.rag_asset_ids
-//             agent.function_asset_ids = request.function_asset_ids if request.function_asset_ids else agent.function_asset_ids
-
-//             session.commit()
-//             return CreateOrUpdateAgentResponse(agent_uri=agent.agent_uri)
-
-//     def delete_agent(self, id: str):
-//         with Session(self._engine) as session:
-//             agent_metadata = session.get(AgentMetadata, id)
-//             if agent_metadata is None:
-//                 raise Exception(f"Agent with id {id} not found")
-//             session.delete(agent_metadata)
-//             session.commit()
+        return this._dataSource.initialize();
+    }
 
 
 //     def add_chat_message(self, aif_agent_uri: str, id: str, role: ChatRole, content: str):
@@ -158,20 +170,6 @@ import Config from '../config';
 //             session.delete(function)
 //             session.commit()
 //             return DeleteFunctionResponse(id=id)
-
-class DatabaseManager {
-    private _database: sqlite3.Database;
-
-    constructor(useLocalServer: boolean) {
-        this._database = new sqlite3.Database(':memory:');
-
-        const fileName = Config.SQLITE_FILE_NAME;
-//         file_name = os.environ.get("SQLITE_FILE_NAME")
-//         assets_path = get_assets_path()
-//         database_uri = f"sqlite:///{assets_path}/{file_name}"
-//         self._engine = create_engine(database_uri)
-//         SQLModel.metadata.create_all(self._engine)
-    }
 }
 
 export default DatabaseManager;

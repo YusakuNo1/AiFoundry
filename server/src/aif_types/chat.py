@@ -9,7 +9,7 @@ class ChatRole(str, Enum):
     ASSISTANT = "assistant"
     USER = "user"
 
-TextFormats = ["plain", "markdown", "latex"]
+# TextFormats = ["plain", "markdown", "latex"]
 
 TextFormatPrompts = {
     "plain": "The response is in plain text format.",

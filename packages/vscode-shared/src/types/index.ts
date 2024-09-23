@@ -1,4 +1,5 @@
 export * as api from './api';
+export * as database from './database';
 export * from './messages/ext2ui_pageContext';
 export * from './messages/ext2ui_storeUpdate';
 export * from './messages/shared';
