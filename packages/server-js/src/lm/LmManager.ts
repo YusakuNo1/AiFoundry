@@ -142,6 +142,9 @@ class LmManager implements ILmManager {
         return { id: agent.id, uri: agent.agent_uri };
     }
 
+    public async deleteAgent(id: string): Promise<void> {
+        await this.databaseManager.deleteAgent(id);
+    }
 }
 
 export default LmManager;

@@ -3,6 +3,7 @@ import { DataSource } from "typeorm";
 import { types } from "aifoundry-vscode-shared";
 import Config from '../config';
 import AssetUtils from '../utils/assetUtils';
+import { HttpException } from '../exceptions';
 
 
 class DatabaseManager {
@@ -52,7 +53,7 @@ class DatabaseManager {
     public async updateAgent(agentId: string, request: types.api.UpdateAgentRequest) {
         const agent = await this._dataSource.manager.findOneBy(types.database.AgentMetadata, { id: agentId });
         if (!agent) {
-            throw new Error(`Agent with id ${agentId} not found`);
+            throw new HttpException(404, `Agent not found`);
         }
 
         agent.base_model_uri = request.base_model_uri || agent.base_model_uri;
@@ -64,8 +65,13 @@ class DatabaseManager {
         return await this._dataSource.manager.save(agent);
     }
 
-    public deleteAgent(id: string) {
-        return this._dataSource.manager.delete(types.database.AgentMetadata, { id });
+    public async deleteAgent(id: string) {
+        const result = await this._dataSource.manager.delete(types.database.AgentMetadata, { id });
+        if (result.affected === 0) {
+            throw new HttpException(404, `Agent not found`);
+        } else {
+            return result;
+        }
     }
 
     // Private -----------------------------------------------------------------

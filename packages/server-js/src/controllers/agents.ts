@@ -25,4 +25,11 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
             return await lmManager.updateAgent(req.params.agentId, req.body);
         });
     });
+
+    // Delete an agent
+    router.delete(`${consts.ADMIN_CTRL_PREFIX}/agents/:agentId`, (req, res) => {
+        ResponseUtils.handler(res, async () => {
+            return await lmManager.deleteAgent(req.params.agentId);
+        });
+    });
 }
