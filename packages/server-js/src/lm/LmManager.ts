@@ -104,13 +104,8 @@ class LmManager implements ILmManager {
     }
 
     public async listAgents(): Promise<types.api.ListAgentsResponse> {
-        // // return ListAgentsResponse(agents=self.database_manager.list_agents())
-        // return {
-        //     agents: this.databaseManager.listAgents(),
-        // };
-        return {
-            agents: [],
-        };
+        const agents = await this.databaseManager.listAgents();
+        return { agents };
     }
 }
 

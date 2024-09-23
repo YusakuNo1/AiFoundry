@@ -26,26 +26,9 @@ export async function setupServer() {
     const apiRouter = express.Router();
     app.use(cookieParser());
 
-    const databaseManager = new DatabaseManager();
-
     try {
+        const databaseManager = new DatabaseManager();
         await databaseManager.setup(Config.SQLITE_FILE_NAME);
-
-
-        // const agentMetadata = new AgentMetadata();
-        // agentMetadata.id = '1';
-        // agentMetadata.name = 'Test Agent';
-        // agentMetadata.agent_uri = 'Test Agent URI';
-        // agentMetadata.system_prompt = 'Test System Prompt';
-        // agentMetadata.base_model_uri = 'Test Base Model URI';
-        // agentMetadata.rag_asset_ids = ['1', '2'];
-        // agentMetadata.function_asset_ids = ['1', '2'];
-        // await databaseManager.saveDbModel(agentMetadata);
-
-        // const agents = databaseManager.listAgents();
-        // console.log('Agents:', agents);
-
-
         const lmManager = new LmManager(databaseManager);
     
         controllers.system.registerRoutes(apiRouter, lmManager);

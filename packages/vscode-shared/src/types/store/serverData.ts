@@ -1,3 +1,4 @@
+// FileInfo in client side
 export type FileInfo = {
     fileName: string;
     filePath: string;

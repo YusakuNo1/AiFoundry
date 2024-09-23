@@ -11,9 +11,9 @@ class DatabaseManager {
     constructor() {
     }
 
-    public async setup(databaseName: string) {
+    public async setup(databaseName: string, isTest: boolean = false) {
         try {
-            await this._setupDataSource(databaseName);
+            await this._setupDataSource(databaseName, isTest);
         } catch (error) {
             throw error;
         }
@@ -36,7 +36,7 @@ class DatabaseManager {
     }
 
     public async deleteEmbeddingsMetadata(assetId: string) {
-        this._dataSource.manager.delete(types.database.EmbeddingMetadata, { id: assetId });
+        return this._dataSource.manager.delete(types.database.EmbeddingMetadata, { id: assetId });
     }
 
     // Agents ------------------------------------------------------------------
@@ -45,28 +45,32 @@ class DatabaseManager {
         return this._dataSource.manager.find(types.database.AgentMetadata);
     }
 
+    public async getAgent(agentId: string) {
+        return this._dataSource.manager.findOneBy(types.database.AgentMetadata, { id: agentId });
+    }
+
     public async updateAgent(agentId: string, request: types.api.UpdateAgentRequest) {
-        // const agent = this._dataSource.manager.findOne(AgentMetadata, { id: agentId });
-        // if (!agent) {
-        //     throw new Error(`Agent with id ${agentId} not found`);
-        // }
+        const agent = await this._dataSource.manager.findOneBy(types.database.AgentMetadata, { id: agentId });
+        if (!agent) {
+            throw new Error(`Agent with id ${agentId} not found`);
+        }
 
-        // agent.base_model_uri = request.base_model_uri || agent.base_model_uri;
-        // agent.name = request.name || agent.name;
-        // agent.system_prompt = request.system_prompt || agent.system_prompt;
-        // agent.rag_asset_ids = request.rag_asset_ids || agent.rag_asset_ids;
-        // agent.function_asset_ids = request.function_asset_ids || agent.function_asset_ids;
+        agent.base_model_uri = request.base_model_uri || agent.base_model_uri;
+        agent.name = request.name || agent.name;
+        agent.system_prompt = request.system_prompt || agent.system_prompt;
+        agent.rag_asset_ids = request.rag_asset_ids || agent.rag_asset_ids;
+        agent.function_asset_ids = request.function_asset_ids || agent.function_asset_ids;
 
-        // this._dataSource.manager.save(agent);
+        return this._dataSource.manager.save(agent);
     }
 
     public deleteAgent(id: string) {
-        this._dataSource.manager.delete(types.database.AgentMetadata, { id });
+        return this._dataSource.manager.delete(types.database.AgentMetadata, { id });
     }
 
     // Private -----------------------------------------------------------------
 
-    private async _setupDataSource(databaseName: string) {
+    private async _setupDataSource(databaseName: string, isTest: boolean) {
         const assetsPath = AssetUtils.getAssetsPath();
         const databaseFilePath = path.join(assetsPath, databaseName);
         // const databaseFilePath = path.join(assetsPath, "db.sqlite3");     // TODO: only for testing
@@ -74,8 +78,8 @@ class DatabaseManager {
         this._dataSource = new DataSource({
             type: 'sqlite',
             database: databaseFilePath,
-            synchronize: true, // Set to false in production
-            logging: true,
+            synchronize: isTest,    // Set to false in production
+            logging: false,         // If it's true, the log for SQL will be shown in log
             entities: [
                 types.database.AgentMetadata,
                 types.database.ChatHistory,

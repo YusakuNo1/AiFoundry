@@ -8,3 +8,4 @@ export * from './messages/ui2ext_editInfo';
 export * from './messages/ui2ext_hostMsg';
 export * from './menu';
 export * from './store/serverData';
+export * from './common';

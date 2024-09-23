@@ -2,6 +2,7 @@
 import { Column, Entity, PrimaryColumn } from "typeorm"
 import { IEntity } from "./IEntity"
 
+// AgentMetadata should sync with CreateAgentRequest
 @Entity({ name: 'agentmetadata' })
 export class AgentMetadata implements IEntity {
     @PrimaryColumn()

@@ -1,3 +1,5 @@
+import { UploadFileInfo } from "../common";
+
 export const TextFormats = ["plain", "markdown", "latex"] as const;
 export const TextFormatDisplayNames = {
     plain: "Plain Text",
@@ -12,10 +14,8 @@ export enum ChatRole {
     ASSISTANT = 'ASSISTANT',
 }
 
-export type ChatHistoryMessageFile = {
+export type ChatHistoryMessageFile = UploadFileInfo & {
     type: "image",
-    fileName: string,
-    dataUri: string,            // example: "data:image/gif;base64,[base64-content]"
 }
 
 export type ChatHistoryMessage = {
