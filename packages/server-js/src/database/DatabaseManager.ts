@@ -61,7 +61,7 @@ class DatabaseManager {
         agent.rag_asset_ids = request.rag_asset_ids || agent.rag_asset_ids;
         agent.function_asset_ids = request.function_asset_ids || agent.function_asset_ids;
 
-        return this._dataSource.manager.save(agent);
+        return await this._dataSource.manager.save(agent);
     }
 
     public deleteAgent(id: string) {

@@ -11,6 +11,8 @@ interface ILmManager {
     ): Observable<string>;
 
     listAgents(): Promise<types.api.ListAgentsResponse>;
+    createAgent(agent: types.api.CreateAgentRequest): Promise<types.api.CreateOrUpdateAgentResponse>;
+    updateAgent(id: string, request: types.api.UpdateAgentRequest): Promise<types.api.CreateOrUpdateAgentResponse>;
 }
 
 export default ILmManager;

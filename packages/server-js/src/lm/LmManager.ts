@@ -1,16 +1,22 @@
 import { Observable } from 'rxjs';
-import { consts, types } from 'aifoundry-vscode-shared';
+import { v4 as uuid } from "uuid";
+import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
 import ILmProvider from './ILmProvider';
 import ILmManager from './ILmManager';
 import DatabaseManager from '../database/DatabaseManager';
 
 import { runLm, runEmbedding } from '../lm/LmProviderTmpAzureOpenAI';
+import { HttpException } from '../exceptions';
 
 
 class LmManager implements ILmManager {
     private _lmProviderMap: Record<string, ILmProvider> = {};
 
     constructor(private databaseManager: DatabaseManager) {
+        this.listAgents = this.listAgents.bind(this);
+        this.createAgent = this.createAgent.bind(this);
+        this.updateAgent = this.updateAgent.bind(this);
+        this.chat = this.chat.bind(this);
     }
 
 // 	async def chat(self,
@@ -107,6 +113,35 @@ class LmManager implements ILmManager {
         const agents = await this.databaseManager.listAgents();
         return { agents };
     }
+
+    public async createAgent(request: types.api.CreateAgentRequest): Promise<types.api.CreateOrUpdateAgentResponse> {
+        const uuidValue = uuid();
+        const agentUri = AifUtils.createAifAgentUri(uuidValue);
+        const agent = new types.database.AgentMetadata();
+        agent.id = uuidValue;
+        agent.agent_uri = agentUri;
+        agent.name = request.name || uuidValue;
+        agent.base_model_uri = request.base_model_uri;
+        agent.system_prompt = request.system_prompt || "";
+        agent.rag_asset_ids = request.rag_asset_ids || [];
+        agent.function_asset_ids = request.function_asset_ids || [];
+        await this.databaseManager.saveDbModel(agent);
+        return { id: agent.id, uri: agent.agent_uri };
+    }
+
+    // def update_agent(self, id: str, request: UpdateAgentRequest) -> CreateOrUpdateAgentResponse:
+    //     if not id:
+    //         raise HTTPException(status_code=400, detail="Model id is required")
+    //     return self.database_manager.update_agent(id=id, request=request)
+
+    public async updateAgent(id: string, request: types.api.UpdateAgentRequest): Promise<types.api.CreateOrUpdateAgentResponse> {
+        if (!id) {
+            throw new HttpException(400, "Agent id is required");
+        }
+        const agent = await this.databaseManager.updateAgent(id, request);
+        return { id: agent.id, uri: agent.agent_uri };
+    }
+
 }
 
 export default LmManager;
