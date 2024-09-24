@@ -59,9 +59,9 @@ namespace EmbeddingsCommands {
 
 	export function startUpdateEmbeddingNameFlow(embeddingsViewProvider: IViewProvider, aifEmbeddingAssetId: string, oldName: string | undefined) {
 		CommandUtils.chooseText('Embedding Name', oldName, 'New embedding name')
-			.then(result => {
-				if (result) {
-					EmbeddingsAPI.updateEmbeddingName(aifEmbeddingAssetId, result).then(() => {
+			.then(newName => {
+				if (newName) {
+					EmbeddingsAPI.updateEmbedding(aifEmbeddingAssetId, [], newName).then(() => {
 						embeddingsViewProvider.refresh(aifEmbeddingAssetId);
 						vscode.window.showInformationMessage('Embedding name is updated');
 					})
@@ -119,15 +119,11 @@ function _createOrUpdateEmbedding(isCreate: boolean, embeddingsViewProvider: IVi
 		.then((fileUriList) => {
 			if (fileUriList && fileUriList.length > 0 && aifBasemodelUriOrAifEmbeddingAssetId) {
 				const promise = isCreate
-					? EmbeddingsAPI.createEmbedding(aifBasemodelUriOrAifEmbeddingAssetId, fileUriList)
-					: EmbeddingsAPI.updateEmbedding(aifBasemodelUriOrAifEmbeddingAssetId, fileUriList);
+					? EmbeddingsAPI.createEmbedding(aifBasemodelUriOrAifEmbeddingAssetId, fileUriList, name)
+					: EmbeddingsAPI.updateEmbedding(aifBasemodelUriOrAifEmbeddingAssetId, fileUriList, name);
 				promise
 					.then((response: types.api.CreateOrUpdateEmbeddingsResponse) => {
-						if (name) {
-							return EmbeddingsAPI.updateEmbeddingName(response.asset_id, name!);
-						} else {
-							return Promise.resolve();
-						}
+						return Promise.resolve();
 					})
 					.then(() => {						
 						embeddingsViewProvider.refresh(isCreate ? undefined : aifBasemodelUriOrAifEmbeddingAssetId);

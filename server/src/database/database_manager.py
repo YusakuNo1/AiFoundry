@@ -29,6 +29,14 @@ class DatabaseManager:
             session.add(db_model)
             session.commit()
 
+    def update_embeddings_name(self, asset_id: str, name: str):
+        with Session(self._engine) as session:
+            embedding = session.get(EmbeddingMetadata, asset_id)
+            if embedding is None:
+                raise Exception(f"Embedding with id {id} not found")
+            embedding.name = name
+            session.commit()
+
     def load_embeddings_metadata(self, asset_id: str) -> EmbeddingMetadata | None:
         with Session(self._engine) as session:
             return session.get(EmbeddingMetadata, asset_id)
