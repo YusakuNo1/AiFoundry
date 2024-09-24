@@ -1,4 +1,4 @@
-import { Uri, workspace } from "vscode";
+import { Uri } from "vscode";
 import type { types } from 'aifoundry-vscode-shared';
 import { APIConfig } from "./config";
 import { consts } from 'aifoundry-vscode-shared';
@@ -22,35 +22,18 @@ namespace EmbeddingsAPI {
 
     export async function createEmbedding(
         aifBasemodelUri: string,
-        fileUriList: Uri[]
+        fileUriList: Uri[],
+        name?: string,
     ): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
-        return _createOrUpdateEmbedding(true, aifBasemodelUri, fileUriList);
+        return _createOrUpdateEmbedding(true, aifBasemodelUri, fileUriList, name);
     }
 
     export async function updateEmbedding(
         aifEmbeddingAssetId: string,
         fileUriList: Uri[],
+        name?: string,
     ): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
-        return _createOrUpdateEmbedding(false, aifEmbeddingAssetId, fileUriList);
-    }
-
-    export async function updateEmbeddingName(
-        aifEmbeddingAssetId: string,
-        name: string,
-    ): Promise<void> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/embeddings/`;
-
-        const headers = new Headers();
-        headers.append(consts.HEADER_AIF_EMBEDDING_ASSET_ID, aifEmbeddingAssetId);
-        headers.append("Content-Type", "application/json");
-        const body = { name };
-
-        return fetch(endpoint, {
-            method: "PUT",
-            headers: headers,
-            body: JSON.stringify(body),
-        })
-            .then(ApiUtils.processApiResponse<void>);
+        return _createOrUpdateEmbedding(false, aifEmbeddingAssetId, fileUriList, name);
     }
 
     export async function deleteEmbedding(
@@ -67,14 +50,19 @@ namespace EmbeddingsAPI {
     async function _createOrUpdateEmbedding(
         isCreate: boolean,
         aifBasemodelUriOrAifEmbeddingAssetId: string,
-        fileUriList: Uri[]
+        fileUriList: Uri[],
+        name?: string,
     ): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/embeddings/files/`;
+        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/embeddings/`;
 
         formData = new FormData();
         for (const fileUri of fileUriList) {
             const file = await FileUtils.getFile(fileUri);
             formData.append("files", file as any);
+        }
+
+        if (name) {
+            formData.append("name", name);
         }
 
         const headers = new Headers();

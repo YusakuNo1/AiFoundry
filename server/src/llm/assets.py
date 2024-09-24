@@ -10,7 +10,7 @@ from utils.assets_utils import get_embeddings_asset_path
 from database.database_manager import DatabaseManager
 
 
-def create_or_update_embeddings(asset_id: str | None, name: str, basemodel_uri: str, llm: Embeddings, documents: List[Document], database_manager: DatabaseManager) -> CreateOrUpdateEmbeddingsResponse:
+def create_or_update_embeddings(asset_id: str | None, name: str, basemodel_uri: str, llm: Embeddings, documents: List[Document] | None, database_manager: DatabaseManager) -> CreateOrUpdateEmbeddingsResponse:
     is_update = asset_id is not None
 
     if asset_id is None:
@@ -22,20 +22,23 @@ def create_or_update_embeddings(asset_id: str | None, name: str, basemodel_uri: 
     aif_vs_provider = os.environ.get("VECTOR_STORE_PROVIDER")
     metadata = EmbeddingMetadata(name=name, vs_provider=aif_vs_provider, basemodel_uri=basemodel_uri, id=asset_id)
 
-    if aif_vs_provider == "faiss":
-        if not is_update:
-            embeddings = FAISS.from_documents(documents, llm)
-            FAISS.save_local(embeddings, assets_path, asset_id)
-            database_manager.save_db_model(metadata)
+    if documents is not None:
+        if aif_vs_provider == "faiss":
+            if not is_update:
+                embeddings = FAISS.from_documents(documents, llm)
+                FAISS.save_local(embeddings, assets_path, asset_id)
+                database_manager.save_db_model(metadata)
+            else:
+                vector_store.add_documents(documents)
+                FAISS.save_local(vector_store, assets_path, asset_id)
+        elif aif_vs_provider == "chroma":
+            # embeddings = Chroma.from_documents(documents, llm)
+            # Chroma.save_local(embeddings, assets_path, asset_id)
+            raise Exception("Not implemented")
         else:
-            vector_store.add_documents(documents)
-            FAISS.save_local(vector_store, assets_path, asset_id)
-    elif aif_vs_provider == "chroma":
-        # embeddings = Chroma.from_documents(documents, llm)
-        # Chroma.save_local(embeddings, assets_path, asset_id)
-        raise Exception("Not implemented")
-    else:
-        raise Exception("Invalid vector store provider")
+            raise Exception("Invalid vector store provider")
+    elif name:
+        database_manager.update_embeddings_name(asset_id=asset_id, name=name)
 
     return CreateOrUpdateEmbeddingsResponse(asset_id=asset_id, name=name)
 

@@ -177,15 +177,15 @@ class LlmManager:
 		return ListEmbeddingsResponse(embeddings=embedding_metadata_list)
 
 
-	def create_embedding(self, file_dict: Dict[str, str], aif_basemodel_uri: str) -> CreateOrUpdateEmbeddingsResponse:
+	def create_embedding(self, file_dict: Dict[str, str], aif_basemodel_uri: str, name: str | None) -> CreateOrUpdateEmbeddingsResponse:
 		llm: Embeddings = self._get_llm(aif_basemodel_uri, is_embedding=True)
 		document_strs = list(file_dict.values())
 		documents = [Document(page_content=x, metadata={"source": "local"}) for x in document_strs]
-		name = '-'.join(list(file_dict.keys()))
+		name = name if name else '-'.join(list(file_dict.keys()))
 		return create_or_update_embeddings(asset_id=None, name=name, basemodel_uri=aif_basemodel_uri, llm=llm, documents=documents, database_manager=self.database_manager)
 
 
-	def update_embedding(self, file_dict: Dict[str, str], aif_embedding_asset_id: str) -> CreateOrUpdateEmbeddingsResponse:
+	def update_embedding(self, file_dict: Dict[str, str], aif_embedding_asset_id: str, name: str | None) -> CreateOrUpdateEmbeddingsResponse:
 		embedding = self.database_manager.load_embeddings_metadata(aif_embedding_asset_id)
 		if not embedding:
 			raise HTTPException(status_code=404, detail="Embedding not found")
@@ -193,11 +193,14 @@ class LlmManager:
 		llm: Embeddings = self._get_llm(embedding.basemodel_uri, is_embedding=True)
 
 		document_strs = list(file_dict.values())
-		documents = [Document(page_content=x, metadata={"source": "local"}) for x in document_strs]
+		if len(document_strs) == 0:
+			documents = None
+		else:
+			documents = [Document(page_content=x, metadata={"source": "local"}) for x in document_strs]
 
 		return create_or_update_embeddings(
 			asset_id=embedding.id,
-			name=embedding.name,
+			name=name if name else embedding.name,
 			basemodel_uri=embedding.basemodel_uri,
 			llm=llm,
 			documents=documents,
