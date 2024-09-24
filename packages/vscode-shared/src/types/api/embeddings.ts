@@ -1,12 +1,7 @@
-export type EmbeddingInfo = {
-	id: string,
-	name: string,
-	vs_provider: string,
-	basemodel_uri: string,
-}
+import type { EmbeddingMetadata } from "../database/embeddings";
 
 export type ListEmbeddingsResponse = {
-	embeddings: EmbeddingInfo[];
+	embeddings: EmbeddingMetadata[];
 };
 
 export type CreateOrUpdateEmbeddingsResponse = {

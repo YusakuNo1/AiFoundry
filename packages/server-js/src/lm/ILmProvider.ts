@@ -15,8 +15,8 @@ interface ILmProvider {
     get name(): string;
     get isHealthy(): boolean;
     getLmProviderStatus(): types.api.LmProviderInfo;
-    // canHandle(aif_uri: string): void;
-    // listLanguageModels(feature: types.api.LlmFeature): types.api.LanguageModelInfo[];
+    canHandle(aifUri: string): boolean;
+    listLanguageModels(feature: types.api.LlmFeature): types.api.LanguageModelInfo[];
     // // getBaseEmbeddingsModel(aif_agent_uri: string): Embeddings;
     // // getBaseLanguageModel(aif_agent_uri: string, functions: Callable[]): BaseLanguageModel;
     // getLanguageProviderInfo(): types.api.LmProviderInfo;

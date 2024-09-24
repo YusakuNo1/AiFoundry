@@ -16,15 +16,13 @@
 //     return response
 
 import * as express from "express";
-import * as multer from "multer";
 import { v4 as uuid } from "uuid";
 import { types } from "aifoundry-vscode-shared";
 import ILmManager from "../lm/ILmManager";
-
-const upload = multer();
+import RouterUtils from "../utils/RouterUtils";
 
 export function registerRoutes(router: express.Router, llmManager: ILmManager) {
-    router.post('/chat/', upload.array('files'), (req, res) => {
+    router.post('/chat/', RouterUtils.middlewares.uploadFiles, (req, res) => {
         const aif_session_id = req.cookies.aif_session_id || uuid();
 
         const aif_agent_uri = req.headers["aif-agent-uri"];

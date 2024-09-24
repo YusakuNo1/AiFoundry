@@ -2,6 +2,7 @@ import * as path from 'path';
 import { DataSource } from "typeorm";
 import { types } from "aifoundry-vscode-shared";
 import Config from '../config';
+import LmProviderInfo from './entities/LmProviderInfo';
 import AssetUtils from '../utils/assetUtils';
 import { HttpException } from '../exceptions';
 
@@ -24,6 +25,11 @@ class DatabaseManager {
 
     public async saveDbModel(dbModel: types.database.IEntity) {
         return this._dataSource.manager.save(dbModel);
+    }
+
+    // LmProvider --------------------------------------------------------------
+    private async _getLmProviderInfoList(): Promise<LmProviderInfo[]> {
+        return this._dataSource.manager.find(LmProviderInfo);
     }
 
     // Embeddings --------------------------------------------------------------

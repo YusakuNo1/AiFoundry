@@ -14,6 +14,9 @@ interface ILmManager {
     createAgent(agent: types.api.CreateAgentRequest): Promise<types.api.CreateOrUpdateAgentResponse>;
     updateAgent(id: string, request: types.api.UpdateAgentRequest): Promise<types.api.CreateOrUpdateAgentResponse>;
     deleteAgent(id: string): Promise<void>;
+
+    listEmbeddings(): Promise<types.api.ListEmbeddingsResponse>;
+    createEmbedding(aifBasemodelUri: string, files: Record<string, types.FileInfo>): Promise<types.api.CreateOrUpdateEmbeddingsResponse>;
 }
 
 export default ILmManager;

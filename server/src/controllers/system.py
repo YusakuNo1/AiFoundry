@@ -14,6 +14,6 @@ def create_routers(llm_manager: LlmManager):
     return router
 
 
-    @router.get("/config/", tags=["system"])
-    async def get_config():
-        return llm_manager.get_system_config()
+    # @router.get("/config/", tags=["system"])
+    # async def get_config():
+    #     return llm_manager.get_system_config()

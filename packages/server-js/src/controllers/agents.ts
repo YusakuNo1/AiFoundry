@@ -1,10 +1,8 @@
 import * as express from "express";
-import * as bodyParser from "body-parser";
 import { consts } from 'aifoundry-vscode-shared';
 import ILmManager from "../lm/ILmManager";
 import ResponseUtils from "../utils/ResponseUtils";
-
-var jsonParser = bodyParser.json()
+import RouterUtils from "../utils/RouterUtils";
 
 export function registerAdminRoutes(router: express.Router, lmManager: ILmManager) {
     // List all agents
@@ -13,14 +11,14 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
     });
 
     // Create a new agent
-    router.post(`${consts.ADMIN_CTRL_PREFIX}/agents/`, jsonParser, (req, res) => {
+    router.post(`${consts.ADMIN_CTRL_PREFIX}/agents/`, RouterUtils.middlewares.jsonParser, (req, res) => {
         ResponseUtils.handler(res, async () => {
             return await lmManager.createAgent(req.body);
         });
     });
 
     // Update an agent
-    router.put(`${consts.ADMIN_CTRL_PREFIX}/agents/:agentId`, jsonParser, (req, res) => {
+    router.put(`${consts.ADMIN_CTRL_PREFIX}/agents/:agentId`, RouterUtils.middlewares.jsonParser, (req, res) => {
         ResponseUtils.handler(res, async () => {
             return await lmManager.updateAgent(req.params.agentId, req.body);
         });

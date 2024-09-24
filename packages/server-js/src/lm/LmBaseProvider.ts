@@ -14,7 +14,7 @@ import ILmProvider from "./ILmProvider";
 //     apiKeyHint: str | None = None           # Hint for the API key
 //     supportUserDefinedModels: bool = False  # Whether the provider supports user-defined models
 
-class LmBaseProvider implements ILmProvider {
+abstract class LmBaseProvider implements ILmProvider {
     private _id: string;
     private _name: string;
     private _description: string | null;
@@ -72,25 +72,28 @@ class LmBaseProvider implements ILmProvider {
         };
     }
 
-//     def getLmProviderStatus(self) -> LmProviderStatus:
-//         return LmProviderStatus(
-//             id=self.getId(),
-//             name=self.getName(),
-//             status="available" if self.isHealthy() else "unavailable",
-//         )
-    
-//     def canHandle(self, aif_uri: str):
-//         return aif_uri.startswith(f"{self.getId()}://")
+    public canHandle(aifUri: string): boolean {
+        return aifUri.startsWith(`${this.id}://`)
+    }
 
-//     def listLanguageModels(self, feature: LlmFeature = LlmFeature.ALL) -> List[LanguageModelInfo]:
-//         if self.props.jsonFileName:
-//             return self._listLanguageModelsFromFile(feature)
-//         else:
-//             return self._listLanguageModelsFromIndexes(feature)
+    public listLanguageModels(feature: types.api.LlmFeature): types.api.LanguageModelInfo[] {
+        if (this.jsonFileName) {
+            return this._listLanguageModelsFromFile(feature);
+        } else {
+            // return this._listLanguageModelsFromIndexes(feature);
+            return {} as any;
+        }
+    }
 
-//     def _listLanguageModelsFromFile(self, feature: LlmFeature = LlmFeature.ALL) -> List[LanguageModelInfo]:
-//         modelCatalogItems = read_json_file(os.path.dirname(__file__), self.props.jsonFileName)
-//         modelCatalogItemDict = convertListToDict(modelCatalogItems, "title")
+    private _listLanguageModelsFromFile(feature: types.api.LlmFeature): types.api.LanguageModelInfo[] {
+        const modelCatalogItems = require(`./${this.jsonFileName}`);
+        const modelCatalogItemDict = modelCatalogItems.reduce((acc: Record<string, any>, item: any) => {
+            acc[item.title] = item;
+            return acc;
+        }, {});
+        return {} as any;
+    }
+
 
 //         default_weight = os.environ.get(self.props.keyPrefix + "MODELS_DEFAULT_WEIGHT")
 //         modelInfoList: List[LanguageModelInfo] = []
@@ -278,6 +281,9 @@ class LmBaseProvider implements ILmProvider {
 //                 _indexeStrings.append(str(index))
 //         return ",".join(_indexeStrings)
 
+    private get jsonFileName(): string | null {
+        return null;
+    }
 }
 
 export default LmBaseProvider;

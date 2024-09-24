@@ -1,5 +1,5 @@
 import { FunctionMetadata } from '../api/functions';
-import { EmbeddingInfo } from '../api/embeddings';
+import type { EmbeddingMetadata } from '../database/embeddings';
 import { TextFormat } from '../api/chat';
 import { LmProviderInfo } from '../api/languageModels';
 import { SystemMenuItem } from '../menu';
@@ -59,7 +59,7 @@ export type MessageStoreUpdateLmProviders = shared.IMessage & IStoreUpdate & {
 export type MessageStoreUpdateEmbeddings = shared.IMessage & IStoreUpdate & {
     type: "updateEmbeddings",
     data: {
-        embeddings: EmbeddingInfo[];
+        embeddings: EmbeddingMetadata[];
     };
 }
 export type MessageStoreUpdateFunctions = shared.IMessage & IStoreUpdate & {

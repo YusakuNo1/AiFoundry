@@ -145,6 +145,18 @@ class LmManager implements ILmManager {
     public async deleteAgent(id: string): Promise<void> {
         await this.databaseManager.deleteAgent(id);
     }
+
+    public async listEmbeddings(): Promise<types.api.ListEmbeddingsResponse> {
+        const embeddings = await this.databaseManager.listEmbeddingsMetadata();
+        return { embeddings };
+    }
+
+    public async createEmbedding(aifUri: string, files: Record<string, types.FileInfo>): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
+        throw new Error("Method not implemented.");
+    }
+
+    private _get_llm(aifUri: string) {
+    }
 }
 
 export default LmManager;

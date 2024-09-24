@@ -153,7 +153,7 @@ function _showEmbeddingAssetIds(isCreate: boolean, agentsViewProvider: IViewProv
 	});
 }
 
-function _showFunctionsAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, model: types.api.LanguageModelInfo, embeddings: types.api.EmbeddingInfo[]) {
+function _showFunctionsAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, model: types.api.LanguageModelInfo, embeddings: types.database.EmbeddingMetadata[]) {
 	FunctionsAPI.listFunctions().then((response) => {
 		if (response.functions.length === 0) {
 			_createOrupdateAgent(isCreate, agentsViewProvider, name, model, embeddings);
@@ -176,7 +176,7 @@ function _showFunctionsAssetIds(isCreate: boolean, agentsViewProvider: IViewProv
 	});
 }
 
-function _createOrupdateAgent(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, modelInfo: types.api.LanguageModelInfo, embeddings: types.api.EmbeddingInfo[], functions: types.api.FunctionMetadata[] = []) {
+function _createOrupdateAgent(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, modelInfo: types.api.LanguageModelInfo, embeddings: types.database.EmbeddingMetadata[], functions: types.api.FunctionMetadata[] = []) {
 	if (isCreate) {
 		const ragAssetIds = embeddings.map(embedding => embedding.id);
 		const functionAssetIds = functions.map(func => func.id);
