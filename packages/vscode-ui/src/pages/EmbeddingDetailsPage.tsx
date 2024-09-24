@@ -3,7 +3,7 @@ import { types } from "aifoundry-vscode-shared";
 import BasePage from "./BasePage";
 
 interface Props {
-    data: types.api.EmbeddingInfo;
+    data: types.database.EmbeddingMetadata;
     onPostMessage: (message: types.IMessage) => void;
 }
 

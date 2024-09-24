@@ -5,7 +5,7 @@ import type { types } from "aifoundry-vscode-shared";
 interface ServerDataState {
     lmProviders: types.api.LmProviderInfo[] | null;
     systemMenuItemMap: Record<string, types.SystemMenuItem>;
-    embeddings: types.api.EmbeddingInfo[];
+    embeddings: types.database.EmbeddingMetadata[];
 	functions: types.api.FunctionMetadata[];
 }
 
@@ -28,7 +28,7 @@ export const serverDataSlice = createSlice({
                 state.systemMenuItemMap[key] = action.payload.systemMenuItemMap[key];
             }
         },
-        updateEmbeddings: (state, action: PayloadAction<types.api.EmbeddingInfo[]>) => {
+        updateEmbeddings: (state, action: PayloadAction<types.database.EmbeddingMetadata[]>) => {
             state.embeddings = action.payload;
         },
         updateFunctions: (state, action: PayloadAction<types.api.FunctionMetadata[]>) => {

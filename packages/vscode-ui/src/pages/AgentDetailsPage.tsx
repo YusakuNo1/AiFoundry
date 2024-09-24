@@ -35,7 +35,7 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
     }, [props]);
 
     const embeddingMap = React.useMemo(() => {
-        const map: Record<string, types.api.EmbeddingInfo> = {};
+        const map: Record<string, types.database.EmbeddingMetadata> = {};
         embeddings.forEach(embedding => map[embedding.id] = embedding);
         return map;
     }, [embeddings]);
