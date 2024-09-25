@@ -104,8 +104,9 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
         // Update Redux store for user chat message
         const promises = chatHistoryMessageFiles.map((file) => {
             return new Promise<types.api.ChatHistoryMessageFile>((resolve, reject) => {
-                WebApiImageUtils.resizeDataUrl(file.dataUri, { maxHeight: consts.THUMBNAIL_HEIGHT }).then((dataUri) => {
-                    resolve({ type: file.type, fileName: file.fileName, dataUri });
+                WebApiImageUtils.resizeDataUrl(file.dataUrlPrefix + file.data, { maxHeight: consts.THUMBNAIL_HEIGHT }).then((dataUrl) => {
+                    const dataUrlInfo = types.convertToDataUrlInfo(dataUrl);
+                    resolve({ type: file.type, fileName: file.fileName, data: dataUrlInfo.data, dataUrlPrefix: dataUrlInfo.dataUrlPrefix });
                 })
             });
         });
@@ -133,11 +134,12 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
             const imageOptions = { maxWidth: consts.UPLOAD_IMAGE_MAX_WIDTH, maxHeight: consts.UPLOAD_IMAGE_MAX_HEIGHT };
             const _chatHistoryMessageFiles: types.api.ChatHistoryMessageFile[] = [];
             for await (const file of files) {
-                const dataUrl = await WebApiImageUtils.readImageFileToDataUrl(file, imageOptions);
+                const response = await WebApiImageUtils.readImageFileToDataUrl(file, imageOptions);
                 _chatHistoryMessageFiles.push({
                     type: "image",
                     fileName: file.name,
-                    dataUri: dataUrl,
+                    data: response.data,
+                    dataUrlPrefix: response.dataUrlPrefix,
                 });
             }
             setChatHistoryMessageFiles(_chatHistoryMessageFiles);
@@ -160,7 +162,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
                     {message.files && <>
                         {message.files.map((file, index) => {
                             return (
-                                <FluentUIImage key={`file-${index}`} src={file.dataUri} alt={file.fileName} style={{ padding: '2px', border: 2, borderColor: 'black' }} />
+                                <FluentUIImage key={`file-${index}`} src={file.dataUrlPrefix + file.data} alt={file.fileName} style={{ padding: '2px', border: 2, borderColor: 'black' }} />
                             );
                         })}
                     </>}

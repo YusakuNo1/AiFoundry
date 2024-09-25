@@ -67,7 +67,7 @@ namespace AgentsAPI {
 
         let body: types.api.CreateAgentRequest | types.api.UpdateAgentRequest;
         if (isCreate) {
-            if (!name || !baseModelUri || !systemPrompt || !ragAssetIds || !funcCallAssetIds) {
+            if (!name || !baseModelUri || !ragAssetIds || !funcCallAssetIds) {
                 throw new Error("Missing required fields");
             }
 

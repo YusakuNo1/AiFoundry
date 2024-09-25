@@ -46,10 +46,13 @@ def create_routers(llm_manager: LlmManager):
         # Only support image files for now
         requestFileInfoList: List[RequestFileInfo] = []
         if files is not None:
-            for file in files:
-                requestFileInfo = await createRequestFileInfo(file)
-                if requestFileInfo:
-                    requestFileInfoList.append(requestFileInfo)
+            try:
+                for file in files:
+                    requestFileInfo = await createRequestFileInfo(file)
+                    if requestFileInfo:
+                        requestFileInfoList.append(requestFileInfo)
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=str(e))
 
 
         process_output = llm_manager.chat(

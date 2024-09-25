@@ -18,7 +18,7 @@ namespace FileUtils {
 	}
 
 	export async function convertChatHistoryMessageFileToFile(file: types.api.ChatHistoryMessageFile): Promise<File> {
-		const data = Buffer.from(file.dataUri.split(",")[1], "base64");
+		const data = Buffer.from(file.data, "base64");
 		const documentBlob = new Blob([data], {
 			type: "application/octet-stream",
 		}) as any;

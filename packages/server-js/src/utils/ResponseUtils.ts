@@ -10,7 +10,7 @@ namespace ResponseUtils {
             if (ex instanceof HttpException) {
                 response.status(ex.status).json({ error: ex.message });
             } else {
-                throw new HttpException(500, "Unknown error: " + ex);
+                response.status(500).json({ error: "Unknown error: " + ex });
             }
         }
     }

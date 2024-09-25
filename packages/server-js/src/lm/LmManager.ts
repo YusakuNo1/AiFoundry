@@ -17,6 +17,8 @@ class LmManager implements ILmManager {
         this.createAgent = this.createAgent.bind(this);
         this.updateAgent = this.updateAgent.bind(this);
         this.chat = this.chat.bind(this);
+        this.listEmbeddings = this.listEmbeddings.bind(this);
+        this.createEmbedding = this.createEmbedding.bind(this);
     }
 
 // 	async def chat(self,
@@ -151,7 +153,10 @@ class LmManager implements ILmManager {
         return { embeddings };
     }
 
-    public async createEmbedding(aifUri: string, files: Record<string, types.FileInfo>): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
+    public async createEmbedding(afBaseModelUri: string | null, files: types.UploadFileInfo[], name: string | null): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
+        if (!afBaseModelUri || files.length === 0) {
+            throw new HttpException(400, "afBaseModelUri and files are required");
+        }
         throw new Error("Method not implemented.");
     }
 

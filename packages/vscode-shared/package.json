@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "urlencode": "^2.0.0"
   },
   "devDependencies": {
     "typescript": "^5.5.3"

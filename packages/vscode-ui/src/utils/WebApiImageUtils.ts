@@ -2,6 +2,8 @@
  * Image processing with web APIs
  */
 
+import { types } from "aifoundry-vscode-shared";
+
 namespace WebApiImageUtils {
     export async function resizeDataUrl(dataUrl: string, options: { maxWidth?: number, maxHeight?: number }): Promise<string> {
         return new Promise<string>((resolve, reject) => {
@@ -36,16 +38,18 @@ namespace WebApiImageUtils {
         });
     }
 
-    export async function readImageFileToDataUrl(file: File, options?: { maxWidth?: number, maxHeight?: number }): Promise<string> {
-        return new Promise<string>((resolve, reject) => {
+    export async function readImageFileToDataUrl(file: File, options?: { maxWidth?: number, maxHeight?: number }): Promise<types.DataUrlInfo> {
+        return new Promise<types.DataUrlInfo>((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 if (!options || (!options.maxWidth && !options.maxHeight)) {
-                    resolve(e.target?.result as string);
+                    const dataUrl = e.target?.result as string;
+                    resolve(types.convertToDataUrlInfo(dataUrl));
                     return;
                 } else {
-                    const dataUrl = resizeDataUrl(e.target?.result as string, options);
-                    resolve(dataUrl);
+                    resizeDataUrl(e.target?.result as string, options).then((dataUrl) => {
+                        resolve(types.convertToDataUrlInfo(dataUrl));
+                    });
                 }
             };
             reader.readAsDataURL(file);

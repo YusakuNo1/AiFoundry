@@ -34,6 +34,7 @@ export async function setupServer() {
         controllers.system.registerRoutes(apiRouter, lmManager);
         controllers.chat.registerRoutes(apiRouter, lmManager);
         controllers.agents.registerAdminRoutes(apiRouter, lmManager);
+        controllers.embeddings.registerAdminRoutes(apiRouter, lmManager);
     
         app.use('/', apiRouter);
     
