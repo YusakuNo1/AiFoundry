@@ -1,8 +1,8 @@
 import { types } from "aifoundry-vscode-shared";
-import DatabaseManager from "../../../src/database/DatabaseManager";
-import { createAgentMetadata, removeDatabaseFile } from "../testUtils";
+import DatabaseManager from "../DatabaseManager";
+import { createAgentMetadata, removeDatabaseFile } from "./testUtils";
 
-const testDatabaseName = 'test.db';
+const testDatabaseName = 'agents-test.db';
 
 describe('AgentMetadata', () => {
     let databaseManager: DatabaseManager;

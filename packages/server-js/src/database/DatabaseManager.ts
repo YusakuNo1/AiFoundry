@@ -2,6 +2,7 @@ import * as path from 'path';
 import { DataSource } from "typeorm";
 import { types } from "aifoundry-vscode-shared";
 import Config from '../config';
+import LmProviderCredentials from './entities/LmProviderCredentials';
 import LmProviderInfo from './entities/LmProviderInfo';
 import AssetUtils from '../utils/assetUtils';
 import { HttpException } from '../exceptions';
@@ -28,8 +29,22 @@ class DatabaseManager {
     }
 
     // LmProvider --------------------------------------------------------------
-    private async _getLmProviderInfoList(): Promise<LmProviderInfo[]> {
-        return this._dataSource.manager.find(LmProviderInfo);
+
+    public async getLmProviderCredentials(providerId: string): Promise<LmProviderCredentials | null> {
+        return this._dataSource.manager.findOneBy(LmProviderCredentials, { id: providerId });
+    }
+
+    public async saveLmProviderCredentials(providerId: string, apiKey: string, properties: Record<string, string>): Promise<void> {
+        const oldLmProviderCredentials = await this.getLmProviderCredentials(providerId);
+        const lmProviderCredentials = oldLmProviderCredentials ?? this._dataSource.manager.create(LmProviderCredentials);
+        lmProviderCredentials.id = providerId;
+        lmProviderCredentials.apiKey = apiKey;
+        lmProviderCredentials.properties = properties;
+        await this._dataSource.manager.save(lmProviderCredentials);
+    }
+
+    public async getLmProviderInfoList(): Promise<LmProviderInfo[]> {
+        return this._dataSource.manager.find(LmProviderInfo) ?? [];
     }
 
     // Embeddings --------------------------------------------------------------
@@ -97,6 +112,8 @@ class DatabaseManager {
                 types.database.ChatHistory,
                 types.database.EmbeddingMetadata,
                 types.database.FunctionMetadata,
+                LmProviderCredentials,
+                LmProviderInfo,
             ],
             migrations: [
                 // List of your migration classes here

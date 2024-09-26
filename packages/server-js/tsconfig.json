@@ -9,12 +9,17 @@
         "preserveConstEnums": true,
         "inlineSourceMap": true,
         "forceConsistentCasingInFileNames": true,
-        "outDir": "dist",
+        "outDir": "./dist",
         "declaration": true,
         "experimentalDecorators": true,
         "strictPropertyInitialization": false,
         "emitDecoratorMetadata": true
     },
-    "include": ["src/**/*.ts"],
-    "exclude": ["src/**/*.spec.ts", "node_modules"]
+    "include": [
+        "./src/**/*.ts"
+    ],
+    "exclude": [
+        "./src/**/*.spec.ts",
+        "./node_modules"
+    ]
 }

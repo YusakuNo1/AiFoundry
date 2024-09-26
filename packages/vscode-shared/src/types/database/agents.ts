@@ -4,16 +4,16 @@ import { IEntity } from "./IEntity"
 
 @Entity({ name: 'agentmetadata' })
 export class AgentMetadata implements IEntity {
-    @PrimaryColumn()
+    @PrimaryColumn('text')
     id: string
 
-    @Column()
+    @Column('text',{nullable:true})
     agent_uri: string
 
-    @Column()
+    @Column('text',{nullable:true})
     name: string
 
-    @Column()
+    @Column('text',{nullable:true})
     base_model_uri: string
 
     @Column({ nullable: true })

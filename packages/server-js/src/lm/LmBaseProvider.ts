@@ -94,6 +94,36 @@ abstract class LmBaseProvider implements ILmProvider {
         return {} as any;
     }
 
+    private _getBaseEmbeddingsModel(aifUri: string): any {
+        const lmInfo = this._parseLmUri(aifUri);
+        const apiKey = process
+    }
+
+//     def getBaseEmbeddingsModel(self, aif_agent_uri: str) -> Embeddings:
+//         baseLlmInfo = self._parse_llm_uri(aif_agent_uri)
+//         apiKey = os.environ.get(self.props.keyPrefix + "API_KEY")
+//         return self._getBaseEmbeddingsModel(baseLlmInfo.model_name, apiKey=apiKey)
+
+    private _parseLmUri(aifUri: string): { modelName: string, apiVersion: string } {
+        const url = new URL(aifUri);
+        const params = url.searchParams;
+        return {
+            modelName: url.hostname,
+            apiVersion: params.get("api-version") || "",
+        };
+    }
+
+//     def _parse_llm_uri(self, aif_uri: str) -> BaseLlmInfo:
+//         parsed_aif_model_uri = urlparse(aif_uri)
+//         uriParams = getUriParams(parsed_aif_model_uri)
+//         return BaseLlmInfo(
+//             provider=self.props.llmProvider,
+//             model_name=parsed_aif_model_uri.netloc,
+//             api_version=uriParams.get("api-version"),
+//         )
+
+
+
 
 //         default_weight = os.environ.get(self.props.keyPrefix + "MODELS_DEFAULT_WEIGHT")
 //         modelInfoList: List[LanguageModelInfo] = []
@@ -163,13 +193,7 @@ abstract class LmBaseProvider implements ILmProvider {
 //         return modelInfoList
 
 
-//     def getBaseEmbeddingsModel(self, aif_agent_uri: str) -> Embeddings:
-//         baseLlmInfo = self._parse_llm_uri(aif_agent_uri)
-//         apiKey = os.environ.get(self.props.keyPrefix + "API_KEY")
-//         return self._getBaseEmbeddingsModel(baseLlmInfo.model_name, apiKey=apiKey)
     
-//     def _getBaseEmbeddingsModel(self, modelName: str, apiKey: str) -> Embeddings:
-//         raise NotImplementedError("Subclasses must implement this method")
 
 
 //     def getBaseLanguageModel(self, aif_agent_uri: str, functions: List[Callable] = []) -> BaseLanguageModel:
@@ -253,15 +277,6 @@ abstract class LmBaseProvider implements ILmProvider {
 //             if (self.props.keyPrefix + "API_KEY") in request.properties:
 //                 self._updateLmProviderField(dotenv_file, self.props.keyPrefix + "API_KEY", request.properties[self.props.keyPrefix + "API_KEY"])
 
-
-//     def _parse_llm_uri(self, aif_uri: str) -> BaseLlmInfo:
-//         parsed_aif_model_uri = urlparse(aif_uri)
-//         uriParams = getUriParams(parsed_aif_model_uri)
-//         return BaseLlmInfo(
-//             provider=self.props.llmProvider,
-//             model_name=parsed_aif_model_uri.netloc,
-//             api_version=uriParams.get("api-version"),
-//         )
 
 
 //     def _updateLmProviderIndexes(self, dotenv_file: str, request: UpdateLmProviderRequest):

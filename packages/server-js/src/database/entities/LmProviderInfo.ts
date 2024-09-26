@@ -1,12 +1,13 @@
 
 import { Column, Entity, PrimaryColumn } from "typeorm"
+import { types } from "aifoundry-vscode-shared"
 
 @Entity({ name: 'lmproviderinfo' })
-class LmProviderInfo {
-    @PrimaryColumn()
-    id: string
+class LmProviderInfo implements types.database.IEntity {
+    @PrimaryColumn('text')
+    id: string  // This is the provider id
 
-    @Column()
+    @Column('int')
     defaultWeight: number;
 
     @Column({ type: 'json' })

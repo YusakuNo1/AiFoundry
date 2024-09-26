@@ -160,7 +160,11 @@ class LmManager implements ILmManager {
         throw new Error("Method not implemented.");
     }
 
-    private _get_llm(aifUri: string) {
+    private _getEmbeddingLanguageModel(aifUri: string) {
+        for (const lmProvider of Object.values(this._lmProviderMap)) {
+            if (lmProvider.canHandle(aifUri)) {
+            }
+        }
     }
 }
 

@@ -4,15 +4,15 @@ import { IEntity } from "./IEntity"
 
 @Entity({ name: 'embeddingmetadata' })
 export class EmbeddingMetadata implements IEntity {
-    @PrimaryColumn()
+    @PrimaryColumn('text')
     id: string
 
-    @Column()
+    @Column('text',{nullable:true})
     name: string
 
-    @Column()
+    @Column('text',{nullable:true})
     vs_provider: string
 
-    @Column()
+    @Column('text',{nullable:true})
     basemodel_uri: string
 }
