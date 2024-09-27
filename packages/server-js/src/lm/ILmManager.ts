@@ -10,13 +10,13 @@ interface ILmManager {
         requestFileInfoList: types.api.ChatHistoryMessageFile[],
     ): Observable<string>;
 
-    listAgents(): Promise<types.api.ListAgentsResponse>;
-    createAgent(agent: types.api.CreateAgentRequest): Promise<types.api.CreateOrUpdateAgentResponse>;
-    updateAgent(id: string, request: types.api.UpdateAgentRequest): Promise<types.api.CreateOrUpdateAgentResponse>;
-    deleteAgent(id: string): Promise<void>;
+    listAgents(): types.api.ListAgentsResponse;
+    createAgent(agent: types.api.CreateAgentRequest): types.api.CreateOrUpdateAgentResponse;
+    updateAgent(id: string, request: types.api.UpdateAgentRequest): types.api.CreateOrUpdateAgentResponse;
+    deleteAgent(id: string): void;
 
-    listEmbeddings(): Promise<types.api.ListEmbeddingsResponse>;
-    createEmbedding(afBaseModelUri: string | null, files: types.UploadFileInfo[], name: string | null): Promise<types.api.CreateOrUpdateEmbeddingsResponse>;
+    listEmbeddings(): types.api.ListEmbeddingsResponse;
+    createEmbedding(afBaseModelUri: string | null, files: types.UploadFileInfo[], name: string | null): types.api.CreateOrUpdateEmbeddingsResponse;
 }
 
 export default ILmManager;

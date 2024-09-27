@@ -1,23 +1,19 @@
 
-import { Column, Entity, PrimaryColumn } from "typeorm"
 import { types } from "aifoundry-vscode-shared"
 
-@Entity({ name: 'lmproviderinfo' })
-class LmProviderInfo implements types.database.IEntity {
-    @PrimaryColumn('text')
-    id: string  // This is the provider id
+// For LmProviderInfo, "id" is the provider id
+export class LmProviderInfo extends types.database.BaseEntity {
+    public static readonly ENTITY_NAME = "LmProviderInfo";
 
-    @Column('int')
-    defaultWeight: number;
+    public get version(): number { return 1 };
 
-    @Column({ type: 'json' })
-    selectedEmbeddingModels: string[];
-
-    @Column({ type: 'json' })
-    selectedVisionModels: string[];
-
-    @Column({ type: 'json' })
-    selectedToolsModels: string[];
+    constructor(
+        public id: string,
+        public defaultWeight: number,
+        public selectedEmbeddingModels: string[],
+        public selectedVisionModels: string[],
+        public selectedToolsModels: string[],
+    ) {
+        super(id);
+    }
 }
-
-export default LmProviderInfo;

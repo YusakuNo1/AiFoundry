@@ -1,22 +1,22 @@
+import * as fs from 'fs';
 import * as path from 'path';
-import { DataSource } from "typeorm";
 import { types } from "aifoundry-vscode-shared";
 import Config from '../config';
-import LmProviderCredentials from './entities/LmProviderCredentials';
-import LmProviderInfo from './entities/LmProviderInfo';
+import { LmProviderCredentials } from './entities/LmProviderCredentials';
+import { LmProviderInfo } from './entities/LmProviderInfo';
 import AssetUtils from '../utils/assetUtils';
 import { HttpException } from '../exceptions';
 
 
 class DatabaseManager {
-    private _dataSource!: DataSource;
+    private _databaseFolderPath: string;
 
     constructor() {
     }
 
-    public async setup(databaseName: string, isTest: boolean = false) {
+    public setup(databaseName: string) {
         try {
-            await this._setupDataSource(databaseName, isTest);
+            this._setupDataSource(databaseName);
         } catch (error) {
             throw error;
         }
@@ -24,55 +24,126 @@ class DatabaseManager {
 
     // Shared ------------------------------------------------------------------
 
-    public async saveDbModel(dbModel: types.database.IEntity) {
-        return this._dataSource.manager.save(dbModel);
+    public saveDbEntity(dbEntity: types.database.BaseEntity): types.database.BaseEntity {
+        const fileName = this._getDatabaseEntityFilePath(dbEntity.entityName);
+        let content = {};
+        if (!fs.existsSync(fileName)) {
+            fs.writeFileSync(fileName, JSON.stringify(content));
+        } else {
+            content = JSON.parse(fs.readFileSync(fileName, 'utf8'));
+        }
+
+        content[dbEntity.id] = dbEntity;
+        fs.writeFileSync(fileName, JSON.stringify(content));
+        return dbEntity;
+    }
+
+    public getDbEntity(dbName: string, id: string): types.database.BaseEntity | null {
+        const fileName = this._getDatabaseEntityFilePath(dbName);
+        let content = {};
+        if (!fs.existsSync(fileName)) {
+            return null;
+        } else {
+            content = JSON.parse(fs.readFileSync(fileName, 'utf8'));
+            return content[id] ?? null;
+        }
+    }
+
+    public deleteDbEntity(dbName: string, id: string): boolean {
+        const fileName = this._getDatabaseEntityFilePath(dbName);
+        let content = {};
+        if (!fs.existsSync(fileName)) {
+            return false;
+        } else {
+            content = JSON.parse(fs.readFileSync(fileName, 'utf8'));
+            if (content[id]) {
+                delete content[id];
+                fs.writeFileSync(fileName, JSON.stringify(content));
+            } else {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    public listDbEntities(dbName: string): types.database.BaseEntity[] {
+        const fileName = this._getDatabaseEntityFilePath(dbName);
+        let content = {};
+        if (!fs.existsSync(fileName)) {
+            return [];
+        } else {
+            content = JSON.parse(fs.readFileSync(fileName, 'utf8'));
+            return Object.values(content);
+        }
     }
 
     // LmProvider --------------------------------------------------------------
 
-    public async getLmProviderCredentials(providerId: string): Promise<LmProviderCredentials | null> {
-        return this._dataSource.manager.findOneBy(LmProviderCredentials, { id: providerId });
+    public getLmProviderCredentials(providerId: string): LmProviderCredentials | null {
+        return this.getDbEntity(LmProviderCredentials.ENTITY_NAME, providerId) as LmProviderCredentials;
     }
 
-    public async saveLmProviderCredentials(providerId: string, apiKey: string, properties: Record<string, string>): Promise<void> {
-        const oldLmProviderCredentials = await this.getLmProviderCredentials(providerId);
-        const lmProviderCredentials = oldLmProviderCredentials ?? this._dataSource.manager.create(LmProviderCredentials);
-        lmProviderCredentials.id = providerId;
-        lmProviderCredentials.apiKey = apiKey;
-        lmProviderCredentials.properties = properties;
-        await this._dataSource.manager.save(lmProviderCredentials);
+    public saveLmProviderCredentials(providerId: string, apiKey: string, properties: Record<string, string>): void {
+        const oldLmProviderCredentials = this.getLmProviderCredentials(providerId);
+        const lmProviderCredentials = oldLmProviderCredentials ?? new LmProviderCredentials(
+            providerId,
+            apiKey,
+            properties,
+        );
+        this.saveDbEntity(lmProviderCredentials);
     }
 
-    public async getLmProviderInfoList(): Promise<LmProviderInfo[]> {
-        return this._dataSource.manager.find(LmProviderInfo) ?? [];
+    public listLmProviderInfo(): LmProviderInfo[] {
+        return this.listDbEntities(LmProviderInfo.ENTITY_NAME) as LmProviderInfo[];
+    }
+
+    public saveLmProviderInfo(
+        providerId: string,
+        defaultWeight: number,
+        selectedEmbeddingModels: string[],
+        selectedVisionModels: string[],
+        selectedToolsModels: string[],
+    ): void {
+        const lmProviderInfo = new LmProviderInfo(
+            providerId,
+            defaultWeight,
+            selectedEmbeddingModels,
+            selectedVisionModels,
+            selectedToolsModels,
+        );
+        this.saveDbEntity(lmProviderInfo);
     }
 
     // Embeddings --------------------------------------------------------------
 
-    public async listEmbeddingsMetadata() {
-        return this._dataSource.manager.find(types.database.EmbeddingMetadata);
+    public saveEmbeddingsMetadata(embeddingMetadata: types.database.EmbeddingMetadata) {
+        this.saveDbEntity(embeddingMetadata);
     }
 
-    public async loadEmbeddingsMetadata(assetId: string) {
-        return this._dataSource.manager.findOneBy(types.database.EmbeddingMetadata, { id: assetId });
+    public listEmbeddingsMetadata() {
+        return this.listDbEntities(types.database.EmbeddingMetadata.name) as types.database.EmbeddingMetadata[];
     }
 
-    public async deleteEmbeddingsMetadata(assetId: string) {
-        return this._dataSource.manager.delete(types.database.EmbeddingMetadata, { id: assetId });
+    public getEmbeddingsMetadata(assetId: string) {
+        return this.getDbEntity(types.database.EmbeddingMetadata.name, assetId) as types.database.EmbeddingMetadata;
+    }
+
+    public deleteEmbeddingsMetadata(assetId: string) {
+        return this.deleteDbEntity(types.database.EmbeddingMetadata.name, assetId);
     }
 
     // Agents ------------------------------------------------------------------
 
-    public async listAgents() {
-        return this._dataSource.manager.find(types.database.AgentMetadata);
+    public listAgents() {
+        return this.listDbEntities(types.database.AgentMetadata.name) as types.database.AgentMetadata[];
     }
 
-    public async getAgent(agentId: string) {
-        return this._dataSource.manager.findOneBy(types.database.AgentMetadata, { id: agentId });
+    public getAgent(agentId: string) {
+        return this.getDbEntity(types.database.AgentMetadata.name, agentId) as types.database.AgentMetadata;
     }
 
-    public async updateAgent(agentId: string, request: types.api.UpdateAgentRequest) {
-        const agent = await this._dataSource.manager.findOneBy(types.database.AgentMetadata, { id: agentId });
+    public updateAgent(agentId: string, request: types.api.UpdateAgentRequest): types.database.AgentMetadata {
+        const agent = this.getAgent(agentId);
         if (!agent) {
             throw new HttpException(404, `Agent not found`);
         }
@@ -82,47 +153,29 @@ class DatabaseManager {
         agent.system_prompt = request.system_prompt || agent.system_prompt;
         agent.rag_asset_ids = request.rag_asset_ids || agent.rag_asset_ids;
         agent.function_asset_ids = request.function_asset_ids || agent.function_asset_ids;
-
-        return await this._dataSource.manager.save(agent);
+        return this.saveDbEntity(agent) as types.database.AgentMetadata;
     }
 
-    public async deleteAgent(id: string) {
-        const result = await this._dataSource.manager.delete(types.database.AgentMetadata, { id });
-        if (result.affected === 0) {
-            throw new HttpException(404, `Agent not found`);
-        } else {
-            return result;
-        }
+    public deleteAgent(id: string) {
+        return this.deleteDbEntity(types.database.AgentMetadata.name, id);
     }
 
     // Private -----------------------------------------------------------------
 
-    private async _setupDataSource(databaseName: string, isTest: boolean) {
+    private _setupDataSource(databaseName: string) {
         const assetsPath = AssetUtils.getAssetsPath();
-        const databaseFilePath = path.join(assetsPath, databaseName);
-        // const databaseFilePath = path.join(assetsPath, "db.sqlite3");     // TODO: only for testing
+        this._databaseFolderPath = path.join(assetsPath, databaseName);
+        // this._databaseFolderPath = path.join(assetsPath, "db.sqlite3");     // TODO: only for testing
 
-        this._dataSource = new DataSource({
-            type: 'sqlite',
-            database: databaseFilePath,
-            synchronize: isTest,    // Set to false in production
-            logging: false,         // If it's true, the log for SQL will be shown in log
-            entities: [
-                types.database.AgentMetadata,
-                types.database.ChatHistory,
-                types.database.EmbeddingMetadata,
-                types.database.FunctionMetadata,
-                LmProviderCredentials,
-                LmProviderInfo,
-            ],
-            migrations: [
-                // List of your migration classes here
-            ],
-        });
-        
-        return this._dataSource.initialize();
+        // In solution for JSON based database, databaseName is the folder for all the json files
+        if (!fs.existsSync(this._databaseFolderPath)) {
+            fs.mkdirSync(this._databaseFolderPath, { recursive: true });
+        }
     }
 
+    private _getDatabaseEntityFilePath(dbName: string) {
+        return path.join(this._databaseFolderPath, dbName + '.json');
+    }
 
 //     def add_chat_message(self, aif_agent_uri: str, id: str, role: ChatRole, content: str):
 //         with Session(self._engine) as session:

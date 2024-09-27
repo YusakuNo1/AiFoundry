@@ -111,23 +111,24 @@ class LmManager implements ILmManager {
         });
     }
 
-    public async listAgents(): Promise<types.api.ListAgentsResponse> {
-        const agents = await this.databaseManager.listAgents();
+    public listAgents(): types.api.ListAgentsResponse {
+        const agents = this.databaseManager.listAgents();
         return { agents };
     }
 
-    public async createAgent(request: types.api.CreateAgentRequest): Promise<types.api.CreateOrUpdateAgentResponse> {
+    public createAgent(request: types.api.CreateAgentRequest): types.api.CreateOrUpdateAgentResponse {
         const uuidValue = uuid();
         const agentUri = AifUtils.createAifAgentUri(uuidValue);
-        const agent = new types.database.AgentMetadata();
-        agent.id = uuidValue;
-        agent.agent_uri = agentUri;
-        agent.name = request.name || uuidValue;
-        agent.base_model_uri = request.base_model_uri;
-        agent.system_prompt = request.system_prompt || "";
-        agent.rag_asset_ids = request.rag_asset_ids || [];
-        agent.function_asset_ids = request.function_asset_ids || [];
-        await this.databaseManager.saveDbModel(agent);
+        const agent = new types.database.AgentMetadata(
+            uuidValue,
+            request.name || uuidValue,
+            agentUri,
+            request.base_model_uri,
+            request.system_prompt || "",
+            request.rag_asset_ids || [],
+            request.function_asset_ids || []
+        );
+        this.databaseManager.saveDbEntity(agent);
         return { id: agent.id, uri: agent.agent_uri };
     }
 
@@ -136,24 +137,24 @@ class LmManager implements ILmManager {
     //         raise HTTPException(status_code=400, detail="Model id is required")
     //     return self.database_manager.update_agent(id=id, request=request)
 
-    public async updateAgent(id: string, request: types.api.UpdateAgentRequest): Promise<types.api.CreateOrUpdateAgentResponse> {
+    public updateAgent(id: string, request: types.api.UpdateAgentRequest): types.api.CreateOrUpdateAgentResponse {
         if (!id) {
             throw new HttpException(400, "Agent id is required");
         }
-        const agent = await this.databaseManager.updateAgent(id, request);
+        const agent = this.databaseManager.updateAgent(id, request);
         return { id: agent.id, uri: agent.agent_uri };
     }
 
-    public async deleteAgent(id: string): Promise<void> {
-        await this.databaseManager.deleteAgent(id);
+    public deleteAgent(id: string): void {
+        this.databaseManager.deleteAgent(id);
     }
 
-    public async listEmbeddings(): Promise<types.api.ListEmbeddingsResponse> {
-        const embeddings = await this.databaseManager.listEmbeddingsMetadata();
+    public listEmbeddings(): types.api.ListEmbeddingsResponse {
+        const embeddings = this.databaseManager.listEmbeddingsMetadata();
         return { embeddings };
     }
 
-    public async createEmbedding(afBaseModelUri: string | null, files: types.UploadFileInfo[], name: string | null): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
+    public createEmbedding(afBaseModelUri: string | null, files: types.UploadFileInfo[], name: string | null): types.api.CreateOrUpdateEmbeddingsResponse {
         if (!afBaseModelUri || files.length === 0) {
             throw new HttpException(400, "afBaseModelUri and files are required");
         }

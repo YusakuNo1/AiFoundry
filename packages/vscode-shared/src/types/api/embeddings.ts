@@ -1,4 +1,4 @@
-import type { EmbeddingMetadata } from "../database/embeddings";
+import type { EmbeddingMetadata } from "../database/EmbeddingMetadata";
 
 export type ListEmbeddingsResponse = {
 	embeddings: EmbeddingMetadata[];

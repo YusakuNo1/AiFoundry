@@ -1,4 +1,4 @@
-import type { AgentMetadata } from "../database/agents";
+import type { AgentMetadata } from "../database/AgentMetadata";
 
 export type ListAgentsResponse = {
 	agents: AgentMetadata[];

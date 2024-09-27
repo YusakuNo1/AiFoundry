@@ -1,7 +1,7 @@
 namespace Config {
     export const SERVER_PORT = 8000;
     export const VECTOR_STORE_PROVIDER = "faiss";
-    export const SQLITE_FILE_NAME = "aifdb.sqlite3";
+    export const SQLITE_FOLDER_NAME = "aifdb";
 
     export const ADMIN_CTRL_PREFIX = "/admin";
     export const DEFAULT_MODEL_WEIGHT = 100;

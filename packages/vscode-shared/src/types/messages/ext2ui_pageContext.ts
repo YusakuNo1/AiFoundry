@@ -1,6 +1,6 @@
 import { FunctionMetadata } from '../api/functions';
-import { EmbeddingMetadata } from '../database/embeddings';
-import { AgentMetadata } from '../database/agents';
+import { EmbeddingMetadata } from '../database/EmbeddingMetadata';
+import { AgentMetadata } from '../database/AgentMetadata';
 import { TextFormat } from '../api/chat';
 import * as shared from "./shared";
 

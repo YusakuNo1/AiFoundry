@@ -1,5 +1,5 @@
 import { FunctionMetadata } from '../api/functions';
-import type { EmbeddingMetadata } from '../database/embeddings';
+import type { EmbeddingMetadata } from '../database/EmbeddingMetadata';
 import { TextFormat } from '../api/chat';
 import { LmProviderInfo } from '../api/languageModels';
 import { SystemMenuItem } from '../menu';

@@ -1,17 +1,13 @@
 
-import { Column, Entity, PrimaryColumn } from "typeorm"
 import { types } from "aifoundry-vscode-shared"
 
-@Entity({ name: 'lmprovidercredentials' })
-class LmProviderCredentials implements types.database.IEntity {
-    @PrimaryColumn('text')
-    id: string  // This is the provider id
+// For LmProviderCredentials, "id" is the provider id
+export class LmProviderCredentials extends types.database.BaseEntity {
+    public static readonly ENTITY_NAME = "LmProviderCredentials";
 
-    @Column('text',{nullable:true})
-    apiKey: string;
+    public get version(): number { return 1 };
 
-    @Column({ type: 'json' })
-    properties: Record<string, string>;
+    constructor(public id: string, public apiKey: string, public properties: Record<string, string>) {
+        super(id);
+    }
 }
-
-export default LmProviderCredentials;
