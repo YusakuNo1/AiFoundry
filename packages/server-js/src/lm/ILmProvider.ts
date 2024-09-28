@@ -9,6 +9,7 @@
 // from aif_types.system import LmProviderStatus
 
 import { types } from 'aifoundry-vscode-shared';
+import { type Embeddings } from "@langchain/core/embeddings";
 
 interface ILmProvider {
     get id(): string;
@@ -17,7 +18,7 @@ interface ILmProvider {
     getLmProviderStatus(): types.api.LmProviderInfo;
     canHandle(aifUri: string): boolean;
     listLanguageModels(feature: types.api.LlmFeature): types.api.LanguageModelInfo[];
-    // // getBaseEmbeddingsModel(aif_agent_uri: string): Embeddings;
+    getBaseEmbeddingsModel(aif_agent_uri: string): Embeddings;
     // // getBaseLanguageModel(aif_agent_uri: string, functions: Callable[]): BaseLanguageModel;
     // getLanguageProviderInfo(): types.api.LmProviderInfo;
     // updateLmProvider(request: types.api.UpdateLmProviderRequest): void;

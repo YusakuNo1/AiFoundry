@@ -5,6 +5,6 @@ export type ListEmbeddingsResponse = {
 };
 
 export type CreateOrUpdateEmbeddingsResponse = {
-	asset_id: string,
+	assetId: string,
 	name: string,
 };

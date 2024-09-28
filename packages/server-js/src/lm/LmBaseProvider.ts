@@ -1,58 +1,37 @@
+import { Embeddings } from '@langchain/core/embeddings';
+import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { types } from 'aifoundry-vscode-shared';
 import ILmProvider from "./ILmProvider";
+import DatabaseManager from '../database/DatabaseManager';
+import { HttpException } from '../exceptions';
 
-
-
-// class LmBaseProviderProps(BaseModel):
-//     id: str
-//     name: str
-//     description: str | None = None          # Shown in the provider configuration page
-//     llmProvider: LlmProvider                # Maybe it can be deprecated?
-//     jsonFileName: str | None = None
-//     keyPrefix: str                          # Prefix for the provider, e.g. "OPENAI_"
-//     apiKeyDescription: str | None = None    # Description for the API key
-//     apiKeyHint: str | None = None           # Hint for the API key
-//     supportUserDefinedModels: bool = False  # Whether the provider supports user-defined models
+type LmBaseProviderProps = {
+    id: string;
+    name: string;
+    description: string | null;
+    // llmProvider: types.api.LlmProvider;
+    jsonFileName: string | null;
+    keyPrefix: string;
+    apiKeyDescription: string | null;
+    apiKeyHint: string | null;
+    supportUserDefinedModels: boolean;
+}
 
 abstract class LmBaseProvider implements ILmProvider {
-    private _id: string;
-    private _name: string;
-    private _description: string | null;
-    // private _llmProvider: types.api.LlmProvider;
-    private _jsonFileName: string | null;
-    private _keyPrefix: string;
-    private _apiKeyDescription: string | null;
-    private _apiKeyHint: string | null;
-    private _supportUserDefinedModels: boolean;
+    protected _props: LmBaseProviderProps;
+    protected _databaseManager: DatabaseManager;
 
-    public constructor(
-        id: string,
-        name: string,
-        description: string | null,
-        // llmProvider: types.api.LlmProvider,
-        jsonFileName: string | null,
-        keyPrefix: string,
-        apiKeyDescription: string | null,
-        apiKeyHint: string | null,
-        supportUserDefinedModels: boolean
-    ) {
-        this._id = id;
-        this._name = name;
-        this._description = description;
-        // this._llmProvider = llmProvider;
-        this._jsonFileName = jsonFileName;
-        this._keyPrefix = keyPrefix;
-        this._apiKeyDescription = apiKeyDescription;
-        this._apiKeyHint = apiKeyHint;
-        this._supportUserDefinedModels = supportUserDefinedModels;
+    public constructor(databaseManager: DatabaseManager, props: LmBaseProviderProps) {
+        this._databaseManager = databaseManager;
+        this._props = props;
     }
 
     public get id(): string {
-        return this._id;
+        return this._props.id;
     }
 
     public get name(): string {
-        return this._name;
+        return this._props.name;
     }
 
     public get isHealthy(): boolean {
@@ -85,6 +64,44 @@ abstract class LmBaseProvider implements ILmProvider {
         }
     }
 
+    public getBaseEmbeddingsModel(aifUri: string): Embeddings {
+        const lmInfo = this._parseLmUri(aifUri);
+        const credentials = this._databaseManager.getLmProviderCredentials(this.id);
+        if (!lmInfo || !credentials) {
+            throw new HttpException(400, "Invalid uri or credentials not found");
+        }
+
+        return this._getBaseEmbeddingsModel(lmInfo.modelName, credentials.apiKey, credentials.properties);
+    }
+
+    protected abstract _getBaseEmbeddingsModel(modelName: string, apiKey: string, properties: Record<string, string>): Embeddings;
+
+    public getBaseLanguageModel(aifUri: string, functions: Function[] = []): BaseChatModel {
+        const lmInfo = this._parseLmUri(aifUri);
+        const credentials = this._databaseManager.getLmProviderCredentials(this.id);
+        if (!lmInfo || !credentials) {
+            throw new HttpException(400, "Invalid uri or credentials not found");
+        }
+
+        return this._getBaseLanguageModel(lmInfo.modelName, credentials.apiKey, credentials.properties);
+    }
+
+    protected abstract _getBaseLanguageModel(modelName: string, apiKey: string, properties: Record<string, string>): BaseChatModel;
+
+//     def getBaseLanguageModel(self, aif_agent_uri: str, functions: List[Callable] = []) -> BaseLanguageModel:
+//         baseLlmInfo = self._parse_llm_uri(aif_agent_uri)
+//         api_key = os.environ.get(self.props.keyPrefix + "API_KEY")
+//         llm = self._getBaseLanguageModel(baseLlmInfo.model_name, api_key)
+
+//         if not functions or len(functions) == 0:
+//             return llm
+//         else:
+//             tools = [create_tool(func) for func in functions]
+//             return llm.bind(functions=tools)
+        
+//     def _getBaseLanguageModel(self, modelName: str, apiKey: str) -> BaseLanguageModel:
+//         raise NotImplementedError("Subclasses must implement this method")
+
     private _listLanguageModelsFromFile(feature: types.api.LlmFeature): types.api.LanguageModelInfo[] {
         const modelCatalogItems = require(`./${this.jsonFileName}`);
         const modelCatalogItemDict = modelCatalogItems.reduce((acc: Record<string, any>, item: any) => {
@@ -94,36 +111,19 @@ abstract class LmBaseProvider implements ILmProvider {
         return {} as any;
     }
 
-    private _getBaseEmbeddingsModel(aifUri: string): any {
-        const lmInfo = this._parseLmUri(aifUri);
-        const apiKey = process
-    }
-
-//     def getBaseEmbeddingsModel(self, aif_agent_uri: str) -> Embeddings:
-//         baseLlmInfo = self._parse_llm_uri(aif_agent_uri)
-//         apiKey = os.environ.get(self.props.keyPrefix + "API_KEY")
-//         return self._getBaseEmbeddingsModel(baseLlmInfo.model_name, apiKey=apiKey)
-
-    private _parseLmUri(aifUri: string): { modelName: string, apiVersion: string } {
+    protected _parseLmUri(aifUri: string): { modelName: string, apiVersion: string } | null {
         const url = new URL(aifUri);
         const params = url.searchParams;
-        return {
-            modelName: url.hostname,
-            apiVersion: params.get("api-version") || "",
-        };
+
+        if (!url.hostname) {
+            return null;
+        } else {
+            return {
+                modelName: url.hostname,
+                apiVersion: params.get("api-version") || "",
+            };    
+        }
     }
-
-//     def _parse_llm_uri(self, aif_uri: str) -> BaseLlmInfo:
-//         parsed_aif_model_uri = urlparse(aif_uri)
-//         uriParams = getUriParams(parsed_aif_model_uri)
-//         return BaseLlmInfo(
-//             provider=self.props.llmProvider,
-//             model_name=parsed_aif_model_uri.netloc,
-//             api_version=uriParams.get("api-version"),
-//         )
-
-
-
 
 //         default_weight = os.environ.get(self.props.keyPrefix + "MODELS_DEFAULT_WEIGHT")
 //         modelInfoList: List[LanguageModelInfo] = []
@@ -191,25 +191,6 @@ abstract class LmBaseProvider implements ILmProvider {
 //                     weight=default_weight,
 //                 ))
 //         return modelInfoList
-
-
-    
-
-
-//     def getBaseLanguageModel(self, aif_agent_uri: str, functions: List[Callable] = []) -> BaseLanguageModel:
-//         baseLlmInfo = self._parse_llm_uri(aif_agent_uri)
-//         api_key = os.environ.get(self.props.keyPrefix + "API_KEY")
-//         llm = self._getBaseLanguageModel(baseLlmInfo.model_name, api_key)
-
-//         if not functions or len(functions) == 0:
-//             return llm
-//         else:
-//             tools = [create_tool(func) for func in functions]
-//             return llm.bind(functions=tools)
-        
-//     def _getBaseLanguageModel(self, modelName: str, apiKey: str) -> BaseLanguageModel:
-//         raise NotImplementedError("Subclasses must implement this method")
-
 
 //     def getLanguageProviderInfo(self) -> LmProviderInfo:
 //         properties: dict[str, LmProviderProperty] = {

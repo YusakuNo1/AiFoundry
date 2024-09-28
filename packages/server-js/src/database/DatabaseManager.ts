@@ -80,7 +80,18 @@ class DatabaseManager {
     // LmProvider --------------------------------------------------------------
 
     public getLmProviderCredentials(providerId: string): LmProviderCredentials | null {
-        return this.getDbEntity(LmProviderCredentials.ENTITY_NAME, providerId) as LmProviderCredentials;
+        const lmProviderCredentials = this.getDbEntity(LmProviderCredentials.ENTITY_NAME, providerId) as LmProviderCredentials;
+
+        if (!lmProviderCredentials) {
+            return null;
+        } else if (!lmProviderCredentials.id || !lmProviderCredentials.apiKey) {
+            throw new HttpException(400, "Invalid credentials");
+        } else {
+            return {
+                ...lmProviderCredentials,
+                properties: lmProviderCredentials.properties ?? {},
+            } as LmProviderCredentials;
+        }
     }
 
     public saveLmProviderCredentials(providerId: string, apiKey: string, properties: Record<string, string>): void {
@@ -124,7 +135,7 @@ class DatabaseManager {
         return this.listDbEntities(types.database.EmbeddingMetadata.name) as types.database.EmbeddingMetadata[];
     }
 
-    public getEmbeddingsMetadata(assetId: string) {
+    public getEmbeddingsMetadata(assetId: string): types.database.EmbeddingMetadata | null {
         return this.getDbEntity(types.database.EmbeddingMetadata.name, assetId) as types.database.EmbeddingMetadata;
     }
 
@@ -138,7 +149,7 @@ class DatabaseManager {
         return this.listDbEntities(types.database.AgentMetadata.name) as types.database.AgentMetadata[];
     }
 
-    public getAgent(agentId: string) {
+    public getAgent(agentId: string): types.database.AgentMetadata | null {
         return this.getDbEntity(types.database.AgentMetadata.name, agentId) as types.database.AgentMetadata;
     }
 

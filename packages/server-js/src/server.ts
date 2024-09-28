@@ -1,5 +1,5 @@
 import * as express from "express";
-import * as dotenv from 'dotenv';
+// import * as dotenv from 'dotenv';
 import * as os from 'os';
 import * as cookieParser from "cookie-parser";
 import * as controllers from './controllers';
@@ -11,9 +11,9 @@ import DatabaseManager from "./database/DatabaseManager";
 import { AgentMetadata } from "aifoundry-vscode-shared/dist/types/database";
 
 
-dotenv.config({
-    path: `${os.homedir()}/.aifoundry/assets/.env`,
-});
+// dotenv.config({
+//     path: `${os.homedir()}/.aifoundry/assets/.env`,
+// });
 
 export async function setupServer() {
     // ServerConfig.setup(ServerUtils.getArgs());

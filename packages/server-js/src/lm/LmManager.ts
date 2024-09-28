@@ -4,9 +4,12 @@ import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
 import ILmProvider from './ILmProvider';
 import ILmManager from './ILmManager';
 import DatabaseManager from '../database/DatabaseManager';
-
 import { runLm, runEmbedding } from '../lm/LmProviderTmpAzureOpenAI';
 import { HttpException } from '../exceptions';
+import { Embeddings } from '@langchain/core/embeddings';
+import AssetUtils from '../utils/assetUtils';
+import LmProviderAzureOpenAI from './LmProviderAzureOpenAI';
+// import LmProviderOllama from './LmProviderOllama';
 
 
 class LmManager implements ILmManager {
@@ -19,6 +22,10 @@ class LmManager implements ILmManager {
         this.chat = this.chat.bind(this);
         this.listEmbeddings = this.listEmbeddings.bind(this);
         this.createEmbedding = this.createEmbedding.bind(this);
+        this.updateEmbedding = this.updateEmbedding.bind(this);
+
+        this._lmProviderMap[LmProviderAzureOpenAI.ID] = new LmProviderAzureOpenAI(databaseManager);
+        // this._lmProviderMap[LmProviderOllama.ID] = new LmProviderOllama(databaseManager);
     }
 
 // 	async def chat(self,
@@ -132,11 +139,6 @@ class LmManager implements ILmManager {
         return { id: agent.id, uri: agent.agent_uri };
     }
 
-    // def update_agent(self, id: str, request: UpdateAgentRequest) -> CreateOrUpdateAgentResponse:
-    //     if not id:
-    //         raise HTTPException(status_code=400, detail="Model id is required")
-    //     return self.database_manager.update_agent(id=id, request=request)
-
     public updateAgent(id: string, request: types.api.UpdateAgentRequest): types.api.CreateOrUpdateAgentResponse {
         if (!id) {
             throw new HttpException(400, "Agent id is required");
@@ -154,18 +156,53 @@ class LmManager implements ILmManager {
         return { embeddings };
     }
 
-    public createEmbedding(afBaseModelUri: string | null, files: types.UploadFileInfo[], name: string | null): types.api.CreateOrUpdateEmbeddingsResponse {
-        if (!afBaseModelUri || files.length === 0) {
+    public async createEmbedding(
+        afBaseModelUri: string | undefined,
+        files: types.UploadFileInfo[] | undefined,
+        name: string | undefined,
+    ): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
+        if (!afBaseModelUri || afBaseModelUri.length === 0 || !files || files.length === 0) {
             throw new HttpException(400, "afBaseModelUri and files are required");
         }
-        throw new Error("Method not implemented.");
+
+        const llm = this._getEmbeddingLanguageModel(afBaseModelUri);
+        if (!llm) {
+            throw new HttpException(400, "No language model found for the given uri");
+        }
+
+        return AssetUtils.createEmbeddings(this.databaseManager, llm, afBaseModelUri, files, name);
     }
 
-    private _getEmbeddingLanguageModel(aifUri: string) {
+    public async updateEmbedding(
+        aifEmbeddingAssetId: string | undefined,
+        files: types.UploadFileInfo[] | undefined,
+        name: string | undefined,
+    ): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
+        if (!aifEmbeddingAssetId || aifEmbeddingAssetId.length === 0) {
+            throw new HttpException(400, "Embedding id is required");
+        }
+
+        const embeddingMetadata = this.databaseManager.getEmbeddingsMetadata(aifEmbeddingAssetId);
+        if (!embeddingMetadata) {
+            throw new HttpException(404, "Embedding not found");
+        }
+
+        const llm = this._getEmbeddingLanguageModel(embeddingMetadata.basemodel_uri);
+        if (!llm) {
+            throw new HttpException(400, "No language model found for the given uri");
+        }
+
+        return AssetUtils.updateEmbeddings(this.databaseManager, llm, embeddingMetadata, files, name);
+    }
+
+    private _getEmbeddingLanguageModel(aifUri: string): Embeddings | null {
         for (const lmProvider of Object.values(this._lmProviderMap)) {
             if (lmProvider.canHandle(aifUri)) {
+                return lmProvider.getBaseEmbeddingsModel(aifUri);
             }
         }
+
+        return null;
     }
 }
 
