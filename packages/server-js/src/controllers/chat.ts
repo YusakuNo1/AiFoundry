@@ -20,59 +20,66 @@ import { v4 as uuid } from "uuid";
 import { types } from "aifoundry-vscode-shared";
 import ILmManager from "../lm/ILmManager";
 import RouterUtils from "../utils/RouterUtils";
+import ResponseUtils from "../utils/ResponseUtils";
+import { HttpException } from "../exceptions";
 
 export function registerRoutes(router: express.Router, llmManager: ILmManager) {
-    router.post('/chat/', RouterUtils.middlewares.uploadFiles, (req, res) => {
-        const aif_session_id = req.cookies.aif_session_id || uuid();
+    router.post(
+        '/chat/',
+        RouterUtils.middlewares.jsonParser,
+        RouterUtils.middlewares.uploadFiles,
+        RouterUtils.fileConvertMiddleware(["txt", "pdf"]),
+        (req, res) => {
+            ResponseUtils.handler(res, () => chat(req, res));
+        }
+    );
+
+    function chat(req, res) {
+        const aif_session_id: string = req.cookies.aif_session_id as string || uuid();
 
         const aif_agent_uri = req.headers["aif-agent-uri"];
-        if (typeof aif_agent_uri !== 'string') {
-            res.status(400).type('text').send('Invalid aif_session_id');
-            return;
+        if (!aif_agent_uri || typeof aif_agent_uri !== 'string') {
+            throw new HttpException(400, 'Missing aif-agent-uri');
         }
 
         // Different cases:
-        // 1. Exceptions within llmManager.chat, send HTTP 500
-        // 2. Exceptions before sending the first chunk, send HTTP 500
-        // 3. Exceptions after sending the first chunk, attach the error message to the response with HTTP 200
-        // 4. Exceptions after completing the response, ignore the exception
-        try {
-            const sub = llmManager.chat(
-                aif_session_id,
-                aif_agent_uri,
-                req.query.outputFormat as types.api.TextFormat,
-                req.body.input,
-                req.body.requestFileInfoList,
-            )
-    
-            res.status(200).type('text');
-            res.cookie('aif_session_id', aif_session_id);
-            let streamingStarted = false;
-            let streamingFinished = false;
-            sub.subscribe({
-                next: (chunk) => {
-                    streamingStarted = true;
-                    res.write(chunk);
-                },
-                complete: () => {
-                    streamingFinished = true;
-                    res.end();
-                },
-                error: (err) => {
-                    if (!streamingStarted) {
-                        // Case 2
-                        res.status(500).type('text').send(err);
-                    } else if (!streamingFinished) {
-                        // Case 3
-                        res.write(err);
-                    } else {
-                        // Case 4, ignore the exception
-                    }
-                },
-            });    
-        } catch (err) {
-            // Case 1
-            res.status(500).type('text').send(err);
-        }
-    });
+        //  1. Exceptions before sending the first 
+        //    1.1 Exception within `llmManager.chat`. Handle by `ResponseUtils.handler`. If it's HttpException, follow the instruction; otherwise send HTTP 500
+        //    1.2 Exception within `sub.subscribe`. Handle by `ResponseUtils.handleException`. If it's HttpException, follow the instruction; otherwise send HTTP 500
+        //  2. Exceptions after sending the first chunk, attach the error message to the response with HTTP 200
+        //  3. Exceptions after completing the response, ignore the exception
+        const sub = llmManager.chat(
+            aif_session_id,
+            aif_agent_uri,
+            req.query.outputFormat as types.api.TextFormat ?? "plain",
+            req.body.input,
+            req.files as types.UploadFileInfo[],
+        )
+
+        res.status(200).type('text');
+        res.cookie('aif_session_id', aif_session_id);
+        let streamingStarted = false;
+        let streamingFinished = false;
+        sub.subscribe({
+            next: (chunk) => {
+                streamingStarted = true;
+                res.write(chunk);
+            },
+            complete: () => {
+                streamingFinished = true;
+                res.end();
+            },
+            error: (err) => {
+                if (!streamingStarted) {
+                    // Case 1
+                    ResponseUtils.handleException(res, err);
+                } else if (!streamingFinished) {
+                    // Case 2
+                    res.write(err);
+                } else {
+                    // Case 3, ignore the exception
+                }
+            },
+        });
+    }
 }

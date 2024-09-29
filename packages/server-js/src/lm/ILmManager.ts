@@ -7,7 +7,7 @@ interface ILmManager {
         aif_agent_uri: string,
         outputFormat: types.api.TextFormat,
         input: string,
-        requestFileInfoList: types.api.ChatHistoryMessageFile[],
+        requestFileInfoList: types.UploadFileInfo[],
     ): Observable<string>;
 
     listAgents(): types.api.ListAgentsResponse;

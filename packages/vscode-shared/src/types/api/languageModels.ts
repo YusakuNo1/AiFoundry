@@ -3,7 +3,7 @@ export type LlmFeature = typeof LlmFeatures[number];
 
 export type LanguageModelInfo = {
 	provider: string,
-	basemodel_uri: string,
+	basemodelUri: string,
 	name: string,
 	ready: boolean,
 	weight: number,

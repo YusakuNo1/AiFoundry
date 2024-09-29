@@ -49,7 +49,7 @@ namespace AifPanelEvenHandlers {
                 AgentsCommands.startupdateAgentNameFlow(viewProviderMap.agents, messageEditInfo.data.id, messageEditInfo.data.name);
             } else if (_message.type === 'agent:update:systemPrompt') {
                 const messageEditInfo = message as types.MessageEditInfoAgentsystemPrompt;
-                AgentsCommands.startupdateAgentSystemPromptFlow(viewProviderMap.agents, messageEditInfo.data.id, messageEditInfo.data.system_prompt);
+                AgentsCommands.startupdateAgentSystemPromptFlow(viewProviderMap.agents, messageEditInfo.data.id, messageEditInfo.data.systemPrompt);
             } else if (_message.type === 'agent:delete') {
                 const messageEditInfo = message as types.MessageEditInfodeleteAgent;
                 AgentsCommands.startdeleteAgentFlow(viewProviderMap.agents, messageEditInfo.data.id);

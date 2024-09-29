@@ -63,7 +63,7 @@ namespace AgentsCommands {
 						}
 					}).then((agent) => {
 						const newAgent = { ...agent, name };
-						return AgentsAPI.updateAgent(newAgent.id, newAgent.agent_uri, newAgent.base_model_uri, newAgent.name, newAgent.system_prompt, newAgent.rag_asset_ids, newAgent.function_asset_ids).then(() => {
+						return AgentsAPI.updateAgent(newAgent.id, newAgent.agentUri, newAgent.basemodelUri, newAgent.name, newAgent.systemPrompt, newAgent.ragAssetIds, newAgent.functionAssetIds).then(() => {
 							agentsViewProvider.refresh(id);
 							vscode.window.showInformationMessage('Agent name is updated');
 						});	
@@ -80,7 +80,7 @@ namespace AgentsCommands {
 				// if result is undefined, the user cancelled the input box
 				if (result !== undefined) {
 					result = result ?? "";
-					const system_prompt = result;
+					const systemPrompt = result;
 					AgentsAPI.list().then((response) => {
 						const agent = response.agents.find(agent => agent.id === id);
 						if (!agent) {
@@ -89,8 +89,8 @@ namespace AgentsCommands {
 							return agent;
 						}
 					}).then((agent) => {
-						const newAgent = { ...agent, system_prompt };
-						return AgentsAPI.updateAgent(newAgent.id, newAgent.agent_uri, newAgent.base_model_uri, newAgent.name, newAgent.system_prompt, newAgent.rag_asset_ids, newAgent.function_asset_ids).then(() => {
+						const newAgent = { ...agent, systemPrompt };
+						return AgentsAPI.updateAgent(newAgent.id, newAgent.agentUri, newAgent.basemodelUri, newAgent.name, newAgent.systemPrompt, newAgent.ragAssetIds, newAgent.functionAssetIds).then(() => {
 							agentsViewProvider.refresh(id);
 							vscode.window.showInformationMessage('Agent name is updated');
 						});	
@@ -118,7 +118,7 @@ function _showChatLlmOptions(isCreate: boolean, agentsViewProvider: IViewProvide
 		const quickPick = vscode.window.createQuickPick();
 		quickPick.title = 'Select LLM model';
 
-		const items = Object.keys(options).map(key => ({ label: options[key].basemodel_uri, key }));
+		const items = Object.keys(options).map(key => ({ label: options[key].basemodelUri, key }));
 		items.sort((a, b) => {
 			const aWeight = options[a.key].weight;
 			const bWeight = options[b.key].weight;
@@ -180,9 +180,9 @@ function _createOrupdateAgent(isCreate: boolean, agentsViewProvider: IViewProvid
 	if (isCreate) {
 		const ragAssetIds = embeddings.map(embedding => embedding.id);
 		const functionAssetIds = functions.map(func => func.id);
-		AgentsAPI.createAgent(modelInfo.basemodel_uri, name, undefined, ragAssetIds, functionAssetIds).then(() => {
+		AgentsAPI.createAgent(modelInfo.basemodelUri, name, undefined, ragAssetIds, functionAssetIds).then(() => {
 			agentsViewProvider.refresh();
-			vscode.window.showInformationMessage(`Agent ${modelInfo.basemodel_uri} is created`);
+			vscode.window.showInformationMessage(`Agent ${modelInfo.basemodelUri} is created`);
 		})
 		.catch((error) => {
 			vscode.window.showErrorMessage(error.message);

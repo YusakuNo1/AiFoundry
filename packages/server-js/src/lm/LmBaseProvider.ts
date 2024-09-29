@@ -76,22 +76,25 @@ abstract class LmBaseProvider implements ILmProvider {
 
     protected abstract _getBaseEmbeddingsModel(modelName: string, apiKey: string, properties: Record<string, string>): Embeddings;
 
-    public getBaseLanguageModel(aifUri: string, functions: Function[] = []): BaseChatModel {
+    public getBaseLanguageModel(aifUri: string): BaseChatModel {
         const lmInfo = this._parseLmUri(aifUri);
         const credentials = this._databaseManager.getLmProviderCredentials(this.id);
         if (!lmInfo || !credentials) {
             throw new HttpException(400, "Invalid uri or credentials not found");
         }
 
-        return this._getBaseLanguageModel(lmInfo.modelName, credentials.apiKey, credentials.properties);
+        // TODO: for function calling
+        // functions: Function[] = []
+
+        return this._getBaseChatModel(lmInfo.modelName, credentials.apiKey, credentials.properties);
     }
 
-    protected abstract _getBaseLanguageModel(modelName: string, apiKey: string, properties: Record<string, string>): BaseChatModel;
+    protected abstract _getBaseChatModel(modelName: string, apiKey: string, properties: Record<string, string>): BaseChatModel;
 
 //     def getBaseLanguageModel(self, aif_agent_uri: str, functions: List[Callable] = []) -> BaseLanguageModel:
 //         baseLlmInfo = self._parse_llm_uri(aif_agent_uri)
 //         api_key = os.environ.get(self.props.keyPrefix + "API_KEY")
-//         llm = self._getBaseLanguageModel(baseLlmInfo.model_name, api_key)
+//         llm = self._getBaseChatModel(baseLlmInfo.model_name, api_key)
 
 //         if not functions or len(functions) == 0:
 //             return llm
@@ -99,7 +102,7 @@ abstract class LmBaseProvider implements ILmProvider {
 //             tools = [create_tool(func) for func in functions]
 //             return llm.bind(functions=tools)
         
-//     def _getBaseLanguageModel(self, modelName: str, apiKey: str) -> BaseLanguageModel:
+//     def _getBaseChatModel(self, modelName: str, apiKey: str) -> BaseLanguageModel:
 //         raise NotImplementedError("Subclasses must implement this method")
 
     private _listLanguageModelsFromFile(feature: types.api.LlmFeature): types.api.LanguageModelInfo[] {
@@ -152,7 +155,7 @@ abstract class LmBaseProvider implements ILmProvider {
 
 //                 modelInfoList.append(LanguageModelInfo(
 //                     provider=self.props.llmProvider,
-//                     basemodel_uri=f"{self.getId()}://{model_name}",
+//                     basemodelUri=f"{self.getId()}://{model_name}",
 //                     name=model_name,
 //                     ready=True,
 //                     weight=default_weight,
@@ -185,7 +188,7 @@ abstract class LmBaseProvider implements ILmProvider {
 
 //                 modelInfoList.append(LanguageModelInfo(
 //                     provider=self.props.llmProvider,
-//                     basemodel_uri=f"{self.getId()}://{model_name}",
+//                     basemodelUri=f"{self.getId()}://{model_name}",
 //                     name=model_name,
 //                     ready=True,
 //                     weight=default_weight,

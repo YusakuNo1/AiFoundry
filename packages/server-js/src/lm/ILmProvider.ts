@@ -10,6 +10,7 @@
 
 import { types } from 'aifoundry-vscode-shared';
 import { type Embeddings } from "@langchain/core/embeddings";
+import { type BaseChatModel } from "@langchain/core/language_models/chat_models";
 
 interface ILmProvider {
     get id(): string;
@@ -19,7 +20,7 @@ interface ILmProvider {
     canHandle(aifUri: string): boolean;
     listLanguageModels(feature: types.api.LlmFeature): types.api.LanguageModelInfo[];
     getBaseEmbeddingsModel(aif_agent_uri: string): Embeddings;
-    // // getBaseLanguageModel(aif_agent_uri: string, functions: Callable[]): BaseLanguageModel;
+    getBaseLanguageModel(aif_agent_uri: string): BaseChatModel;
     // getLanguageProviderInfo(): types.api.LmProviderInfo;
     // updateLmProvider(request: types.api.UpdateLmProviderRequest): void;
 

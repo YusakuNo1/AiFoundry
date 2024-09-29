@@ -27,32 +27,40 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
     }
 
     protected _getBaseEmbeddingsModel(deploymentName: string, apiKey: string, properties: Record<string, string>): Embeddings {
-        let azureOpenAIBasePath = properties.API_BASE;
-        if (!azureOpenAIBasePath.startsWith("https://")) {
-            azureOpenAIBasePath = `https://${azureOpenAIBasePath}`;
-        }
-
-        if (!azureOpenAIBasePath.includes("openai")) {
-            azureOpenAIBasePath = `${azureOpenAIBasePath}/openai/deployments/`;
-        }
-
-        const llm = new AzureOpenAIEmbeddings({
-            azureOpenAIBasePath,
+        return new AzureOpenAIEmbeddings({
+            azureOpenAIBasePath: _updateAzureOpenAIBasePath(properties.API_BASE),
             azureOpenAIApiDeploymentName: deploymentName,
             azureOpenAIApiKey: apiKey,
             azureOpenAIApiVersion: properties.API_VERSION ?? DEFAULT_API_VERSION,
             maxRetries: 1,
         });
-
-        return llm;
     }
 
-    protected _getBaseLanguageModel(modelName: string, apiKey: string, properties: Record<string, string>): BaseChatModel {
-        throw new Error("Method not implemented.");
+    protected _getBaseChatModel(deploymentName: string, apiKey: string, properties: Record<string, string>, temperature: number = 0): BaseChatModel {
+        return new AzureChatOpenAI({
+            azureOpenAIBasePath: _updateAzureOpenAIBasePath(properties.API_BASE),
+            azureOpenAIApiDeploymentName: deploymentName,
+            azureOpenAIApiKey: apiKey,
+            azureOpenAIApiVersion: properties.API_VERSION ?? DEFAULT_API_VERSION,
+            temperature,
+        });
     }
 }
 
+function _updateAzureOpenAIBasePath(azureOpenAIBasePath: string): string {
+    if (!azureOpenAIBasePath.startsWith("https://")) {
+        azureOpenAIBasePath = `https://${azureOpenAIBasePath}`;
+    }
+
+    if (!azureOpenAIBasePath.includes("openai")) {
+        azureOpenAIBasePath = `${azureOpenAIBasePath}/openai/deployments/`;
+    }
+
+    return azureOpenAIBasePath;
+}
+
 export default LmProviderAzureOpenAI;
+
 
 // class LmProviderAzureOpenAI(LmBaseProvider):
 //     def __init__(self):

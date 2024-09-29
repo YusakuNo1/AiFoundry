@@ -7,11 +7,15 @@ namespace ResponseUtils {
             const result = await func();
             response.json(result);
         } catch (ex) {
-            if (ex instanceof HttpException) {
-                response.status(ex.status).json({ error: ex.message });
-            } else {
-                response.status(500).json({ error: "Unknown error: " + ex });
-            }
+            handleException(response, ex);
+        }
+    }
+
+    export function handleException(response: express.Response, ex: any) {
+        if (ex instanceof HttpException) {
+            response.status(ex.status).json({ error: ex.message });
+        } else {
+            response.status(500).json({ error: "Unknown error: " + ex });
         }
     }
 }

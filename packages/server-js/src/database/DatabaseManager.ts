@@ -70,11 +70,11 @@ class DatabaseManager {
         const fileName = this._getDatabaseEntityFilePath(dbName);
         let content = {};
         if (!fs.existsSync(fileName)) {
-            return [];
+            fs.writeFileSync(fileName, JSON.stringify(content));
         } else {
             content = JSON.parse(fs.readFileSync(fileName, 'utf8'));
-            return Object.values(content);
         }
+        return Object.values(content);
     }
 
     // LmProvider --------------------------------------------------------------
@@ -159,17 +159,43 @@ class DatabaseManager {
             throw new HttpException(404, `Agent not found`);
         }
 
-        agent.base_model_uri = request.base_model_uri || agent.base_model_uri;
+        agent.basemodelUri = request.basemodelUri || agent.basemodelUri;
         agent.name = request.name || agent.name;
-        agent.system_prompt = request.system_prompt || agent.system_prompt;
-        agent.rag_asset_ids = request.rag_asset_ids || agent.rag_asset_ids;
-        agent.function_asset_ids = request.function_asset_ids || agent.function_asset_ids;
+        agent.systemPrompt = request.systemPrompt || agent.systemPrompt;
+        agent.ragAssetIds = request.ragAssetIds || agent.ragAssetIds;
+        agent.functionAssetIds = request.functionAssetIds || agent.functionAssetIds;
         return this.saveDbEntity(agent) as types.database.AgentMetadata;
     }
 
     public deleteAgent(id: string) {
         return this.deleteDbEntity(types.database.AgentMetadata.name, id);
     }
+
+    // public createAifAgentRuntimeInfo(aifAgentUri: string): types.AifAgentRuntimeInfo | null {
+    //     // agents = database_manager.list_agents()
+    //     // agents = [x for x in agents if x.agentUri == aifAgentUri]
+    //     // if len(agents) == 0:
+    //     //     raise HTTPException(status_code=404, detail="Agent not found")
+    //     // else:
+    //     //     agent = agents[0]
+    //     //     aifAgentUri = agent.basemodelUri
+    //     //     functions = [_load_local_functions(database_manager, function_asset_id) for function_asset_id in agent.functionAssetIds]
+    //     //     return ProcessAifAgentUriResponse(
+    //     //         agentUri=aifAgentUri,
+    //     //         aif_rag_asset_ids=agent.ragAssetIds,
+    //     //         systemPrompt=agent.systemPrompt,
+    //     //         functions=functions,
+    //     //     )
+
+    //     const agentMetadataList = this.listAgents().filter(agent => agent.agentUri === aifAgentUri);
+    //     if (agentMetadataList.length !== 1) {
+    //         throw new HttpException(404, `Agent not found`);
+    //     }
+
+    //     const agentMetadata = agentMetadataList[0];
+
+    //     return null;
+    // }
 
     // Private -----------------------------------------------------------------
 
@@ -188,11 +214,11 @@ class DatabaseManager {
         return path.join(this._databaseFolderPath, dbName + '.json');
     }
 
-//     def add_chat_message(self, aif_agent_uri: str, id: str, role: ChatRole, content: str):
+//     def add_chat_message(self, aifAgentUri: str, id: str, role: ChatRole, content: str):
 //         with Session(self._engine) as session:
 //             chat_history = session.get(ChatHistory, id)
 //             if chat_history is None:
-//                 chat_history = ChatHistory(id=id, aif_agent_uri=aif_agent_uri, messages="[]")
+//                 chat_history = ChatHistory(id=id, aifAgentUri=aifAgentUri, messages="[]")
 //                 session.add(chat_history)
 
 //             messages_json = json.loads(chat_history.messages) if chat_history.messages else []

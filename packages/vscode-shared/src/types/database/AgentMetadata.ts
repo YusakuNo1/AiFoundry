@@ -7,12 +7,12 @@ export class AgentMetadata extends BaseEntity {
 
     constructor(
         public id: string,
-        public agent_uri: string,
+        public agentUri: string,
         public name: string,
-        public base_model_uri: string,
-        public system_prompt: string,
-        public rag_asset_ids: string[],
-        public function_asset_ids: string[],
+        public basemodelUri: string,
+        public systemPrompt: string,
+        public ragAssetIds: string[],
+        public functionAssetIds: string[],
     ) {
         super(id);
     }

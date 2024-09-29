@@ -72,21 +72,21 @@ namespace AgentsAPI {
             }
 
             const _body: types.api.CreateAgentRequest = {
-                base_model_uri: baseModelUri!,
+                basemodelUri: baseModelUri!,
                 name: name,
-                system_prompt: systemPrompt,
-                rag_asset_ids: ragAssetIds,
-                function_asset_ids: funcCallAssetIds,
+                systemPrompt: systemPrompt,
+                ragAssetIds: ragAssetIds,
+                functionAssetIds: funcCallAssetIds,
             };
             body = _body;
         } else {
             const _body: types.api.UpdateAgentRequest = {
-                agent_uri: agentUri!,
-                base_model_uri: baseModelUri,
+                agentUri: agentUri!,
+                basemodelUri: baseModelUri,
                 name: name,
-                system_prompt: systemPrompt,
-                rag_asset_ids: ragAssetIds,
-                function_asset_ids: funcCallAssetIds,
+                systemPrompt: systemPrompt,
+                ragAssetIds: ragAssetIds,
+                functionAssetIds: funcCallAssetIds,
             };
             body = _body;
         }

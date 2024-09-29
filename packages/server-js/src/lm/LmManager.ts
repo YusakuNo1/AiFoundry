@@ -1,14 +1,25 @@
+import * as path from 'path';
 import { Observable } from 'rxjs';
 import { v4 as uuid } from "uuid";
+import { FaissStore } from "@langchain/community/vectorstores/faiss";
+import { Embeddings } from '@langchain/core/embeddings';
+import { BaseChatModel } from "@langchain/core/language_models/chat_models";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import {
+    RunnableLambda,
+    RunnableMap,
+    RunnablePassthrough,
+} from "@langchain/core/runnables";
 import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
 import ILmProvider from './ILmProvider';
 import ILmManager from './ILmManager';
 import DatabaseManager from '../database/DatabaseManager';
 import { runLm, runEmbedding } from '../lm/LmProviderTmpAzureOpenAI';
 import { HttpException } from '../exceptions';
-import { Embeddings } from '@langchain/core/embeddings';
 import AssetUtils from '../utils/assetUtils';
 import LmProviderAzureOpenAI from './LmProviderAzureOpenAI';
+import LmManagerUtils from './LmManagerUtils';
 // import LmProviderOllama from './LmProviderOllama';
 
 
@@ -23,6 +34,7 @@ class LmManager implements ILmManager {
         this.listEmbeddings = this.listEmbeddings.bind(this);
         this.createEmbedding = this.createEmbedding.bind(this);
         this.updateEmbedding = this.updateEmbedding.bind(this);
+        this._loadDocFromVectorStore = this._loadDocFromVectorStore.bind(this);
 
         this._lmProviderMap[LmProviderAzureOpenAI.ID] = new LmProviderAzureOpenAI(databaseManager);
         // this._lmProviderMap[LmProviderOllama.ID] = new LmProviderOllama(databaseManager);
@@ -30,15 +42,15 @@ class LmManager implements ILmManager {
 
 // 	async def chat(self,
 //         request: CreateChatRequest,
-//         aif_session_id: str,
-//         aif_agent_uri: str,
+//         aifSessionId: str,
+//         aifAgentUri: str,
 //   ) -> AsyncIterable[str]:
 //       try:
-//           request_info = process_aif_agent_uri(self.database_manager, aif_agent_uri, request.system_prompt)
+//           request_info = process_aif_agent_uri(self.database_manager, aifAgentUri, request.systemPrompt)
 
 //           runnable = self._get_chat_runnable(
 //               input=request.input,
-//               aif_session_id=aif_session_id,
+//               aifSessionId=aifSessionId,
 //               request_info=request_info,
 //               outputFormat=request.outputFormat,
 //           )
@@ -53,8 +65,8 @@ class LmManager implements ILmManager {
 //                   response = response + chunk.content
 //                   yield chunk.content
 
-//               self.database_manager.add_chat_message(id=aif_session_id, aif_agent_uri=aif_agent_uri, role=ChatRole.USER, content=request.input)
-//               self.database_manager.add_chat_message(id=aif_session_id, aif_agent_uri=aif_agent_uri, role=ChatRole.ASSISTANT, content=response)
+//               self.database_manager.add_chat_message(id=aifSessionId, aifAgentUri=aifAgentUri, role=ChatRole.USER, content=request.input)
+//               self.database_manager.add_chat_message(id=aifSessionId, aifAgentUri=aifAgentUri, role=ChatRole.ASSISTANT, content=response)
 //           else:
 //               # For function calling, we need the full response to process the tools
 //               # invoke_result = runnable.invoke(request.input, config={"callbacks": [DebugPromptHandler()]})	# for debugging
@@ -79,8 +91,8 @@ class LmManager implements ILmManager {
 //               response += tool_result
 //               yield tool_result
 
-//               self.database_manager.add_chat_message(id=aif_session_id, aif_agent_uri=aif_agent_uri, role=ChatRole.USER, content=request.input)
-//               self.database_manager.add_chat_message(id=aif_session_id, aif_agent_uri=aif_agent_uri, role=ChatRole.ASSISTANT, content=response)
+//               self.database_manager.add_chat_message(id=aifSessionId, aifAgentUri=aifAgentUri, role=ChatRole.USER, content=request.input)
+//               self.database_manager.add_chat_message(id=aifSessionId, aifAgentUri=aifAgentUri, role=ChatRole.ASSISTANT, content=response)
 
 //       except Exception as e:
 //           if isinstance(e, HTTPException):
@@ -91,29 +103,115 @@ class LmManager implements ILmManager {
 //               yield "Sorry, something went wrong"
 
     public chat(
-        aif_session_id: string,
-        aif_agent_uri: string,
+        aifSessionId: string,
+        aifAgentUri: string,
         outputFormat: types.api.TextFormat,
         input: string,
-        requestFileInfoList: types.api.ChatHistoryMessageFile[],
+        files: types.UploadFileInfo[],
     ): Observable<string> {
-        // const lmProvider = this._lmProviderMap[aif_agent_uri];
-        // if (!lmProvider) {
-        //     throw new Error(`No LM provider found for aif_agent_uri: ${aif_agent_uri}`);
-        // }
+        async function test() {
+            try {
+                const embeddingResponse = await runEmbedding(input);
+                console.log(`Embedding response: ${embeddingResponse}`);    
 
-        runEmbedding(input).then(reponse => {
-            console.log(`Embedding response: ${reponse}`);
-        });
+                const chatResponse = await runLm(input);
+                console.log(`Chat response: ${chatResponse}`);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        // test();
 
 
-        // return lmProvider.chat(request, aif_session_id);
+        
+        const agentId = AifUtils.getAgentId(aifAgentUri);
+        if (!agentId) {
+            throw new HttpException(400, "Invalid agent uri");
+        }
+
+        const agentMetadata = this.databaseManager.getAgent(agentId);
+        if (!agentMetadata) {
+            throw new HttpException(404, "Agent not found");
+        }
+        const llm = this._getBaseChatModel(agentMetadata.basemodelUri);
+
+        const docPromises = agentMetadata.ragAssetIds.map((assetId) => this._loadDocFromVectorStore(input, assetId));
+        const vectorStorePromises = agentMetadata.ragAssetIds.map((assetId) => this._getVectorStore(assetId));
+        
+        
+
+        const systemPrompt = `
+Answer the question only based on the given context. Do not add any additional information. Answer in a short sentence.
+        
+Context: {context}
+`;
+        const prompt = ChatPromptTemplate.fromMessages([
+            // ["human", "Tell me a short joke about {input}"],
+            ["system", systemPrompt],
+            ["human", "{question}"],
+        ]);
+        const outputParser = new StringOutputParser();
+          
         return new Observable<string>((subscriber) => {
-            runLm(input).then(reponse => {
-                subscriber.next(reponse as any);
+            async function run() {
+                const vectorStores = await Promise.all(vectorStorePromises);
+                const vectorStore = vectorStores[0];
+                const retriever = vectorStore.asRetriever(1);
+                const doc = await vectorStore.similaritySearch(input, 1);
+                const docs = await Promise.all(docPromises);
+                const docContents = docs.map((doc) => doc[0].pageContent);
+
+
+                // const setupAndRetrieval = RunnableMap.from({
+                //     context: new RunnableLambda({
+                //         func: (input: string) => {
+                //             return docContents.join("\n");
+                //             // return doc[0].pageContent;
+                //             // return retriever.invoke(input).then((response) => {
+                //             //     return response[0].pageContent;
+                //             // })
+                //         },
+                //     }).withConfig({ runName: "contextRetriever" }),
+                //     question: new RunnablePassthrough(),
+                // });
+                // const chain = setupAndRetrieval.pipe(prompt).pipe(llm).pipe(outputParser);
+
+
+                const ragRunnable = RunnableMap.from({
+                    context: new RunnableLambda({
+                        func: () => {
+                            return docContents.join("\n");
+                        },
+                    }).withConfig({ runName: "contextRetriever" }),
+                    question: new RunnablePassthrough(),
+                });
+                const chain = ragRunnable.pipe(prompt).pipe(llm).pipe(outputParser);
+
+
+
+
+                // const ragRunnable = RunnableMap.from({
+                //     context: new RunnableLambda({
+                //         func: () => {
+                //             return Promise.all(vectorStorePromises).then(vectorStores => vectorStores.map(vectorStore => vectorStore.similaritySearch(input, 1))).then(docs) docContents.join("\n");
+                //         },
+                //     }).withConfig({ runName: "contextRetriever" }),
+                //     question: new RunnablePassthrough(),
+                // });
+                // const chain = ragRunnable.pipe(prompt).pipe(llm).pipe(outputParser);
+
+
+
+                const response = await chain.invoke(input);
+
+                subscriber.next(response);
                 subscriber.complete();
-            }).catch(err => {
-                subscriber.error(err);
+            }
+
+            run().catch((ex) => {
+                // As the streaming started, we can only send error message but not send it as an error to subscriber
+                subscriber.next(`Error: ${ex}`);
+                subscriber.complete();
             });
         });
     }
@@ -130,13 +228,13 @@ class LmManager implements ILmManager {
             uuidValue,
             request.name || uuidValue,
             agentUri,
-            request.base_model_uri,
-            request.system_prompt || "",
-            request.rag_asset_ids || [],
-            request.function_asset_ids || []
+            request.basemodelUri ?? "",
+            request.systemPrompt ?? "",
+            request.ragAssetIds ?? [],
+            request.functionAssetIds ?? []
         );
         this.databaseManager.saveDbEntity(agent);
-        return { id: agent.id, uri: agent.agent_uri };
+        return { id: agent.id, uri: agent.agentUri };
     }
 
     public updateAgent(id: string, request: types.api.UpdateAgentRequest): types.api.CreateOrUpdateAgentResponse {
@@ -144,7 +242,7 @@ class LmManager implements ILmManager {
             throw new HttpException(400, "Agent id is required");
         }
         const agent = this.databaseManager.updateAgent(id, request);
-        return { id: agent.id, uri: agent.agent_uri };
+        return { id: agent.id, uri: agent.agentUri };
     }
 
     public deleteAgent(id: string): void {
@@ -165,11 +263,7 @@ class LmManager implements ILmManager {
             throw new HttpException(400, "afBaseModelUri and files are required");
         }
 
-        const llm = this._getEmbeddingLanguageModel(afBaseModelUri);
-        if (!llm) {
-            throw new HttpException(400, "No language model found for the given uri");
-        }
-
+        const llm = this._getBaseEmbeddingsModel(afBaseModelUri);
         return AssetUtils.createEmbeddings(this.databaseManager, llm, afBaseModelUri, files, name);
     }
 
@@ -187,22 +281,62 @@ class LmManager implements ILmManager {
             throw new HttpException(404, "Embedding not found");
         }
 
-        const llm = this._getEmbeddingLanguageModel(embeddingMetadata.basemodel_uri);
-        if (!llm) {
-            throw new HttpException(400, "No language model found for the given uri");
-        }
-
+        const llm = this._getBaseEmbeddingsModel(embeddingMetadata.basemodelUri);
         return AssetUtils.updateEmbeddings(this.databaseManager, llm, embeddingMetadata, files, name);
     }
 
-    private _getEmbeddingLanguageModel(aifUri: string): Embeddings | null {
+    private _getBaseEmbeddingsModel(aifUri: string): Embeddings {
         for (const lmProvider of Object.values(this._lmProviderMap)) {
             if (lmProvider.canHandle(aifUri)) {
                 return lmProvider.getBaseEmbeddingsModel(aifUri);
             }
         }
 
-        return null;
+        throw new HttpException(400, "No model found for the given uri");
+    }
+
+    private _getBaseChatModel(aifUri: string): BaseChatModel {
+        for (const lmProvider of Object.values(this._lmProviderMap)) {
+            if (lmProvider.canHandle(aifUri)) {
+                return lmProvider.getBaseLanguageModel(aifUri);
+            }
+        }
+
+        throw new HttpException(400, "No model found for the given uri");
+    }
+
+    private async _loadDocFromVectorStore(
+        input: string,
+        embeddingId: string,
+    ) {
+        const embeddingMetadata = this.databaseManager.getEmbeddingsMetadata(embeddingId);
+        if (!embeddingMetadata) {
+            throw new HttpException(404, "Embedding not found");
+        }
+
+        const llm = this._getBaseEmbeddingsModel(embeddingMetadata.basemodelUri);
+
+        const assetsPath = AssetUtils.getEmbeddingsAssetPath();
+        const storePath = path.join(assetsPath, embeddingId);
+        const vectorStore = await FaissStore.load(storePath, llm);
+        const document = await vectorStore.similaritySearch(input, 1);
+        return document;
+    }
+
+    private async _getVectorStore(
+        embeddingId: string,
+    ) {
+        const embeddingMetadata = this.databaseManager.getEmbeddingsMetadata(embeddingId);
+        if (!embeddingMetadata) {
+            throw new HttpException(404, "Embedding not found");
+        }
+
+        const llm = this._getBaseEmbeddingsModel(embeddingMetadata.basemodelUri);
+
+        const assetsPath = AssetUtils.getEmbeddingsAssetPath();
+        const storePath = path.join(assetsPath, embeddingId);
+        const vectorStore = await FaissStore.load(storePath, llm);
+        return vectorStore;
     }
 }
 

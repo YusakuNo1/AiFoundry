@@ -32,10 +32,10 @@ describe('AgentMetadata', () => {
         const agentMetadata = createAgentMetadata(agentId);
         databaseManager.saveDbEntity(agentMetadata);
 
-        const stringFieldsToUpdate: string[] = ['name', 'base_model_uri', 'system_prompt'];
+        const stringFieldsToUpdate: string[] = ['name', 'basemodelUri', 'systemPrompt'];
         for (const field of stringFieldsToUpdate) {
             const updatedAgentMetadata: types.api.UpdateAgentRequest = {
-                agent_uri: `mock_agent_${agentId}_uri`,
+                agentUri: `mock_agent_${agentId}_uri`,
                 [field]: `New ${field}`,
             }
 
@@ -50,10 +50,10 @@ describe('AgentMetadata', () => {
         const agentMetadata = createAgentMetadata(agentId);
         databaseManager.saveDbEntity(agentMetadata);
 
-        const arrayFieldsToUpdate: string[] = ['rag_asset_ids', 'function_asset_ids'];
+        const arrayFieldsToUpdate: string[] = ['ragAssetIds', 'functionAssetIds'];
         for (const field of arrayFieldsToUpdate) {
             const updatedAgentMetadata: types.api.UpdateAgentRequest = {
-                agent_uri: `mock_agent_${agentId}_uri`,
+                agentUri: `mock_agent_${agentId}_uri`,
                 [field]: ['Item1', 'Item2'],
             }
 

@@ -25,11 +25,11 @@ describe('AgentMetadata', () => {
         expect(embeddings[0].id).toBe("test-1");
         expect(embeddings[0].name).toBe("embedding-test-1");
         expect(embeddings[0].vs_provider).toBe("vs_provider-test-1");
-        expect(embeddings[0].basemodel_uri).toBe("basemodel_uri-test-1");
+        expect(embeddings[0].basemodelUri).toBe("basemodelUri-test-1");
         expect(embeddings[1].id).toBe("test-2");
         expect(embeddings[1].name).toBe("embedding-test-2");
         expect(embeddings[1].vs_provider).toBe("vs_provider-test-2");
-        expect(embeddings[1].basemodel_uri).toBe("basemodel_uri-test-2");
+        expect(embeddings[1].basemodelUri).toBe("basemodelUri-test-2");
     });
 
     it('should be saved and loaded successfully', () => {
@@ -39,7 +39,7 @@ describe('AgentMetadata', () => {
         expect(embedding.id).toBe("test-2");
         expect(embedding.name).toBe("embedding-test-2");
         expect(embedding.vs_provider).toBe("vs_provider-test-2");
-        expect(embedding.basemodel_uri).toBe("basemodel_uri-test-2");
+        expect(embedding.basemodelUri).toBe("basemodelUri-test-2");
     });
 
     it('should delete successfully', () => {
@@ -60,6 +60,6 @@ function createEmbeddingMetadata(id: string) {
         id,
         `embedding-${id}`,
         `vs_provider-${id}`,
-        `basemodel_uri-${id}`,
+        `basemodelUri-${id}`,
     );
 }

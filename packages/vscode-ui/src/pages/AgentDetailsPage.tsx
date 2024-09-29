@@ -63,7 +63,7 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
                 aifMessageType,
                 type,
                 data: {
-                    system_prompt: props.data.system_prompt,
+                    systemPrompt: props.data.systemPrompt,
                     id: props.data.id,
                 },
             };
@@ -85,12 +85,12 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
         const pageContext: types.PageContextModelPlayground = {
             pageType: "modelPlayground",
             data: {
-                aifAgentUri: props.data.agent_uri,
+                aifAgentUri: props.data.agentUri,
                 outputFormat,
             }
         };
         store.dispatch(pageInfoSlice.actions.setPageContext(pageContext));
-    }, [props.data?.agent_uri, outputFormat]);
+    }, [props.data?.agentUri, outputFormat]);
 
     const outputFormatRow: RowSelectionItem = React.useMemo(() => {
         const textFormatKeys = types.api.TextFormats;
@@ -111,18 +111,18 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
     }, [setOutputFormat]);
 
     const ragAssetsItems = React.useMemo(() => {
-        return props.data?.rag_asset_ids?.map(id => {
+        return props.data?.ragAssetIds?.map(id => {
             const name = embeddingMap[id]?.name ? `${embeddingMap[id].name} (${id})` : id;
             return { name };
         }) ?? [];
-    }, [props.data?.rag_asset_ids, embeddingMap]);
+    }, [props.data?.ragAssetIds, embeddingMap]);
 
     const functionAssetsItems = React.useMemo(() => {
-        return props.data?.function_asset_ids?.map(id => {
+        return props.data?.functionAssetIds?.map(id => {
             const name = functionMap[id]?.name ? `${functionMap[id].name} (${id})` : id;
             return { name };
         }) ?? [];
-    }, [props.data?.function_asset_ids, functionMap]);
+    }, [props.data?.functionAssetIds, functionMap]);
 
     if (!props.data) {
         // With React router, the page might be rendered before switching to the correct page
@@ -140,11 +140,11 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
             rows={[
                 { type: "label", key: "id", label: "ID", item: { name: props.data?.id }},
                 { type: "label", key: "name", label: "Name", item: { name: props.data?.name, onClick: () => onPostMessage("agent:update:name") }},
-                { type: "label", key: "agent_uri", label: "URI", item: { name: props.data?.agent_uri }},
-                { type: "label", key: "base_model_uri", label: "Base Model URI", item: { name: props.data?.base_model_uri }},
-                { type: "label", key: "system_prompt", label: "System Prompt", item: { name: props.data?.system_prompt, onClick: () => onPostMessage("agent:update:systemPrompt") }},
-                { type: "collection", key: "rag_asset_ids", label: "RAG Assets", item: ragAssetsItems },
-                { type: "collection", key: "function_asset_ids", label: "Function Calling Assets", item: functionAssetsItems },
+                { type: "label", key: "agentUri", label: "URI", item: { name: props.data?.agentUri }},
+                { type: "label", key: "basemodelUri", label: "Base Model URI", item: { name: props.data?.basemodelUri }},
+                { type: "label", key: "systemPrompt", label: "System Prompt", item: { name: props.data?.systemPrompt, onClick: () => onPostMessage("agent:update:systemPrompt") }},
+                { type: "collection", key: "ragAssetIds", label: "RAG Assets", item: ragAssetsItems },
+                { type: "collection", key: "functionAssetIds", label: "Function Calling Assets", item: functionAssetsItems },
                 { type: "selection", key: "output_format", label: "Output Format", item: outputFormatRow},
             ]} actionButtons={[
                 { key: "model-playground", label: "Playground", onClick: () => onShowModelPlayground() },

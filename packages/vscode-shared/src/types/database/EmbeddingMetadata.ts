@@ -10,7 +10,7 @@ export class EmbeddingMetadata extends BaseEntity {
         public id: string,
         public name: string,
         public vs_provider: string,
-        public basemodel_uri: string,
+        public basemodelUri: string,
     ) {
         super(id);
     }

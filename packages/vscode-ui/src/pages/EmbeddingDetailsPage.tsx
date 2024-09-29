@@ -58,7 +58,7 @@ const EmbeddingDetailsPage: React.FC<Props> = (props: Props) => {
                 { type: "label", key: "id", label: "ID", item: { name: props.data.id }},
                 { type: "label", key: "name", label: "Name", item: { name: props.data.name ?? "", onClick: () => onPostMessage("UpdateEmbeddingName") }},
                 { type: "label", key: "vs_provider", label: "Vector Store Provider", item: { name: props.data.vs_provider }},
-                { type: "label", key: "model_uri", label: "Model URI", item: { name: props.data.basemodel_uri }},
+                { type: "label", key: "model_uri", label: "Model URI", item: { name: props.data.basemodelUri }},
             ]}
             actionButtons={[
                 { key: "append-new-document", label: "Append New Document", onClick: () => onPostMessage("UpdateEmbeddingDoc") },

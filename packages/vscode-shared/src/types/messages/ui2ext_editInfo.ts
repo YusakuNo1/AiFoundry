@@ -40,7 +40,7 @@ export type MessageEditInfoAgentName = MessageEditInfoAgents & {
 };
 export type MessageEditInfoAgentsystemPrompt = MessageEditInfoAgents & {
     data: {
-        system_prompt: string;
+        systemPrompt: string;
         id: string;
     };
 };

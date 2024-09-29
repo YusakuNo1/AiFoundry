@@ -9,7 +9,7 @@ export function mockVSCodeExt() {
                     if (message.aifMessageType === "editInfo" && message.type === "UpdateEmbeddingName") {
                         const data = {
                             id: "13d2c85da52e4225b81c788859b429ad",
-                            agent_uri: "ollama://mxbai-embed-large-david-test",
+                            agentUri: "ollama://mxbai-embed-large-david-test",
                             name: "david-test-name",
                             vs_provider: "faiss",
                         }
