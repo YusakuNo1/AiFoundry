@@ -1,4 +1,5 @@
-import { ChatHistoryMessageFile, TextFormat } from '../api/chat';
+import { TextFormat } from '../api/chat';
+import { UploadFileInfo } from '../common';
 import { UpdateLmProviderRequest } from '../api/languageModels';
 import * as shared from "./shared";
 
@@ -29,7 +30,7 @@ export type MessageApiChatSendMessage = MessageApi & {
         aifAgentUri: string;
         contentTextFormat: TextFormat;
         input: string;
-        files: ChatHistoryMessageFile[];
+        files: UploadFileInfo[];
     };
 };
 export type MessageApiUpdateLmProvider = MessageApi & {

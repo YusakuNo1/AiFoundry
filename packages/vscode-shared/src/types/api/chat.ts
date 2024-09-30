@@ -6,6 +6,11 @@ export const TextFormatDisplayNames = {
     markdown: "Markdown",
     latex: "LaTeX",
 };
+export const TextFormatPrompts: Record<TextFormat, string> = {
+    "plain": "The response is in plain text format.",
+    "markdown": "The response is in markdown format.",
+    "latex": "The response is in LaTeX format."
+}
 export type TextFormat = typeof TextFormats[number];
 export const defaultTextFormat: TextFormat = "plain";
 
@@ -14,15 +19,11 @@ export enum ChatRole {
     ASSISTANT = 'ASSISTANT',
 }
 
-export type ChatHistoryMessageFile = UploadFileInfo & {
-    type: "image",
-}
-
 export type ChatHistoryMessage = {
 	role: ChatRole,
     contentTextFormat: TextFormat,
 	content: string,
-    files?: ChatHistoryMessageFile[],
+    files?: UploadFileInfo[],
 }
 
 export type ChatHistory = {

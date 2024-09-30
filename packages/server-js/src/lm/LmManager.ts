@@ -34,7 +34,6 @@ class LmManager implements ILmManager {
         this.listEmbeddings = this.listEmbeddings.bind(this);
         this.createEmbedding = this.createEmbedding.bind(this);
         this.updateEmbedding = this.updateEmbedding.bind(this);
-        this._loadDocFromVectorStore = this._loadDocFromVectorStore.bind(this);
 
         this._lmProviderMap[LmProviderAzureOpenAI.ID] = new LmProviderAzureOpenAI(databaseManager);
         // this._lmProviderMap[LmProviderOllama.ID] = new LmProviderOllama(databaseManager);
@@ -109,103 +108,21 @@ class LmManager implements ILmManager {
         input: string,
         files: types.UploadFileInfo[],
     ): Observable<string> {
-        async function test() {
-            try {
-                const embeddingResponse = await runEmbedding(input);
-                console.log(`Embedding response: ${embeddingResponse}`);    
-
-                const chatResponse = await runLm(input);
-                console.log(`Chat response: ${chatResponse}`);
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        // test();
-
-
-        
         const agentId = AifUtils.getAgentId(aifAgentUri);
         if (!agentId) {
             throw new HttpException(400, "Invalid agent uri");
         }
 
-        const agentMetadata = this.databaseManager.getAgent(agentId);
-        if (!agentMetadata) {
-            throw new HttpException(404, "Agent not found");
-        }
-        const llm = this._getBaseChatModel(agentMetadata.basemodelUri);
-
-        const docPromises = agentMetadata.ragAssetIds.map((assetId) => this._loadDocFromVectorStore(input, assetId));
-        const vectorStorePromises = agentMetadata.ragAssetIds.map((assetId) => this._getVectorStore(assetId));
-        
-        
-
-        const systemPrompt = `
-Answer the question only based on the given context. Do not add any additional information. Answer in a short sentence.
-        
-Context: {context}
-`;
-        const prompt = ChatPromptTemplate.fromMessages([
-            // ["human", "Tell me a short joke about {input}"],
-            ["system", systemPrompt],
-            ["human", "{question}"],
-        ]);
-        const outputParser = new StringOutputParser();
-          
+        const databaseManager = this.databaseManager;
+        const chain = LmManagerUtils.getChain(this.databaseManager, this._lmProviderMap, aifSessionId, agentId, input, files, outputFormat);
         return new Observable<string>((subscriber) => {
             async function run() {
-                const vectorStores = await Promise.all(vectorStorePromises);
-                const vectorStore = vectorStores[0];
-                const retriever = vectorStore.asRetriever(1);
-                const doc = await vectorStore.similaritySearch(input, 1);
-                const docs = await Promise.all(docPromises);
-                const docContents = docs.map((doc) => doc[0].pageContent);
-
-
-                // const setupAndRetrieval = RunnableMap.from({
-                //     context: new RunnableLambda({
-                //         func: (input: string) => {
-                //             return docContents.join("\n");
-                //             // return doc[0].pageContent;
-                //             // return retriever.invoke(input).then((response) => {
-                //             //     return response[0].pageContent;
-                //             // })
-                //         },
-                //     }).withConfig({ runName: "contextRetriever" }),
-                //     question: new RunnablePassthrough(),
-                // });
-                // const chain = setupAndRetrieval.pipe(prompt).pipe(llm).pipe(outputParser);
-
-
-                const ragRunnable = RunnableMap.from({
-                    context: new RunnableLambda({
-                        func: () => {
-                            return docContents.join("\n");
-                        },
-                    }).withConfig({ runName: "contextRetriever" }),
-                    question: new RunnablePassthrough(),
-                });
-                const chain = ragRunnable.pipe(prompt).pipe(llm).pipe(outputParser);
-
-
-
-
-                // const ragRunnable = RunnableMap.from({
-                //     context: new RunnableLambda({
-                //         func: () => {
-                //             return Promise.all(vectorStorePromises).then(vectorStores => vectorStores.map(vectorStore => vectorStore.similaritySearch(input, 1))).then(docs) docContents.join("\n");
-                //         },
-                //     }).withConfig({ runName: "contextRetriever" }),
-                //     question: new RunnablePassthrough(),
-                // });
-                // const chain = ragRunnable.pipe(prompt).pipe(llm).pipe(outputParser);
-
-
-
                 const response = await chain.invoke(input);
-
                 subscriber.next(response);
                 subscriber.complete();
+
+                databaseManager.addChatMessage(aifSessionId, aifAgentUri, types.api.ChatRole.USER, input, outputFormat, files);
+                databaseManager.addChatMessage(aifSessionId, aifAgentUri, types.api.ChatRole.ASSISTANT, response, types.api.defaultTextFormat);
             }
 
             run().catch((ex) => {
@@ -263,7 +180,7 @@ Context: {context}
             throw new HttpException(400, "afBaseModelUri and files are required");
         }
 
-        const llm = this._getBaseEmbeddingsModel(afBaseModelUri);
+        const llm = LmManagerUtils.getBaseEmbeddingsModel(this._lmProviderMap, afBaseModelUri);
         return AssetUtils.createEmbeddings(this.databaseManager, llm, afBaseModelUri, files, name);
     }
 
@@ -281,63 +198,10 @@ Context: {context}
             throw new HttpException(404, "Embedding not found");
         }
 
-        const llm = this._getBaseEmbeddingsModel(embeddingMetadata.basemodelUri);
+        const llm = LmManagerUtils.getBaseEmbeddingsModel(this._lmProviderMap, embeddingMetadata.basemodelUri);
         return AssetUtils.updateEmbeddings(this.databaseManager, llm, embeddingMetadata, files, name);
     }
 
-    private _getBaseEmbeddingsModel(aifUri: string): Embeddings {
-        for (const lmProvider of Object.values(this._lmProviderMap)) {
-            if (lmProvider.canHandle(aifUri)) {
-                return lmProvider.getBaseEmbeddingsModel(aifUri);
-            }
-        }
-
-        throw new HttpException(400, "No model found for the given uri");
-    }
-
-    private _getBaseChatModel(aifUri: string): BaseChatModel {
-        for (const lmProvider of Object.values(this._lmProviderMap)) {
-            if (lmProvider.canHandle(aifUri)) {
-                return lmProvider.getBaseLanguageModel(aifUri);
-            }
-        }
-
-        throw new HttpException(400, "No model found for the given uri");
-    }
-
-    private async _loadDocFromVectorStore(
-        input: string,
-        embeddingId: string,
-    ) {
-        const embeddingMetadata = this.databaseManager.getEmbeddingsMetadata(embeddingId);
-        if (!embeddingMetadata) {
-            throw new HttpException(404, "Embedding not found");
-        }
-
-        const llm = this._getBaseEmbeddingsModel(embeddingMetadata.basemodelUri);
-
-        const assetsPath = AssetUtils.getEmbeddingsAssetPath();
-        const storePath = path.join(assetsPath, embeddingId);
-        const vectorStore = await FaissStore.load(storePath, llm);
-        const document = await vectorStore.similaritySearch(input, 1);
-        return document;
-    }
-
-    private async _getVectorStore(
-        embeddingId: string,
-    ) {
-        const embeddingMetadata = this.databaseManager.getEmbeddingsMetadata(embeddingId);
-        if (!embeddingMetadata) {
-            throw new HttpException(404, "Embedding not found");
-        }
-
-        const llm = this._getBaseEmbeddingsModel(embeddingMetadata.basemodelUri);
-
-        const assetsPath = AssetUtils.getEmbeddingsAssetPath();
-        const storePath = path.join(assetsPath, embeddingId);
-        const vectorStore = await FaissStore.load(storePath, llm);
-        return vectorStore;
-    }
 }
 
 export default LmManager;

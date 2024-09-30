@@ -1,5 +1,13 @@
 
+import { UploadFileInfo } from "../common";
 import { BaseEntity } from "./BaseEntity"
+
+type ChatHistoryMessage = {
+    role: string,
+    contentTextFormat: string,
+    content: string,
+    files: UploadFileInfo[],
+}
 
 export class ChatHistory extends BaseEntity {
     public static readonly ENTITY_NAME = "ChatHistory";
@@ -9,7 +17,7 @@ export class ChatHistory extends BaseEntity {
     constructor(
         public id: string,
         public aif_agent_uri: string,
-        public messages: string,        // TODO: it's JSON string currently, but can be a JSON now
+        public messages: string | ChatHistoryMessage[],   // TODO: JSON string type is the legacy one for Python, ChatHistoryMessage is the new one for TypeScript
     ) {
         super(id);
     }

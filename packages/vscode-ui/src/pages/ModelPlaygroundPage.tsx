@@ -39,7 +39,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
     const [pageChatHistoryMessages, setPageChatHistoryMessages] = React.useState<PageChatHistoryMessage[]>(chatHistoryMessages);
     const aifSessionId = useSelector((state: RootState) => state.chatInfo.aifSessionId);
     const [inputText, setInputText] = React.useState('');
-    const [chatHistoryMessageFiles, setChatHistoryMessageFiles] = React.useState<types.api.ChatHistoryMessageFile[]>([]);
+    const [chatHistoryMessageFiles, setChatHistoryMessageFiles] = React.useState<types.UploadFileInfo[]>([]);
 
     const marked = React.useMemo(() => {
         return new Marked();
@@ -103,7 +103,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
 
         // Update Redux store for user chat message
         const promises = chatHistoryMessageFiles.map((file) => {
-            return new Promise<types.api.ChatHistoryMessageFile>((resolve, reject) => {
+            return new Promise<types.UploadFileInfo>((resolve, reject) => {
                 WebApiImageUtils.resizeDataUrl(file.dataUrlPrefix + file.data, { maxHeight: consts.THUMBNAIL_HEIGHT }).then((dataUrl) => {
                     const dataUrlInfo = types.convertToDataUrlInfo(dataUrl);
                     resolve({ type: file.type, fileName: file.fileName, data: dataUrlInfo.data, dataUrlPrefix: dataUrlInfo.dataUrlPrefix });
@@ -132,7 +132,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
         async function process() {
             const files = event?.target?.files ?? [];
             const imageOptions = { maxWidth: consts.UPLOAD_IMAGE_MAX_WIDTH, maxHeight: consts.UPLOAD_IMAGE_MAX_HEIGHT };
-            const _chatHistoryMessageFiles: types.api.ChatHistoryMessageFile[] = [];
+            const _chatHistoryMessageFiles: types.UploadFileInfo[] = [];
             for await (const file of files) {
                 const response = await WebApiImageUtils.readImageFileToDataUrl(file, imageOptions);
                 _chatHistoryMessageFiles.push({

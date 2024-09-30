@@ -17,7 +17,7 @@
 
 import * as express from "express";
 import { v4 as uuid } from "uuid";
-import { types } from "aifoundry-vscode-shared";
+import { consts, types } from "aifoundry-vscode-shared";
 import ILmManager from "../lm/ILmManager";
 import RouterUtils from "../utils/RouterUtils";
 import ResponseUtils from "../utils/ResponseUtils";
@@ -56,13 +56,15 @@ export function registerRoutes(router: express.Router, llmManager: ILmManager) {
             req.files as types.UploadFileInfo[],
         )
 
-        res.status(200).type('text');
-        res.cookie('aif_session_id', aif_session_id);
         let streamingStarted = false;
         let streamingFinished = false;
         sub.subscribe({
             next: (chunk) => {
-                streamingStarted = true;
+                if (!streamingStarted) {
+                    streamingStarted = true;
+                    res.status(200).type('text');
+                    res.cookie(consts.COOKIE_AIF_SESSION_ID, aif_session_id);
+                }
                 res.write(chunk);
             },
             complete: () => {

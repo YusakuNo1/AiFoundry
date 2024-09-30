@@ -27,7 +27,7 @@ export const chatInfoSlice = createSlice({
         appendChatUserMessage: (state, action: PayloadAction<{
             content: string,
             contentTextFormat: types.api.TextFormat,
-            files: types.api.ChatHistoryMessageFile[],
+            files: types.UploadFileInfo[],
         }>) => {
             // For user chat message, always append it since it's from local, we have no session ID
             state.messages.push({

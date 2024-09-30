@@ -171,31 +171,35 @@ class DatabaseManager {
         return this.deleteDbEntity(types.database.AgentMetadata.name, id);
     }
 
-    // public createAifAgentRuntimeInfo(aifAgentUri: string): types.AifAgentRuntimeInfo | null {
-    //     // agents = database_manager.list_agents()
-    //     // agents = [x for x in agents if x.agentUri == aifAgentUri]
-    //     // if len(agents) == 0:
-    //     //     raise HTTPException(status_code=404, detail="Agent not found")
-    //     // else:
-    //     //     agent = agents[0]
-    //     //     aifAgentUri = agent.basemodelUri
-    //     //     functions = [_load_local_functions(database_manager, function_asset_id) for function_asset_id in agent.functionAssetIds]
-    //     //     return ProcessAifAgentUriResponse(
-    //     //         agentUri=aifAgentUri,
-    //     //         aif_rag_asset_ids=agent.ragAssetIds,
-    //     //         systemPrompt=agent.systemPrompt,
-    //     //         functions=functions,
-    //     //     )
+    // Chat --------------------------------------------------------------------
 
-    //     const agentMetadataList = this.listAgents().filter(agent => agent.agentUri === aifAgentUri);
-    //     if (agentMetadataList.length !== 1) {
-    //         throw new HttpException(404, `Agent not found`);
-    //     }
+    public getChatHistory(sessionId: string): types.database.ChatHistory | null {
+        return this.getDbEntity(types.database.ChatHistory.name, sessionId) as types.database.ChatHistory;
+    }
 
-    //     const agentMetadata = agentMetadataList[0];
+    public addChatMessage(
+        sessionId: string,
+        aifAgentUri: string,
+        role: types.api.ChatRole,
+        content: string,
+        contentTextFormat: types.api.TextFormat,
+        files: types.UploadFileInfo[] = [],
+    ) {
+        let chatHistory = this.getChatHistory(sessionId);
+        if (!chatHistory) {
+            chatHistory = new types.database.ChatHistory(sessionId, aifAgentUri, []);
+        }
 
-    //     return null;
-    // }
+        const chatHistoryMessage: types.api.ChatHistoryMessage = {
+            role: role,
+            content: content,
+            contentTextFormat,
+            files: files,
+        };
+        (chatHistory.messages as types.api.ChatHistoryMessage[]).push(chatHistoryMessage);
+        this.saveDbEntity(chatHistory);
+    }
+
 
     // Private -----------------------------------------------------------------
 
