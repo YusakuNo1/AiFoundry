@@ -1,6 +1,7 @@
 import * as path from 'path';
 import { FaissStore } from "@langchain/community/vectorstores/faiss";
 import { Embeddings } from '@langchain/core/embeddings';
+import { AIMessage, BaseMessage, HumanMessage, MessageContentComplex, SystemMessage } from "@langchain/core/messages";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
@@ -78,7 +79,7 @@ namespace LmManagerUtils {
 
         const llm = LmManagerUtils.getBaseChatModel(lmProviderMap, agentMetadata.basemodelUri);
         const hasRAG = agentMetadata.ragAssetIds.length > 0;
-        const prompt = _getPrompt(databaseManager, aifSessionId, agentMetadata, files, outputFormat);
+        const prompt = _getPrompt(databaseManager, aifSessionId, agentMetadata, input, files, outputFormat);
         const outputParser = new StringOutputParser();
 
         if (hasRAG) {
@@ -103,6 +104,7 @@ namespace LmManagerUtils {
         databaseManager: DatabaseManager,
         aifSessionId: string,
         agentMetadata: types.database.AgentMetadata,
+        input: string,
         files: types.UploadFileInfo[],
         outputFormat: types.api.TextFormat,
     ) {
@@ -114,16 +116,32 @@ ${types.api.TextFormatPrompts[outputFormat] ?? ""}
 Answer the question only based on the given context. Do not add any additional information. Answer in a short sentence.        
 Context: {context}`;
 
-        const messages: any[] = [];
-        messages.push(["system", _systemPrompt]);
+        const messages: BaseMessage[] = [];
+        messages.push(new SystemMessage(_systemPrompt));
+
         for (const chatMessage of ((chatHistory?.messages as types.api.ChatHistoryMessage[]) ?? [])) {
             if (chatMessage.role === types.api.ChatRole.USER) {
-                messages.push(["user", chatMessage.content]);
+                messages.push(new HumanMessage(chatMessage.content));
             } else if (chatMessage.role === types.api.ChatRole.ASSISTANT) {
-                messages.push(["assistant", chatMessage.content]);
+                messages.push(new AIMessage(chatMessage.content));
             }
         }
-        messages.push(["user", "{question}"]);
+
+        const messageContent: MessageContentComplex[] = [{
+            type: "text",
+            text: input,
+        }];
+
+        for (const file of files) {
+            messageContent.push({
+                type: "image_url",
+                image_url: {
+                    url: `${file.dataUrlPrefix}${file.data}`,
+                },
+            });
+        }
+
+        messages.push(new HumanMessage({ content: messageContent }));
         const prompt = ChatPromptTemplate.fromMessages(messages);
         return prompt;
     }

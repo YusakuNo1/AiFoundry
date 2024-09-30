@@ -28,7 +28,7 @@ export function registerRoutes(router: express.Router, llmManager: ILmManager) {
         '/chat/',
         RouterUtils.middlewares.jsonParser,
         RouterUtils.middlewares.uploadFiles,
-        RouterUtils.fileConvertMiddleware(["txt", "pdf"]),
+        RouterUtils.fileConvertMiddleware(["image"]),
         (req, res) => {
             ResponseUtils.handler(res, () => chat(req, res));
         }
@@ -56,14 +56,14 @@ export function registerRoutes(router: express.Router, llmManager: ILmManager) {
             req.files as types.UploadFileInfo[],
         )
 
+        res.status(200).type('text');
+        res.cookie(consts.COOKIE_AIF_SESSION_ID, aif_session_id);
         let streamingStarted = false;
         let streamingFinished = false;
         sub.subscribe({
             next: (chunk) => {
                 if (!streamingStarted) {
                     streamingStarted = true;
-                    res.status(200).type('text');
-                    res.cookie(consts.COOKIE_AIF_SESSION_ID, aif_session_id);
                 }
                 res.write(chunk);
             },
