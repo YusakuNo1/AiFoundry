@@ -1,20 +1,3 @@
-// @router.post("/chat/", tags=["chat"])
-// async def chat(
-//     request: CreateChatRequest,
-//     aif_agent_uri: str | None = Header(None, alias=HEADER_AIF_AGENT_URI),
-//     aif_session_id: str | None = Cookie(None, alias=COOKIE_AIF_SESSION_ID),
-// ):
-//     aif_session_id = aif_session_id if aif_session_id else str(uuid.uuid4())
-//     process_output = llm_manager.chat(
-//         request=request,
-//         aif_session_id=aif_session_id,
-//         aif_agent_uri=aif_agent_uri,
-//     )
-
-//     response = StreamingResponse(process_output, media_type="text/event-stream")
-//     response.set_cookie(key=COOKIE_AIF_SESSION_ID, value=aif_session_id)
-//     return response
-
 import * as express from "express";
 import { v4 as uuid } from "uuid";
 import { consts, types } from "aifoundry-vscode-shared";
@@ -30,7 +13,12 @@ export function registerRoutes(router: express.Router, llmManager: ILmManager) {
         RouterUtils.middlewares.uploadFiles,
         RouterUtils.fileConvertMiddleware(["image"]),
         (req, res) => {
-            ResponseUtils.handler(res, () => chat(req, res));
+            try {
+                // Cannot use ResponseUtils.handler because it's async
+                chat(req, res);
+            } catch (err) {
+                ResponseUtils.handleException(res, err);
+            }
         }
     );
 
@@ -60,6 +48,7 @@ export function registerRoutes(router: express.Router, llmManager: ILmManager) {
         res.cookie(consts.COOKIE_AIF_SESSION_ID, aif_session_id);
         let streamingStarted = false;
         let streamingFinished = false;
+
         sub.subscribe({
             next: (chunk) => {
                 if (!streamingStarted) {

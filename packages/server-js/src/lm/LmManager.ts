@@ -1,21 +1,9 @@
-import * as path from 'path';
 import { Observable } from 'rxjs';
 import { v4 as uuid } from "uuid";
-import { FaissStore } from "@langchain/community/vectorstores/faiss";
-import { Embeddings } from '@langchain/core/embeddings';
-import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { StringOutputParser } from "@langchain/core/output_parsers";
-import {
-    RunnableLambda,
-    RunnableMap,
-    RunnablePassthrough,
-} from "@langchain/core/runnables";
-import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
+import { AifUtils, types } from 'aifoundry-vscode-shared';
 import ILmProvider from './ILmProvider';
 import ILmManager from './ILmManager';
 import DatabaseManager from '../database/DatabaseManager';
-import { runLm, runEmbedding } from '../lm/LmProviderTmpAzureOpenAI';
 import { HttpException } from '../exceptions';
 import AssetUtils from '../utils/assetUtils';
 import LmProviderAzureOpenAI from './LmProviderAzureOpenAI';
@@ -38,68 +26,6 @@ class LmManager implements ILmManager {
         this._lmProviderMap[LmProviderAzureOpenAI.ID] = new LmProviderAzureOpenAI(databaseManager);
         // this._lmProviderMap[LmProviderOllama.ID] = new LmProviderOllama(databaseManager);
     }
-
-// 	async def chat(self,
-//         request: CreateChatRequest,
-//         aifSessionId: str,
-//         aifAgentUri: str,
-//   ) -> AsyncIterable[str]:
-//       try:
-//           request_info = process_aif_agent_uri(self.database_manager, aifAgentUri, request.systemPrompt)
-
-//           runnable = self._get_chat_runnable(
-//               input=request.input,
-//               aifSessionId=aifSessionId,
-//               request_info=request_info,
-//               outputFormat=request.outputFormat,
-//           )
-
-//           # if request_info has functions, invoke the request and wait for the response because LM may send back a tool call
-//           if not request_info.functions:
-//               response = ""
-
-//               # iterable = runnable.astream(request.input, config={"callbacks": [DebugPromptHandler()]})	# for debugging
-//               iterable = runnable.astream(request.input)
-//               async for chunk in iterable:
-//                   response = response + chunk.content
-//                   yield chunk.content
-
-//               self.database_manager.add_chat_message(id=aifSessionId, aifAgentUri=aifAgentUri, role=ChatRole.USER, content=request.input)
-//               self.database_manager.add_chat_message(id=aifSessionId, aifAgentUri=aifAgentUri, role=ChatRole.ASSISTANT, content=response)
-//           else:
-//               # For function calling, we need the full response to process the tools
-//               # invoke_result = runnable.invoke(request.input, config={"callbacks": [DebugPromptHandler()]})	# for debugging
-//               invoke_result = runnable.invoke(request.input)
-
-//               response = ""
-//               # Special case from Anthropic response: invoke_result.content is a list, find the content from the first item
-//               if type(invoke_result.content) == list and len(invoke_result.content) > 0:
-//                   responseText = invoke_result.content[0]["text"]
-//               elif invoke_result.content:
-//                   responseText = invoke_result.content
-//               else:
-//                   responseText = ""
-
-//               if len(responseText) > 0:
-//                   response += responseText
-//                   yield responseText + RESPONSE_LINEBREAK + RESPONSE_LINEBREAK
-
-//               tool_result = processToolsResponse(invoke_result, request_info.functions)
-//               if type(tool_result) != str:
-//                   raise HTTPException(status_code=400, detail="Tool response should be a string")
-//               response += tool_result
-//               yield tool_result
-
-//               self.database_manager.add_chat_message(id=aifSessionId, aifAgentUri=aifAgentUri, role=ChatRole.USER, content=request.input)
-//               self.database_manager.add_chat_message(id=aifSessionId, aifAgentUri=aifAgentUri, role=ChatRole.ASSISTANT, content=response)
-
-//       except Exception as e:
-//           if isinstance(e, HTTPException):
-//               yield e.detail
-//           elif isinstance(e, ValueError):
-//               yield str(e)
-//           else:
-//               yield "Sorry, something went wrong"
 
     public chat(
         aifSessionId: string,
