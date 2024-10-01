@@ -22,9 +22,19 @@ class LmManager implements ILmManager {
         this.listEmbeddings = this.listEmbeddings.bind(this);
         this.createEmbedding = this.createEmbedding.bind(this);
         this.updateEmbedding = this.updateEmbedding.bind(this);
+        this.listLmProviders = this.listLmProviders.bind(this);
+        this.listLanguageModels = this.listLanguageModels.bind
 
+        this._initLmProviders(databaseManager);
+    }
+
+    private _initLmProviders(databaseManager: DatabaseManager) {
         this._lmProviderMap[LmProviderAzureOpenAI.ID] = new LmProviderAzureOpenAI(databaseManager);
         // this._lmProviderMap[LmProviderOllama.ID] = new LmProviderOllama(databaseManager);
+
+        for (const provider of Object.values(this._lmProviderMap)) {
+            provider.registerProviderInfo(databaseManager);
+        }
     }
 
     public chat(
@@ -128,6 +138,24 @@ class LmManager implements ILmManager {
         return AssetUtils.updateEmbeddings(this.databaseManager, llm, embeddingMetadata, files, name);
     }
 
+    public listLanguageModels(llmFeature: types.api.LlmFeature): types.api.ListLanguageModelsResponse {
+        const basemodels: types.api.LanguageModelInfo[] = [];
+        for (const provider of Object.values(this._lmProviderMap)) {
+            if (!provider.isHealthy) {
+                continue;
+            }
+            basemodels.push(...provider.listLanguageModels(llmFeature));
+        }
+        return { basemodels };
+    }
+
+    public listLmProviders(): types.api.ListLmProvidersResponse {
+        const providers: types.api.LmProviderInfo[] = [];
+        for (const provider of Object.values(this._lmProviderMap)) {
+            providers.push(provider.getLanguageProviderInfo(this.databaseManager));
+        }
+        return { providers };
+    }
 }
 
 export default LmManager;

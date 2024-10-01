@@ -4,11 +4,13 @@ import { types } from 'aifoundry-vscode-shared';
 import ILmProvider from "./ILmProvider";
 import DatabaseManager from '../database/DatabaseManager';
 import { HttpException } from '../exceptions';
+import { LmProviderInfo } from '../database/entities/LmProviderInfo';
 
 type LmBaseProviderProps = {
     id: string;
     name: string;
     description: string | null;
+    defaultWeight: number;
     // llmProvider: types.api.LlmProvider;
     jsonFileName: string | null;
     keyPrefix: string;
@@ -34,22 +36,7 @@ abstract class LmBaseProvider implements ILmProvider {
         return this._props.name;
     }
 
-    public get isHealthy(): boolean {
-        // TODO: Implement
-        throw new Error("Method not implemented.");
-    }
-
-    public getLmProviderStatus(): types.api.LmProviderInfo {
-        return {
-            lmProviderId: this.id,
-            name: this.name,
-            properties: {},
-            weight: 0,
-            supportUserDefinedModels: false,
-            models: [],
-            status: this.isHealthy ? "available" : "unavailable",        
-        };
-    }
+    abstract get isHealthy(): boolean;
 
     public canHandle(aifUri: string): boolean {
         return aifUri.startsWith(`${this.id}://`)
@@ -104,6 +91,42 @@ abstract class LmBaseProvider implements ILmProvider {
         
 //     def _getBaseChatModel(self, modelName: str, apiKey: str) -> BaseLanguageModel:
 //         raise NotImplementedError("Subclasses must implement this method")
+
+    // abstract getLanguageProviderInfo(): types.api.LmProviderInfo;
+
+    public registerProviderInfo(databaseManager: DatabaseManager): void {
+        // If the provider is not registered in databse, register it
+        let lmProviderInfo = databaseManager.getLmProviderInfo(this.id);
+        if (lmProviderInfo) {
+            return;
+        }
+
+        lmProviderInfo = new LmProviderInfo(
+            this.id,
+            this._props.defaultWeight,
+            [],
+            [],
+            [],
+        ); 
+        databaseManager.saveDbEntity(lmProviderInfo);
+    }
+
+    public getLanguageProviderInfo(databaseManager: DatabaseManager): types.api.LmProviderInfo {
+        const lmProviderInfo = databaseManager.getLmProviderInfo(this.id);
+        if (!lmProviderInfo) {
+            throw new HttpException(404, "LmProvider not found");
+        }
+
+        return {
+            lmProviderId: this.id,
+            name: this.name,
+            properties: {}, // this._getCredentialProperties(["API_BASE", "API_VERSION"]),
+            weight: lmProviderInfo.defaultWeight,
+            supportUserDefinedModels: this._props.supportUserDefinedModels,
+            models: [], // lmProviderInfo.selectedEmbeddingModels,
+            status: this.isHealthy ? "available" : "unavailable",        
+        };
+    }
 
     private _listLanguageModelsFromFile(feature: types.api.LlmFeature): types.api.LanguageModelInfo[] {
         const modelCatalogItems = require(`./${this.jsonFileName}`);

@@ -108,6 +108,10 @@ class DatabaseManager {
         return this.listDbEntities(LmProviderInfo.ENTITY_NAME) as LmProviderInfo[];
     }
 
+    public getLmProviderInfo(providerId: string): LmProviderInfo | null {
+        return this.getDbEntity(LmProviderInfo.ENTITY_NAME, providerId) as LmProviderInfo;
+    }
+
     public saveLmProviderInfo(
         providerId: string,
         defaultWeight: number,
