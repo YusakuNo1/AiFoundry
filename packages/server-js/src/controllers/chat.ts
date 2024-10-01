@@ -23,7 +23,7 @@ export function registerRoutes(router: express.Router, llmManager: ILmManager) {
     );
 
     function chat(req, res) {
-        const aif_session_id: string = req.cookies.aif_session_id as string || uuid();
+        const aif_session_id: string = req.cookies[consts.COOKIE_AIF_SESSION_ID] as string || uuid();
 
         const aif_agent_uri = req.headers["aif-agent-uri"];
         if (!aif_agent_uri || typeof aif_agent_uri !== 'string') {

@@ -39,7 +39,10 @@ export function activate(context: vscode.ExtensionContext) {
 	// });
 
 	// doSthInShared();
-	// setupServer();
+
+	if (process.env.START_SERVER === 'true') {
+		setupServer();
+	}
 
 
 	const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
