@@ -95,16 +95,18 @@ export class AifMainViewProvider implements IViewProvider {
 	private _resetSystemMenuItemMap(): void {
 		this._systemMenuItemMap = {};
 
-		const dockerInfo: types.DockerSystemMenuItem = {
-			id: consts.DOCKER_SERVER_ID,
-			name: "Docker Server",
-			iconName: "icon-docker.svg",
-			status: "unknown",
-			appStatus: "unknown",
-			serverStatus: "unknown",
-			weight: 1,
-		};
-		this._systemMenuItemMap[consts.DOCKER_SERVER_ID] = dockerInfo;
+		if (consts.AppConfig.USE_DOCKER) {
+			const dockerInfo: types.DockerSystemMenuItem = {
+				id: consts.DOCKER_SERVER_ID,
+				name: "Docker Server",
+				iconName: "icon-docker.svg",
+				status: "unknown",
+				appStatus: "unknown",
+				serverStatus: "unknown",
+				weight: 1,
+			};
+			this._systemMenuItemMap[consts.DOCKER_SERVER_ID] = dockerInfo;	
+		}
 	}
 
 	private _updateStoreSystemMenuItemMap() {
@@ -120,7 +122,7 @@ export class AifMainViewProvider implements IViewProvider {
 		// Reset all components to "checking" status
 		const dockerInfo = this._systemMenuItemMap[consts.DOCKER_SERVER_ID];
 		for (const key in this._systemMenuItemMap) {
-			if (key === dockerInfo.id) {
+			if (key === dockerInfo?.id) {
 				continue;
 			}
 			this._systemMenuItemMap[key].status = "checking";
@@ -132,6 +134,10 @@ export class AifMainViewProvider implements IViewProvider {
 
 	private async _refreshDockerApp(): Promise<boolean> {
 		this._resetSystemMenuItemMap();
+
+		if (!consts.AppConfig.USE_DOCKER) {
+			return true;
+		}
 
 		const dockerSystemMenuItem = this._systemMenuItemMap[consts.DOCKER_SERVER_ID] as types.DockerSystemMenuItem;
 		dockerSystemMenuItem.status = "checking";
@@ -169,14 +175,18 @@ export class AifMainViewProvider implements IViewProvider {
 
 		try {
 			const status: types.api.StatusResponse = await SystemAPI.getStatus();
-			dockerSystemMenuItem.serverStatus = status.status === "ok" ? "available" : "unavailable";
+			if (consts.AppConfig.USE_DOCKER) {
+				dockerSystemMenuItem.serverStatus = status.status === "ok" ? "available" : "unavailable";
+			}
 		} catch (error) {
-			dockerSystemMenuItem.serverStatus = "unavailable";
+			if (consts.AppConfig.USE_DOCKER) {
+				dockerSystemMenuItem.serverStatus = "unavailable";
+			}
 		}
 
 		this._updateStoreSystemMenuItemMap();
 		this._onDidChangeTreeData.fire();
-		return dockerSystemMenuItem.serverStatus === "available";
+		return !consts.AppConfig.USE_DOCKER || dockerSystemMenuItem.serverStatus === "available";
 	}
 
 	private async _refreshLmProviders(): Promise<boolean> {

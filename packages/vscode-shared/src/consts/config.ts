@@ -5,6 +5,12 @@ export enum AifConfig {
     homedir = "homedir",
 }
 
+export namespace AppConfig {
+    export const MODE: "dev" | "prod" = "prod";
+    export const START_SERVER = true;
+    export const USE_DOCKER = false; // The old Python server is using Docker
+}
+
 export const THUMBNAIL_HEIGHT = 100;
 export const UPLOAD_IMAGE_MAX_WIDTH = 800;
 export const UPLOAD_IMAGE_MAX_HEIGHT = 600;
