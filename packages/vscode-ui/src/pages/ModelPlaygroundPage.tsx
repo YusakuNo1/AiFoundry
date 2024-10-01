@@ -25,7 +25,7 @@ interface Props {
 const ICON_SIZE = 32;
 
 // Add converted content to the message, e.g. convert markdown to HTML
-type PageChatHistoryMessage = types.api.ChatHistoryMessage & {
+type PageChatHistoryMessage = types.database.ChatHistoryMessage & {
     convertedContent?: string;
 };
 

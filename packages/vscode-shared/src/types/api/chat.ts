@@ -18,20 +18,3 @@ export enum ChatRole {
     USER = 'USER',
     ASSISTANT = 'ASSISTANT',
 }
-
-export type ChatHistoryMessage = {
-	role: ChatRole,
-    contentTextFormat: TextFormat,
-	content: string,
-    files?: UploadFileInfo[],
-}
-
-export type ChatHistory = {
-    id: string,
-    messages: ChatHistoryMessage[],
-}
-
-export type ChatRequest = {
-    input: string,
-    outputFormat: TextFormat,
-}

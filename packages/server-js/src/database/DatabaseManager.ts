@@ -190,13 +190,13 @@ class DatabaseManager {
             chatHistory = new types.database.ChatHistory(sessionId, aifAgentUri, []);
         }
 
-        const chatHistoryMessage: types.api.ChatHistoryMessage = {
+        const chatHistoryMessage: types.database.ChatHistoryMessage = {
             role: role,
             content: content,
             contentTextFormat,
             files: files,
         };
-        (chatHistory.messages as types.api.ChatHistoryMessage[]).push(chatHistoryMessage);
+        (chatHistory.messages as types.database.ChatHistoryMessage[]).push(chatHistoryMessage);
         this.saveDbEntity(chatHistory);
     }
 

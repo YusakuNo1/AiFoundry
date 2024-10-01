@@ -119,7 +119,7 @@ Context: {context}`;
         const messages: BaseMessage[] = [];
         messages.push(new SystemMessage(_systemPrompt));
 
-        for (const chatMessage of ((chatHistory?.messages as types.api.ChatHistoryMessage[]) ?? [])) {
+        for (const chatMessage of ((chatHistory?.messages as types.database.ChatHistoryMessage[]) ?? [])) {
             if (chatMessage.role === types.api.ChatRole.USER) {
                 messages.push(new HumanMessage(chatMessage.content));
             } else if (chatMessage.role === types.api.ChatRole.ASSISTANT) {

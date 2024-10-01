@@ -4,7 +4,7 @@ import { types } from "aifoundry-vscode-shared";
 
 interface ChatInfoState {
     aifSessionId: string | null;
-    messages: types.api.ChatHistoryMessage[];
+    messages: types.database.ChatHistoryMessage[];
 }
 
 const initialState: ChatInfoState = {
@@ -20,7 +20,7 @@ export const chatInfoSlice = createSlice({
             state.aifSessionId = null;
             state.messages = [];
         },
-        setChatHistory: (state, action: PayloadAction<types.api.ChatHistory>) => {
+        setChatHistory: (state, action: PayloadAction<types.database.ChatHistory>) => {
             state.aifSessionId = action.payload.id;
             state.messages = action.payload.messages;
         },
@@ -48,6 +48,7 @@ export const chatInfoSlice = createSlice({
                 role: types.api.ChatRole.ASSISTANT,
                 content: action.payload.content,
                 contentTextFormat: "plain",
+                files: [],
             });
         },
 
@@ -63,6 +64,7 @@ export const chatInfoSlice = createSlice({
                     role: types.api.ChatRole.ASSISTANT,
                     content: action.payload.chunk,
                     contentTextFormat: action.payload.contentTextFormat,
+                    files: [],
                 });
             } else {
                 const lastMessage = state.messages[state.messages.length - 1];
@@ -72,6 +74,7 @@ export const chatInfoSlice = createSlice({
                         role: types.api.ChatRole.ASSISTANT,
                         content: lastMessage.content + action.payload.chunk,
                         contentTextFormat: action.payload.contentTextFormat,
+                        files: lastMessage.files,
                     },
                 ]
             }
@@ -88,6 +91,7 @@ export const chatInfoSlice = createSlice({
                     role: types.api.ChatRole.ASSISTANT,
                     content: action.payload.content,
                     contentTextFormat: action.payload.contentTextFormat,
+                    files: [],
                 });
             } else {
                 state.messages = [
@@ -96,6 +100,7 @@ export const chatInfoSlice = createSlice({
                         role: types.api.ChatRole.ASSISTANT,
                         content: action.payload.content,
                         contentTextFormat: action.payload.contentTextFormat,
+                        files: [],
                     },
                 ]
             }
