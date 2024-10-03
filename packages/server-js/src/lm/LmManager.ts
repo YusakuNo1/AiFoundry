@@ -8,7 +8,7 @@ import { HttpException } from '../exceptions';
 import AssetUtils from '../utils/assetUtils';
 import LmProviderAzureOpenAI from './LmProviderAzureOpenAI';
 import LmManagerUtils from './LmManagerUtils';
-// import LmProviderOllama from './LmProviderOllama';
+import LmProviderOllama from './LmProviderOllama';
 
 
 class LmManager implements ILmManager {
@@ -30,7 +30,7 @@ class LmManager implements ILmManager {
 
     private _initLmProviders(databaseManager: DatabaseManager) {
         this._lmProviderMap[LmProviderAzureOpenAI.ID] = new LmProviderAzureOpenAI(databaseManager);
-        // this._lmProviderMap[LmProviderOllama.ID] = new LmProviderOllama(databaseManager);
+        this._lmProviderMap[LmProviderOllama.ID] = new LmProviderOllama(databaseManager);
 
         for (const provider of Object.values(this._lmProviderMap)) {
             provider.registerProviderInfo(databaseManager);
