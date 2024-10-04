@@ -1,3 +1,4 @@
+import { types } from 'aifoundry-vscode-shared';
 import ServerConfig from "../config/ServerConfig";
 
 namespace OllamaUtils {
@@ -13,6 +14,26 @@ namespace OllamaUtils {
         } catch (error) {
             return false;
         }
+    }
+
+    export function convertTagToLmFeature(tags: string[]): types.api.LlmFeature[] {
+        const features: types.api.LlmFeature[] = []
+
+        if (tags.includes("embedding")) {
+            features.push("embedding");
+        } else {
+            features.push("conversational");
+
+            if (tags.includes("vision")) {
+                features.push("vision");
+            }
+
+            if (tags.includes("tools")) {
+                features.push("tools");
+            }
+        }
+
+        return features;
     }
 }
 

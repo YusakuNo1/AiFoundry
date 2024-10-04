@@ -15,6 +15,7 @@ type LmBaseProviderProps = {
     apiKeyDescription: string | null;
     apiKeyHint: string | null;
     supportUserDefinedModels: boolean;
+    modelMap: Record<string, types.api.LmProviderBaseModelInfo>;
 }
 
 abstract class LmBaseProvider {
@@ -107,7 +108,7 @@ abstract class LmBaseProvider {
             this._props.weight,
             {},
             this._props.supportUserDefinedModels,
-            {},
+            this._props.modelMap,
         ); 
         databaseManager.saveDbEntity(lmProviderInfo);
     }

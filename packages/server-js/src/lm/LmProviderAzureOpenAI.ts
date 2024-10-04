@@ -25,6 +25,7 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
             apiKeyDescription: "Doc: https://learn.microsoft.com/en-us/answers/questions/1193991/how-to-get-the-value-of-openai-api-key",
             apiKeyHint: "",
             supportUserDefinedModels: true,
+            modelMap: {},
         });
     }
 

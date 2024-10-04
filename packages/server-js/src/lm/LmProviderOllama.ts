@@ -1,10 +1,13 @@
 import { Embeddings } from '@langchain/core/embeddings';
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { ChatOllama, OllamaEmbeddings } from "@langchain/ollama";
+import { types } from 'aifoundry-vscode-shared';
 import DatabaseManager from '../database/DatabaseManager';
 import LmBaseProvider from './LmBaseProvider';
 import { HttpException } from '../exceptions';
 import OllamaUtils from "../utils/OllamaUtils";
+import { ModelDef } from '../config/model_info/types';
+import OllamaModels from "../config/model_info/ollama_models";
 
 class LmProviderOllama extends LmBaseProvider {
     protected _getBaseEmbeddingsModel(modelName: string, apiKey: string, properties: Record<string, string>): Embeddings {
@@ -33,6 +36,19 @@ class LmProviderOllama extends LmBaseProvider {
     public static readonly ID = "ollama";
 
     constructor(databaseManager: DatabaseManager) {
+        const modelMap: Record<string, types.api.LmProviderBaseModelInfo> = {};
+        const models = (OllamaModels as ModelDef).models;
+        for (const model of models) {
+            const modelInfo: types.api.LmProviderBaseModelInfo = {
+                id: model.title,
+                types: OllamaUtils.convertTagToLmFeature(model.tags),
+                selected: false,
+                isUserDefined: false,
+                tags: model.tags,
+            }
+            modelMap[model.title] = modelInfo;
+        }
+
         super(databaseManager, {
             id: LmProviderOllama.ID,
             name: "Ollama",
@@ -43,6 +59,7 @@ class LmProviderOllama extends LmBaseProvider {
             apiKeyDescription: null,
             apiKeyHint: null,
             supportUserDefinedModels: false,
+            modelMap,
         });
     }
 
