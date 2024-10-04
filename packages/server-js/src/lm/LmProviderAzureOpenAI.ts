@@ -28,7 +28,7 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
         });
     }
 
-    public get isHealthy(): boolean {
+    public async isHealthy(): Promise<boolean> {
         const apiKey = this._databaseManager.getLmProviderInfo(this.id)?.properties[CredPropKey.ApiKey]?.valueUri as string;
         return !!apiKey && apiKey.length > 0;
     }

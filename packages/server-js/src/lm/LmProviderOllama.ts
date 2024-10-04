@@ -46,10 +46,8 @@ class LmProviderOllama extends LmBaseProvider {
         });
     }
 
-    public get isHealthy(): boolean {
-        // return OllamaUtils.isHealthy();
-        // TODO: fix it
-        return true;
+    public async isHealthy(): Promise<boolean> {
+        return OllamaUtils.isHealthy();
     }
 
     public getBaseEmbeddingsModel(aifUri: string): Embeddings {

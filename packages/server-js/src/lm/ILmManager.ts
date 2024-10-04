@@ -20,7 +20,7 @@ interface ILmManager {
     updateEmbedding(id: string | undefined, files: types.UploadFileInfo[] | undefined, name: string | undefined): Promise<types.api.CreateOrUpdateEmbeddingsResponse>;
 
     listLanguageModels(llmFeature: types.api.LlmFeature): types.api.ListLanguageModelsResponse;
-    listLmProviders(): types.api.ListLmProvidersResponse;
+    listLmProviders(): Promise<types.api.ListLmProvidersResponse>;
     updateLmProvider(request: types.api.UpdateLmProviderRequest): types.api.UpdateLmProviderResponse;
 }
 

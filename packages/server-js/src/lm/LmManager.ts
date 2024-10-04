@@ -150,10 +150,11 @@ class LmManager implements ILmManager {
         return { basemodels };
     }
 
-    public listLmProviders(): types.api.ListLmProvidersResponse {
+    public async listLmProviders(): Promise<types.api.ListLmProvidersResponse> {
         const providers: types.api.LmProviderInfoResponse[] = [];
         for (const provider of Object.values(this._lmProviderMap)) {
-            providers.push(provider.getLmProviderInfo(this.databaseManager));
+            const providerInfo = await provider.getLmProviderInfo(this.databaseManager);
+            providers.push(providerInfo);
         }
         return { providers };
     }

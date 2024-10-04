@@ -34,7 +34,7 @@ abstract class LmBaseProvider {
         return this._props.name;
     }
 
-    abstract get isHealthy(): boolean;
+    abstract isHealthy(): Promise<boolean>;
 
     public canHandle(aifUri: string): boolean {
         return aifUri.startsWith(`${this.id}://`)
@@ -112,7 +112,7 @@ abstract class LmBaseProvider {
         databaseManager.saveDbEntity(lmProviderInfo);
     }
 
-    public getLmProviderInfo(databaseManager: DatabaseManager): types.api.LmProviderInfoResponse {
+    public async getLmProviderInfo(databaseManager: DatabaseManager): Promise<types.api.LmProviderInfoResponse> {
         const lmProviderInfo = databaseManager.getLmProviderInfo(this.id);
         if (!lmProviderInfo) {
             throw new HttpException(404, "LmProvider not found");
@@ -131,7 +131,7 @@ abstract class LmBaseProvider {
             properties,
             supportUserDefinedModels: this._props.supportUserDefinedModels,
             modelMap: lmProviderInfo.modelMap,
-            status: this.isHealthy ? "available" : "unavailable",        
+            status: await this.isHealthy() ? "available" : "unavailable",        
         };
     }
 
