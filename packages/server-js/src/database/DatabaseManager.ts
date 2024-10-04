@@ -1,9 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { types } from "aifoundry-vscode-shared";
-import Config from '../config';
-import { LmProviderCredentials } from './entities/LmProviderCredentials';
-import { LmProviderInfo } from './entities/LmProviderInfo';
 import AssetUtils from '../utils/assetUtils';
 import { HttpException } from '../exceptions';
 
@@ -79,54 +76,12 @@ class DatabaseManager {
 
     // LmProvider --------------------------------------------------------------
 
-    public getLmProviderCredentials(providerId: string): LmProviderCredentials | null {
-        const lmProviderCredentials = this.getDbEntity(LmProviderCredentials.ENTITY_NAME, providerId) as LmProviderCredentials;
-
-        if (!lmProviderCredentials) {
-            return null;
-        } else if (!lmProviderCredentials.id || !lmProviderCredentials.apiKey) {
-            throw new HttpException(400, "Invalid credentials");
-        } else {
-            return {
-                ...lmProviderCredentials,
-                properties: lmProviderCredentials.properties ?? {},
-            } as LmProviderCredentials;
-        }
+    public listLmProviderInfo(): types.database.LmProviderInfo[] {
+        return this.listDbEntities(types.database.LmProviderInfo.ENTITY_NAME) as types.database.LmProviderInfo[];
     }
 
-    public saveLmProviderCredentials(providerId: string, apiKey: string, properties: Record<string, string>): void {
-        const oldLmProviderCredentials = this.getLmProviderCredentials(providerId);
-        const lmProviderCredentials = oldLmProviderCredentials ?? new LmProviderCredentials(
-            providerId,
-            apiKey,
-            properties,
-        );
-        this.saveDbEntity(lmProviderCredentials);
-    }
-
-    public listLmProviderInfo(): LmProviderInfo[] {
-        return this.listDbEntities(LmProviderInfo.ENTITY_NAME) as LmProviderInfo[];
-    }
-
-    public getLmProviderInfo(providerId: string): LmProviderInfo | null {
-        return this.getDbEntity(LmProviderInfo.ENTITY_NAME, providerId) as LmProviderInfo;
-    }
-
-    public saveLmProviderInfo(
-        providerId: string,
-        defaultWeight: number,
-        selectedEmbeddingModels: string[],
-        selectedVisionModels: string[],
-        selectedToolsModels: string[],
-    ): void {
-        const lmProviderInfo = new LmProviderInfo(
-            providerId,
-            defaultWeight,
-            selectedEmbeddingModels,
-            selectedVisionModels,
-            selectedToolsModels,
-        );
-        this.saveDbEntity(lmProviderInfo);
+    public getLmProviderInfo(providerId: string): types.database.LmProviderInfo | null {
+        return this.getDbEntity(types.database.LmProviderInfo.ENTITY_NAME, providerId) as types.database.LmProviderInfo;
     }
 
     // Embeddings --------------------------------------------------------------
@@ -221,86 +176,6 @@ class DatabaseManager {
     private _getDatabaseEntityFilePath(dbName: string) {
         return path.join(this._databaseFolderPath, dbName + '.json');
     }
-
-//     def add_chat_message(self, aifAgentUri: str, id: str, role: ChatRole, content: str):
-//         with Session(self._engine) as session:
-//             chat_history = session.get(ChatHistory, id)
-//             if chat_history is None:
-//                 chat_history = ChatHistory(id=id, aifAgentUri=aifAgentUri, messages="[]")
-//                 session.add(chat_history)
-
-//             messages_json = json.loads(chat_history.messages) if chat_history.messages else []
-//             messages_json.append({
-//                 "role": role.name,
-//                 "content": content,
-//             })
-
-//             chat_history.messages = json.dumps(messages_json)
-//             session.commit()
-
-
-//     def get_chat_history(self, id: str) -> List[ChatHistoryMessage] | None:
-//         with Session(self._engine) as session:
-//             return session.get(ChatHistory, id)
-
-
-//     def get_chat_history_messages(self, id: str) -> List[ChatHistoryMessage] | None:
-//         with Session(self._engine) as session:
-//             chat_history = session.get(ChatHistory, id)
-//             if chat_history is None:
-//                 return None
-
-//             messages_json = json.loads(chat_history.messages) if chat_history.messages else []
-//             messages = []
-//             for message in messages_json:
-//                 messages.append(ChatHistoryMessage(**message))
-//             return messages
-
-
-//     def delete_chat_history(self, id: str):
-//         with Session(self._engine) as session:
-//             chat_history = session.get(ChatHistory, id)
-//             if chat_history is not None:
-//                 session.delete(chat_history)
-//                 session.commit()
-
-
-//     def list_functions(self) -> List[FunctionMetadata]:
-//         with Session(self._engine) as session:
-//             return session.query(FunctionMetadata).all()
-
-
-//     def get_function(self, id: str) -> FunctionMetadata | None:
-//         with Session(self._engine) as session:
-//             return session.get(FunctionMetadata, id)
-
-
-//     def update_function(self, request: UpdateFunctionRequest) -> CreateOrUpdateFunctionResponse:
-//         with Session(self._engine) as session:
-//             function = session.get(FunctionMetadata, request.id)
-//             if function is None:
-//                 raise HTTPException(status_code=404, detail=f"Function with id {request.id} not found")
-
-//             function.name = request.name if request.name else function.name
-//             session.commit()
-//             return CreateOrUpdateFunctionResponse(
-//                 id=function.id,
-//                 uri=function.uri,
-//                 name=function.name,
-//                 functions_path=function.functions_path,
-//                 functions_name=function.functions_name,
-//             )
-
-
-//     def delete_function(self, id: str):
-//         with Session(self._engine) as session:
-//             function = session.get(FunctionMetadata, id)
-//             if function is None:
-//                 raise HTTPException(status_code=404, detail=f"Function with id {id} not found")
-
-//             session.delete(function)
-//             session.commit()
-//             return DeleteFunctionResponse(id=id)
 }
 
 export default DatabaseManager;

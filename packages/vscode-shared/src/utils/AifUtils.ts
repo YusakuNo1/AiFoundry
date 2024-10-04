@@ -1,7 +1,6 @@
-namespace AifUtils {
-    const AIF_PROTOCOL = "aif://";
-    const AIF_AGENTS_PREFIX = `${AIF_PROTOCOL}agents/`;
+import { AIF_AGENTS_PREFIX } from './consts';
 
+namespace AifUtils {
     export function createAifAgentUri(uuid: string) {
         return `${AIF_AGENTS_PREFIX}${uuid}`;
     }

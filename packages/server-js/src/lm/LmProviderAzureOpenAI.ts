@@ -1,14 +1,15 @@
 import { Embeddings } from '@langchain/core/embeddings';
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { AzureChatOpenAI, AzureOpenAIEmbeddings } from '@langchain/openai';
-import { types } from 'aifoundry-vscode-shared';
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import DatabaseManager from '../database/DatabaseManager';
 import LmBaseProvider from './LmBaseProvider';
-import { HttpException } from '../exceptions';
 
 const DEFAULT_API_VERSION = "2024-07-01-preview";
-type CredentialPropertyKeys = "API_BASE" | "API_VERSION";
+enum CredPropKey {
+    ApiBase = "ApiBase",
+    ApiVerion = "ApiVersion",
+    ApiKey = "ApiKey",
+}
 
 class LmProviderAzureOpenAI extends LmBaseProvider {
     public static readonly ID = "azureopenai";
@@ -18,8 +19,7 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
             id: LmProviderAzureOpenAI.ID,
             name: "Azure OpenAI",
             description: null,
-            defaultWeight: 100,
-            // llmProvider: "AZUREOPENAI",
+            weight: 100,
             jsonFileName: null,
             keyPrefix: "AZURE_OPENAI_",
             apiKeyDescription: "Doc: https://learn.microsoft.com/en-us/answers/questions/1193991/how-to-get-the-value-of-openai-api-key",
@@ -29,8 +29,8 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
     }
 
     public get isHealthy(): boolean {
-        const credentials = this._databaseManager.getLmProviderCredentials(this.id);
-        return !!credentials && credentials.apiKey.length > 0;
+        const apiKey = this._databaseManager.getLmProviderInfo(this.id)?.properties[CredPropKey.ApiKey]?.valueUri as string;
+        return !!apiKey && apiKey.length > 0;
     }
 
     protected _getBaseEmbeddingsModel(deploymentName: string, apiKey: string, properties: Record<string, string>): Embeddings {

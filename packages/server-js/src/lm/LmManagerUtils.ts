@@ -11,14 +11,14 @@ import {
     RunnablePassthrough,
 } from "@langchain/core/runnables";
 import { types } from "aifoundry-vscode-shared";
-import ILmProvider from './ILmProvider';
+import LmBaseProvider from './LmBaseProvider';
 import DatabaseManager from "../database/DatabaseManager";
 import { HttpException } from '../exceptions';
 import AssetUtils from '../utils/assetUtils';
 
 namespace LmManagerUtils {
     export function getBaseEmbeddingsModel(
-        lmProviderMap: Record<string, ILmProvider>,
+        lmProviderMap: Record<string, LmBaseProvider>,
         aifUri: string,
     ): Embeddings {
         for (const lmProvider of Object.values(lmProviderMap)) {
@@ -31,7 +31,7 @@ namespace LmManagerUtils {
     }
 
     export function getBaseChatModel(
-        lmProviderMap: Record<string, ILmProvider>,
+        lmProviderMap: Record<string, LmBaseProvider>,
         aifUri: string,
     ): BaseChatModel {
         for (const lmProvider of Object.values(lmProviderMap)) {
@@ -45,7 +45,7 @@ namespace LmManagerUtils {
 
     export async function loadDocFromVectorStore(
         databaseManager: DatabaseManager,
-        lmProviderMap: Record<string, ILmProvider>,
+        lmProviderMap: Record<string, LmBaseProvider>,
         input: string,
         embeddingId: string,
     ) {
@@ -65,7 +65,7 @@ namespace LmManagerUtils {
 
     export function getChain(
         databaseManager: DatabaseManager,
-        lmProviderMap: Record<string, ILmProvider>,
+        lmProviderMap: Record<string, LmBaseProvider>,
         aifSessionId: string,
         agentId: string,
         input: string,

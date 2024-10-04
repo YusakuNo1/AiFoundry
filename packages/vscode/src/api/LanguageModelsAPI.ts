@@ -26,7 +26,7 @@ namespace LanguageModelsAPI {
 
     export async function updateLmProvider(
         request: types.api.UpdateLmProviderRequest
-    ): Promise<types.api.ListLmProvidersResponse> {
+    ): Promise<types.api.UpdateLmProviderResponse> {
         const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`;
         return fetch(endpoint, {
             method: "POST",
@@ -35,7 +35,7 @@ namespace LanguageModelsAPI {
             },
             body: JSON.stringify(request),
         })
-            .then(ApiUtils.processApiResponse<types.api.ListLmProvidersResponse>);
+            .then(ApiUtils.processApiResponse<types.api.UpdateLmProviderResponse>);
     }
 
     async function _listLanguageModels(

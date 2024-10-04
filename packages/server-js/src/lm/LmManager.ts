@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { v4 as uuid } from "uuid";
 import { AifUtils, types } from 'aifoundry-vscode-shared';
-import ILmProvider from './ILmProvider';
+import LmBaseProvider from './LmBaseProvider';
 import ILmManager from './ILmManager';
 import DatabaseManager from '../database/DatabaseManager';
 import { HttpException } from '../exceptions';
@@ -12,7 +12,7 @@ import LmProviderOllama from './LmProviderOllama';
 
 
 class LmManager implements ILmManager {
-    private _lmProviderMap: Record<string, ILmProvider> = {};
+    private _lmProviderMap: Record<string, LmBaseProvider> = {};
 
     constructor(private databaseManager: DatabaseManager) {
         this.listAgents = this.listAgents.bind(this);
@@ -23,7 +23,7 @@ class LmManager implements ILmManager {
         this.createEmbedding = this.createEmbedding.bind(this);
         this.updateEmbedding = this.updateEmbedding.bind(this);
         this.listLmProviders = this.listLmProviders.bind(this);
-        this.listLanguageModels = this.listLanguageModels.bind
+        this.listLanguageModels = this.listLanguageModels.bind(this);
 
         this._initLmProviders(databaseManager);
     }
@@ -144,17 +144,32 @@ class LmManager implements ILmManager {
             if (!provider.isHealthy) {
                 continue;
             }
-            basemodels.push(...provider.listLanguageModels(llmFeature));
+            const newBaseModels = provider.listLanguageModels(llmFeature);
+            basemodels.push(...newBaseModels);
         }
         return { basemodels };
     }
 
     public listLmProviders(): types.api.ListLmProvidersResponse {
-        const providers: types.api.LmProviderInfo[] = [];
+        const providers: types.api.LmProviderInfoResponse[] = [];
         for (const provider of Object.values(this._lmProviderMap)) {
-            providers.push(provider.getLanguageProviderInfo(this.databaseManager));
+            providers.push(provider.getLmProviderInfo(this.databaseManager));
         }
         return { providers };
+    }
+
+    public updateLmProvider(request: types.api.UpdateLmProviderRequest): types.api.UpdateLmProviderResponse {
+        if (!request) {
+            throw new HttpException(400, "Invalid request to update language model provider")
+        }
+
+        for (const provider of Object.values(this._lmProviderMap)) {
+            if (provider.id === request.lmProviderId) {
+                provider.updateLmProvider(this.databaseManager, request);
+            }
+        }
+
+        throw new HttpException(404, "Language model not found");
     }
 }
 

@@ -1,7 +1,7 @@
 import { FunctionMetadata } from '../api/functions';
 import type { EmbeddingMetadata } from '../database/EmbeddingMetadata';
 import { TextFormat } from '../api/chat';
-import { LmProviderInfo } from '../api/languageModels';
+import { LmProviderInfoResponse } from '../api/languageModels';
 import { SystemMenuItem } from '../menu';
 import { FileInfo, FileSelection } from '../store/serverData';
 import * as shared from "./shared";
@@ -53,7 +53,7 @@ export type MessageStoreUpdateSystemMenuItemMap = shared.IMessage & IStoreUpdate
 export type MessageStoreUpdateLmProviders = shared.IMessage & IStoreUpdate & {
     type: "updateLmProviders",
     data: {
-        lmProviders: LmProviderInfo[];
+        lmProviders: LmProviderInfoResponse[];
     };
 }
 export type MessageStoreUpdateEmbeddings = shared.IMessage & IStoreUpdate & {

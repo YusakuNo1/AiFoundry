@@ -1,9 +1,10 @@
 import { Embeddings } from '@langchain/core/embeddings';
+import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { ChatOllama, OllamaEmbeddings } from "@langchain/ollama";
 import DatabaseManager from '../database/DatabaseManager';
 import LmBaseProvider from './LmBaseProvider';
 import { HttpException } from '../exceptions';
-import { BaseChatModel } from '@langchain/core/language_models/chat_models';
+import OllamaUtils from "../utils/OllamaUtils";
 
 class LmProviderOllama extends LmBaseProvider {
     protected _getBaseEmbeddingsModel(modelName: string, apiKey: string, properties: Record<string, string>): Embeddings {
@@ -36,7 +37,7 @@ class LmProviderOllama extends LmBaseProvider {
             id: LmProviderOllama.ID,
             name: "Ollama",
             description: null,
-            defaultWeight: 10,
+            weight: 10,
             jsonFileName: "model_info/ollama_models.json",
             keyPrefix: "OLLAMA_",
             apiKeyDescription: null,
@@ -46,14 +47,14 @@ class LmProviderOllama extends LmBaseProvider {
     }
 
     public get isHealthy(): boolean {
+        // return OllamaUtils.isHealthy();
         // TODO: fix it
         return true;
     }
 
     public getBaseEmbeddingsModel(aifUri: string): Embeddings {
         const lmInfo = this._parseLmUri(aifUri);
-        const credentials = this._databaseManager.getLmProviderCredentials(this.id);
-        if (!lmInfo || !credentials) {
+        if (!lmInfo) {
             throw new HttpException(400, "Invalid uri or credentials not found");
         }
 

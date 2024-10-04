@@ -1,4 +1,5 @@
 import * as types from './types';
 import * as consts from './consts';
 import AifUtils from './utils/AifUtils';
-export { AifUtils, consts, types };
+import LmProviderPropertyUtils from './utils/LmProviderPropertyUtils';
+export { AifUtils, LmProviderPropertyUtils, consts, types };

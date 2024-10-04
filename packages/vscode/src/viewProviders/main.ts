@@ -194,12 +194,12 @@ export class AifMainViewProvider implements IViewProvider {
 		try {
 			const lmProviders: types.api.ListLmProvidersResponse = await LanguageModelsAPI.listLmProviders();
 			for (const provider of lmProviders.providers) {
-				this._systemMenuItemMap[provider.lmProviderId] = {
-					id: provider.lmProviderId,
+				this._systemMenuItemMap[provider.id] = {
+					id: provider.id,
 					name: provider.name,
 					status: provider.status,
-					iconName: LmProviderIconMap[provider.lmProviderId] ?? UnknownLmProviderIcon,
-					weight: LmProviderWeightMap[provider.lmProviderId] ?? DefaultLmProviderWeight,
+					iconName: LmProviderIconMap[provider.id] ?? UnknownLmProviderIcon,
+					weight: LmProviderWeightMap[provider.id] ?? DefaultLmProviderWeight,
 				};
 			}
 

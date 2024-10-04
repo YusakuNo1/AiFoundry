@@ -20,7 +20,7 @@ const LmProviderUpdatePage = (props: Props) => {
     const systemMenuItemMap = useSelector((state: RootState) => state.serverData.systemMenuItemMap);
     const systemMenuItem = systemMenuItemMap[props.lmProviderId];
 
-    const [provider, setProvider] = React.useState<types.api.LmProviderInfo | null>(null);
+    const [provider, setProvider] = React.useState<types.api.LmProviderInfoResponse | null>(null);
     const [properties, setProperties] = React.useState<Record<string, types.api.LmProviderProperty>>({});
     const [weight, setWeight] = React.useState<string>("");
     const [models, setModels] = React.useState<types.api.LmProviderBaseModelInfo[]>([]);
@@ -42,22 +42,11 @@ const LmProviderUpdatePage = (props: Props) => {
         }
 
         for (const lmProvider of lmProviders) {
-            if (lmProvider.lmProviderId === props.lmProviderId) {
-                const _patchedProperties: Record<string, types.api.LmProviderProperty> = {};
-                for (const key of Object.keys(lmProvider.properties)) {
-                    const property = lmProvider.properties[key];
-                    _patchedProperties[key] = {
-                        ...property,
-                        value: property.isCredential ? null : property.value,
-                        // Use either hint, or the "value" as hint for credential properties, because the value will be "*****" for credentials
-                        hint: (property.isCredential && property.hint.length === 0 && property.value && property.value?.length > 0) ? property.value : property.hint,
-                    };
-                }
-
+            if (lmProvider.id === props.lmProviderId) {
                 setProvider(lmProvider);
-                setProperties(_patchedProperties);
+                setProperties({ ...lmProvider.properties });
                 setWeight("" + lmProvider.weight);
-                setModels(lmProvider.models);
+                setModels(Object.values(lmProvider.modelMap));
             }
         }
     }, [lmProviders, props.lmProviderId]);
@@ -66,8 +55,8 @@ const LmProviderUpdatePage = (props: Props) => {
     const onSubmit = React.useCallback(() => {
         const _properties: Record<string, string> = {};
         for (const id of Object.keys(properties)) {
-            if (properties[id].value) {
-                _properties[id] = properties[id].value!;
+            if (properties[id].valueUri) {
+                _properties[id] = properties[id].valueUri!;
             }
         }
         const _weight = parseInt(weight) ?? null;
@@ -130,13 +119,26 @@ const LmProviderUpdatePage = (props: Props) => {
     }, [props, setModels]);
 
     const onAddUserDefinedModel = React.useCallback((modelName: string, llmFeature: types.api.LlmFeature) => {
-        const newModel: types.api.LmProviderBaseModelInfo = {
-            id: modelName,
-            selected: true,
-            isUserDefined: true,
-            tags: [llmFeature],
-        };
-        setModels([...models, newModel]);
+        const existingModel = models.find(model => model.id === modelName);
+        if (existingModel) {
+            if (!existingModel.types.includes(llmFeature)) {
+                const newModel = {
+                    ...existingModel,
+                    types: [...existingModel.types, llmFeature],
+                };
+                setModels([...models.filter(model => model.id !== modelName), newModel]);
+            }
+            return;
+        } else {
+            const newModel: types.api.LmProviderBaseModelInfo = {
+                id: modelName,
+                types: [llmFeature],
+                selected: true,
+                isUserDefined: true,
+                tags: [llmFeature],
+            };
+            setModels([...models, newModel]);    
+        }
     }, [models, setModels]);
 
     function renderRow(name: string, valueElement: React.ReactElement | string | number | undefined, descriptionElement: React.ReactElement | string) {
@@ -148,7 +150,7 @@ const LmProviderUpdatePage = (props: Props) => {
     }
 
     const inputStyle = { width: "100%" };
-    const showOllamaSetup = provider?.lmProviderId === consts.LOCAL_LM_PROVIDER_ID_OLLAMA && systemMenuItem?.status === "unavailable";
+    const showOllamaSetup = provider?.id === consts.LOCAL_LM_PROVIDER_ID_OLLAMA && systemMenuItem?.status === "unavailable";
     const tableBodyStyle = {
         width: "100%",
         ...(showOllamaSetup ? { height: "64px" } : {}),
@@ -171,11 +173,11 @@ const LmProviderUpdatePage = (props: Props) => {
                     {!showOllamaSetup && <>
                         {Object.keys(properties ?? {}).map((id) => {
                             const property = properties[id];
-                            if (property.isCredential) {
+                            if (property.valueUri === consts.LM_PROVIDER_PROP_VALUE_MASK) {
                                 const placeholder = property.hint;
                                 return renderRow(id, <Input id={id} type="password" placeholder={placeholder} onChange={onChangeProperty} style={inputStyle} />, property.description);
                             } else {
-                                const value = property.value ?? undefined;
+                                const value = property.valueUri ?? undefined;
                                 return renderRow(id, <Input id={id} value={value} onChange={onChangeProperty} style={inputStyle} />, property.description);
                             }
                         })}

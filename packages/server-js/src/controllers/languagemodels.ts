@@ -21,13 +21,13 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
         });
     });
 
+    // List language model provider
     router.get(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`, (req, res) => {
         ResponseUtils.handler(res, lmManager.listLmProviders);
     });
-}
 
-//     @router.post(ADMIN_CTRL_PREFIX + "/languagemodels/providers", tags=["languagemodels"])
-//     async def updateLmProvider(
-//         request: UpdateLmProviderRequest,
-//     ) -> ListLmProvidersResponse:
-//         return exceptionHandler(lambda: llm_manager.updateLmProvider(request))
+    // Update language model provider
+    router.post(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`, (req, res) => {
+        ResponseUtils.handler(res, () => lmManager.updateLmProvider(req.body as types.api.UpdateLmProviderRequest));
+    });
+}
