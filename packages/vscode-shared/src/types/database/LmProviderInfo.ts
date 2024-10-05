@@ -11,8 +11,10 @@ export type LmProviderProperty = {
 }
 
 export type LmProviderBaseModelInfo = {
-    // For the models with no version, this is the model name or deployment name, otherwise it's <model-name>:<version>
-	id: string,
+    // Example: "azureopenai://models/gpt-4o-mini?version=2024-07-01-preview", "ollama://models/mxbai-embed-large", "openai://models/gpt-4o-mini"
+    uri: string,
+    name: string,
+    providerId: string,
     types: LlmFeature[],
 	selected: boolean,
 	// For provider of model catelog, e.g. Azure AI, the users can add custom model name (or deployment name) + version, and they can delete it

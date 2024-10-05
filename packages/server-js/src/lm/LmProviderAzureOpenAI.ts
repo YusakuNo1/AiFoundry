@@ -20,7 +20,6 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
             name: "Azure OpenAI",
             description: null,
             weight: 100,
-            jsonFileName: null,
             keyPrefix: "AZURE_OPENAI_",
             apiKeyDescription: "Doc: https://learn.microsoft.com/en-us/answers/questions/1193991/how-to-get-the-value-of-openai-api-key",
             apiKeyHint: "",

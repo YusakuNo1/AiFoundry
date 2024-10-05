@@ -76,7 +76,7 @@ class LmManager implements ILmManager {
 
     public createAgent(request: types.api.CreateAgentRequest): types.api.CreateOrUpdateAgentResponse {
         const uuidValue = uuid();
-        const agentUri = AifUtils.createAifAgentUri(uuidValue);
+        const agentUri = AifUtils.createAifUri(AifUtils.AifUriCategory.Agents, uuidValue);
         const agent = new types.database.AgentMetadata(
             uuidValue,
             request.name || uuidValue,
@@ -139,7 +139,7 @@ class LmManager implements ILmManager {
     }
 
     public listLanguageModels(llmFeature: types.api.LlmFeature): types.api.ListLanguageModelsResponse {
-        const basemodels: types.api.LanguageModelInfo[] = [];
+        const basemodels: types.api.LmProviderBaseModelInfo[] = [];
         for (const provider of Object.values(this._lmProviderMap)) {
             if (!provider.isHealthy) {
                 continue;

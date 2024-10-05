@@ -1,7 +1,7 @@
 import { Embeddings } from '@langchain/core/embeddings';
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { ChatOllama, OllamaEmbeddings } from "@langchain/ollama";
-import { types } from 'aifoundry-vscode-shared';
+import { AifUtils, types } from 'aifoundry-vscode-shared';
 import DatabaseManager from '../database/DatabaseManager';
 import LmBaseProvider from './LmBaseProvider';
 import { HttpException } from '../exceptions';
@@ -40,7 +40,9 @@ class LmProviderOllama extends LmBaseProvider {
         const models = (OllamaModels as ModelDef).models;
         for (const model of models) {
             const modelInfo: types.api.LmProviderBaseModelInfo = {
-                id: model.title,
+                uri: AifUtils.createAifUri(AifUtils.AifUriCategory.Models, model.title),
+                name: model.title,
+                providerId: LmProviderOllama.ID,
                 types: OllamaUtils.convertTagToLmFeature(model.tags),
                 selected: false,
                 isUserDefined: false,
@@ -54,7 +56,6 @@ class LmProviderOllama extends LmBaseProvider {
             name: "Ollama",
             description: null,
             weight: 10,
-            jsonFileName: "model_info/ollama_models.json",
             keyPrefix: "OLLAMA_",
             apiKeyDescription: null,
             apiKeyHint: null,

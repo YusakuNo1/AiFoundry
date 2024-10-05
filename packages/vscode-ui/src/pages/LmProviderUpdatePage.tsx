@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Input, Label, Table, TableCell, TableHeader, TableRow, TableHeaderCell, TableBody } from '@fluentui/react-components';
 import { DefaultButton } from '@fluentui/react/lib/Button';
-import { consts, types } from 'aifoundry-vscode-shared';
+import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
 import { RootState } from '../store/store';
 import { getTextColor } from '../Theme';
 import LmProviderUpdatePageExpandableInput from './LmProviderUpdatePageExpandableInput';
@@ -119,19 +119,21 @@ const LmProviderUpdatePage = (props: Props) => {
     }, [props, setModels]);
 
     const onAddUserDefinedModel = React.useCallback((modelName: string, llmFeature: types.api.LlmFeature) => {
-        const existingModel = models.find(model => model.id === modelName);
+        const existingModel = models.find(model => model.name === modelName);
         if (existingModel) {
             if (!existingModel.types.includes(llmFeature)) {
                 const newModel = {
                     ...existingModel,
                     types: [...existingModel.types, llmFeature],
                 };
-                setModels([...models.filter(model => model.id !== modelName), newModel]);
+                setModels([...models.filter(model => model.name !== modelName), newModel]);
             }
             return;
         } else {
             const newModel: types.api.LmProviderBaseModelInfo = {
-                id: modelName,
+                uri: AifUtils.createAifUri(AifUtils.AifUriCategory.Models, modelName),
+                name: modelName,
+                providerId: props.lmProviderId,
                 types: [llmFeature],
                 selected: true,
                 isUserDefined: true,
@@ -139,7 +141,7 @@ const LmProviderUpdatePage = (props: Props) => {
             };
             setModels([...models, newModel]);    
         }
-    }, [models, setModels]);
+    }, [models, setModels, props.lmProviderId]);
 
     function renderRow(name: string, valueElement: React.ReactElement | string | number | undefined, descriptionElement: React.ReactElement | string) {
         return (<TableRow key={name}>
@@ -265,7 +267,7 @@ function getSelectedModelData(models: types.api.LmProviderBaseModelInfo[]): {
         }
     }
     return {
-        selectedModels: selectedModels.map(model => model.id),
+        selectedModels: selectedModels.map(model => model.name),
         embeddingModelIndexes,
         visionModelIndexes,
         toolsModelIndexes,

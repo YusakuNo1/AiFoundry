@@ -89,17 +89,10 @@ function _showEmbeddingLlmOptions(name: string, embeddingsViewProvider: IViewPro
 		const options = Object.fromEntries(response.basemodels.map(basemodel => [basemodel.name, basemodel]));
 		const quickPick = vscode.window.createQuickPick();
 		quickPick.title = 'Select LLM model';
-
-		const items = Object.keys(options).map(key => ({ label: options[key].basemodelUri, key }));
-		items.sort((a, b) => {
-			const aWeight = options[a.key].weight;
-			const bWeight = options[b.key].weight;
-			return bWeight - aWeight;
-		});
-		quickPick.items = items;
+		quickPick.items = Object.keys(options).map(key => ({ label: options[key].uri, key }));
 
 		quickPick.onDidChangeSelection(selection => {
-			_createOrUpdateEmbedding(true, embeddingsViewProvider, options[(selection[0] as any).key].basemodelUri, name);
+			_createOrUpdateEmbedding(true, embeddingsViewProvider, options[(selection[0] as any).key].uri, name);
 		});
 		quickPick.onDidHide(() => quickPick.dispose());
 		quickPick.show();

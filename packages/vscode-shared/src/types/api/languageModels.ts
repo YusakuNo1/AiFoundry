@@ -7,19 +7,10 @@ import {
 export const LlmFeatures = ["all", "conversational", "vision", "embedding", "tools"] as const;
 export type LlmFeature = typeof LlmFeatures[number];
 
-export type LanguageModelInfo = {
-	provider: string,
-	basemodelUri: string,
-	name: string,
-	ready: boolean,
-	weight: number,
-}
-
-export type ListLanguageModelsResponse = {
-	basemodels: LanguageModelInfo[];
-};
-
 export type LmProviderBaseModelInfo = Omit<DatabaseLmProviderBaseModelInfo, "version" | "entityName">;
+export type ListLanguageModelsResponse = {
+	basemodels: LmProviderBaseModelInfo[];
+};
 
 export type LmProviderProperty = Omit<DatabaseLmProviderProperty, "version" | "entityName">;
 

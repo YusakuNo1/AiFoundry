@@ -114,17 +114,11 @@ namespace AgentsCommands {
 
 function _showChatLlmOptions(isCreate: boolean, agentsViewProvider: IViewProvider, name: string) {
 	LanguageModelsAPI.listLanguageModelsChat().then((response) => {
-		const options = Object.fromEntries(response.basemodels.map(basemodel => [`${basemodel.provider}-${basemodel.name}`, basemodel]));
+		const options = Object.fromEntries(response.basemodels.map(basemodel => [`${basemodel.providerId}-${basemodel.name}`, basemodel]));
 		const quickPick = vscode.window.createQuickPick();
 		quickPick.title = 'Select LLM model';
 
-		const items = Object.keys(options).map(key => ({ label: options[key].basemodelUri, key }));
-		items.sort((a, b) => {
-			const aWeight = options[a.key].weight;
-			const bWeight = options[b.key].weight;
-			return bWeight - aWeight;
-		});
-		quickPick.items = items;
+		quickPick.items = Object.keys(options).map(key => ({ label: options[key].uri, key }));
 
 		quickPick.onDidChangeSelection(selection => {
 			quickPick.dispose();
@@ -135,7 +129,7 @@ function _showChatLlmOptions(isCreate: boolean, agentsViewProvider: IViewProvide
 	});
 }
 
-function _showEmbeddingAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, model: types.api.LanguageModelInfo) {
+function _showEmbeddingAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, model: types.api.LmProviderBaseModelInfo) {
 	EmbeddingsAPI.getEmbeddings().then((response) => {
 		const options = Object.fromEntries(response.embeddings.map(embedding => [embedding.name, embedding]));
 
@@ -153,7 +147,7 @@ function _showEmbeddingAssetIds(isCreate: boolean, agentsViewProvider: IViewProv
 	});
 }
 
-function _showFunctionsAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, model: types.api.LanguageModelInfo, embeddings: types.database.EmbeddingMetadata[]) {
+function _showFunctionsAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, model: types.api.LmProviderBaseModelInfo, embeddings: types.database.EmbeddingMetadata[]) {
 	FunctionsAPI.listFunctions().then((response) => {
 		if (response.functions.length === 0) {
 			_createOrupdateAgent(isCreate, agentsViewProvider, name, model, embeddings);
@@ -176,13 +170,13 @@ function _showFunctionsAssetIds(isCreate: boolean, agentsViewProvider: IViewProv
 	});
 }
 
-function _createOrupdateAgent(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, modelInfo: types.api.LanguageModelInfo, embeddings: types.database.EmbeddingMetadata[], functions: types.api.FunctionMetadata[] = []) {
+function _createOrupdateAgent(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, modelInfo: types.api.LmProviderBaseModelInfo, embeddings: types.database.EmbeddingMetadata[], functions: types.api.FunctionMetadata[] = []) {
 	if (isCreate) {
 		const ragAssetIds = embeddings.map(embedding => embedding.id);
 		const functionAssetIds = functions.map(func => func.id);
-		AgentsAPI.createAgent(modelInfo.basemodelUri, name, undefined, ragAssetIds, functionAssetIds).then(() => {
+		AgentsAPI.createAgent(modelInfo.uri, name, undefined, ragAssetIds, functionAssetIds).then(() => {
 			agentsViewProvider.refresh();
-			vscode.window.showInformationMessage(`Agent ${modelInfo.basemodelUri} is created`);
+			vscode.window.showInformationMessage(`Agent ${modelInfo.uri} is created`);
 		})
 		.catch((error) => {
 			vscode.window.showErrorMessage(error.message);

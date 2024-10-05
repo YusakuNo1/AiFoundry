@@ -28,7 +28,7 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
                 (props.llmFeature !== "conversational" && model.tags.includes(embeddingTag));
 
             if (shouldInclude) {
-                map[model.id] = model;
+                map[model.name] = model;
             } else {
                 _excludedModels.push(model);
             }
@@ -69,7 +69,7 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
         <List items={items} onRenderCell={(item, index) => (
             <Checkbox
                 key={item?.key ?? `checkbox-${index}`}
-                label={item?.model.id ?? ""}
+                label={item?.model.name ?? ""}
                 checked={item?.model.selected ?? false} 
                 onChange={(e) => item && onChange(item.key, e.target.checked)} 
             />

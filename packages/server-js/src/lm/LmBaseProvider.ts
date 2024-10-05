@@ -10,7 +10,6 @@ type LmBaseProviderProps = {
     name: string;
     description: string | null;
     weight: number;
-    jsonFileName: string | null;
     keyPrefix: string;
     apiKeyDescription: string | null;
     apiKeyHint: string | null;
@@ -41,7 +40,7 @@ abstract class LmBaseProvider {
         return aifUri.startsWith(`${this.id}://`)
     }
 
-    public listLanguageModels(feature: types.api.LlmFeature): types.api.LanguageModelInfo[] {
+    public listLanguageModels(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[] {
         if (this.jsonFileName) {
             return this._listLanguageModelsFromFile(feature);
         } else {
@@ -197,7 +196,7 @@ abstract class LmBaseProvider {
         // return response;
     }
 
-    private _listLanguageModelsFromFile(feature: types.api.LlmFeature): types.api.LanguageModelInfo[] {
+    private _listLanguageModelsFromFile(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[] {
         const modelCatalogItems = require(`./${this.jsonFileName}`);
         const modelCatalogItemDict = modelCatalogItems.reduce((acc: Record<string, any>, item: any) => {
             acc[item.title] = item;
