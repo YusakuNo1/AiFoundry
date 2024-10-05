@@ -10,17 +10,15 @@ type Props = {
     models: types.api.LmProviderBaseModelInfo[];
     supportUserDefinedModels: boolean;
     llmFeature: types.api.LlmFeature;
-    onChange: (models: types.api.LmProviderBaseModelInfo[]) => void;
+    onChange: (modelUri: string, selected: boolean) => void;
     onAddUserDefinedModel: (modelName: string, llmFeature: types.api.LlmFeature) => void;
 }
 const LmProviderUpdatePageExpandableInput = (props: Props) => {
     const [modelName, setModelName] = React.useState<string>("");
     const [modelMap, setModelMap] = React.useState<Record<string, types.api.LmProviderBaseModelInfo>>({});
-    const [excludedModels, setExcludedModels] = React.useState<types.api.LmProviderBaseModelInfo[]>([]);
 
     React.useEffect(() => {
         const map: Record<string, types.api.LmProviderBaseModelInfo> = {};
-        const _excludedModels: types.api.LmProviderBaseModelInfo[] = [];
         const embeddingTag: types.api.LlmFeature = "embedding";
         for (const model of props.models) {
             const shouldInclude = props.llmFeature === "all" || 
@@ -29,11 +27,8 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
 
             if (shouldInclude) {
                 map[model.name] = model;
-            } else {
-                _excludedModels.push(model);
             }
         }
-        setExcludedModels(_excludedModels);
         setModelMap(map);
     }, [props.models, props.llmFeature]);
     const items = React.useMemo(() => Object.entries(modelMap).map(([key, model]) => ({ key, model })).sort(), [modelMap]);
@@ -51,9 +46,8 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
             },
         };
         setModelMap(newModelMap);
-
-        props.onChange([ ...Object.values(newModelMap), ...excludedModels ]);
-    }, [modelMap, props, excludedModels]);
+        props.onChange(modelMap[key].uri, checked);
+    }, [modelMap, props]);
 
     const onAddUserDefinedModel = React.useCallback((event: any) => {
         if (modelName.trim() === "") {

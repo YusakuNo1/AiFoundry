@@ -2,6 +2,7 @@ import * as express from "express";
 import { consts, types } from 'aifoundry-vscode-shared';
 import ILmManager from "../lm/ILmManager";
 import ResponseUtils from "../utils/ResponseUtils";
+import RouterUtils from "../utils/RouterUtils";
 import { HttpException } from "../exceptions";
 
 
@@ -27,7 +28,20 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
     });
 
     // Update language model provider
-    router.post(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`, (req, res) => {
-        ResponseUtils.handler(res, () => lmManager.updateLmProvider(req.body as types.api.UpdateLmProviderRequest));
-    });
+    router.post(
+        `${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`,
+        RouterUtils.middlewares.jsonParser,
+        (req, res) => {
+            ResponseUtils.handler(res, () => lmManager.updateLmProviderInfo(req.body as types.api.UpdateLmProviderInfoRequest));
+        }
+    );
+
+    // Update language model provider model configuration
+    router.post(
+        `${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers/models`,
+        RouterUtils.middlewares.jsonParser,
+        (req, res) => {
+            ResponseUtils.handler(res, () => lmManager.updateLmProviderModel(req.body as types.api.UpdateLmProviderModelRequest));
+        }
+    );
 }

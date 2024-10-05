@@ -135,65 +135,60 @@ abstract class LmBaseProvider {
         };
     }
 
-    public updateLmProvider(databaseManager: DatabaseManager, request: types.api.UpdateLmProviderRequest): types.api.UpdateLmProviderResponse {
-        const lmProviderInfo = databaseManager.getLmProviderInfo(request.lmProviderId);
+    public updateLmProviderInfo(databaseManager: DatabaseManager, request: types.api.UpdateLmProviderInfoRequest): types.api.UpdateLmProviderResponse {
+        const lmProviderInfo = databaseManager.getLmProviderInfo(request.id);
         if (!lmProviderInfo) {
             throw new HttpException(404, "Language model not found");
         }
 
-        if (request.weight) {
-            lmProviderInfo.weight = request.weight;
-        }
+        lmProviderInfo.name = request.name ?? lmProviderInfo.name;
+        lmProviderInfo.weight = request.weight ?? lmProviderInfo.weight;
 
-        if (request.selectedModels) {
-            const selectedConversationModels: string[] = [];
-            const selectedEmbeddingModels: string[] = [];
-            const selectedVisionModels: string[] = [];
-            const selectedToolsModels: string [] = [];
-    
-            for (let i = 0; i < request.selectedModels.length; ++i) {
-                if (request.embeddingModelIndexes && request.embeddingModelIndexes.includes(i)) {
-                    selectedEmbeddingModels.push(request.selectedModels[i]);
-                } else {
-                    selectedConversationModels.push(request.selectedModels[i]);
+        if (request.properties) {
+            for (const key of Object.keys(request.properties)) {
+                if (lmProviderInfo.properties[key]) {
+                    lmProviderInfo.properties[key].valueUri = request.properties[key].valueUri;
                 }
-
-                if (request.visionModelIndexes && request.visionModelIndexes.includes(i)) {
-                    selectedVisionModels.push(request.selectedModels[i]);
-                }
-
-                if (request.toolsModelIndexes && request.toolsModelIndexes.includes(i)) {
-                    selectedToolsModels.push(request.selectedModels[i]);
-                }
-            }
-
-            if (!request.embeddingModelIndexes) {
-                selectedConversationModels.push(...request.selectedModels);
             }
         }
 
         databaseManager.saveDbEntity(lmProviderInfo);
 
-        // lmProviderId: string,
-        // name: string,
-        // properties: Record<string, LmProviderProperty>,
-        // weight: number,
-        // supportUserDefinedModels: boolean,
-        // models: LmProviderBaseModelInfo[],
-        // status: string,
+        const response: types.api.UpdateLmProviderResponse = {
+            id: lmProviderInfo.id,
+            name: lmProviderInfo.name,
+            weight: lmProviderInfo.weight,
+            properties: lmProviderInfo.properties,
+            supportUserDefinedModels: lmProviderInfo.supportUserDefinedModels,
+            modelMap: lmProviderInfo.modelMap,
+        }
+        return response;
+    }
 
-        throw new HttpException(500, "not implemented");
+    public updateLmProviderModel(databaseManager: DatabaseManager, request: types.api.UpdateLmProviderModelRequest): types.api.UpdateLmProviderResponse {
+        const lmProviderInfo = databaseManager.getLmProviderInfo(request.id);
+        if (!lmProviderInfo) {
+            throw new HttpException(404, "Language model not found");
+        }
 
-        // const propertiesPair = Object.keys(lmProviderCredentials.properties).map(key => [key, lmProviderCredentials.properties[key].value])
+        for (const key of Object.keys(lmProviderInfo.modelMap)) {
+            if (request.modelUri === lmProviderInfo.modelMap[key].uri) {
+                lmProviderInfo.modelMap[key].selected = request.selected;
+                break;
+            }
+        }
 
-        // const response: types.api.UpdateLmProviderResponse = {
-        //     lmProviderId: lmProviderInfo.id,
-        //     name: lmProviderInfo.name,
-        //     properties: lmProviderCredentials.properties,
+        databaseManager.saveDbEntity(lmProviderInfo);
 
-        // }
-
-        // return response;
+        const response: types.api.UpdateLmProviderResponse = {
+            id: lmProviderInfo.id,
+            name: lmProviderInfo.name,
+            weight: lmProviderInfo.weight,
+            properties: lmProviderInfo.properties,
+            supportUserDefinedModels: lmProviderInfo.supportUserDefinedModels,
+            modelMap: lmProviderInfo.modelMap,
+        }
+        return response;
     }
 
     private _listLanguageModelsFromFile(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[] {

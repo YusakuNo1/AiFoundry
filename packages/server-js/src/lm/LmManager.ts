@@ -159,14 +159,28 @@ class LmManager implements ILmManager {
         return { providers };
     }
 
-    public updateLmProvider(request: types.api.UpdateLmProviderRequest): types.api.UpdateLmProviderResponse {
+    public updateLmProviderInfo(request: types.api.UpdateLmProviderInfoRequest): types.api.UpdateLmProviderResponse {
         if (!request) {
             throw new HttpException(400, "Invalid request to update language model provider")
         }
 
         for (const provider of Object.values(this._lmProviderMap)) {
-            if (provider.id === request.lmProviderId) {
-                provider.updateLmProvider(this.databaseManager, request);
+            if (provider.id === request.id) {
+                return provider.updateLmProviderInfo(this.databaseManager, request);
+            }
+        }
+
+        throw new HttpException(404, "Language model not found");
+    }
+
+    public updateLmProviderModel(request: types.api.UpdateLmProviderModelRequest): types.api.UpdateLmProviderResponse {
+        if (!request) {
+            throw new HttpException(400, "Invalid request to update language model provider model")
+        }
+
+        for (const provider of Object.values(this._lmProviderMap)) {
+            if (provider.id === request.id) {
+                return provider.updateLmProviderModel(this.databaseManager, request);
             }
         }
 

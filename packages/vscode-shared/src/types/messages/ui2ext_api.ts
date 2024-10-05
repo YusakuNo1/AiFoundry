@@ -1,13 +1,13 @@
 import { TextFormat } from '../api/chat';
 import { UploadFileInfo } from '../common';
-import { UpdateLmProviderRequest } from '../api/languageModels';
+import { UpdateLmProviderInfoRequest, UpdateLmProviderModelRequest } from '../api/languageModels';
 import * as shared from "./shared";
 
 export const MessageApiTypes = [
     "chat:history:get",
     "chat:sendMessage",
-    "api:updateLmProvider",
-    "api:updateLmProvider:modelSelection",
+    "api:updateLmProviderInfo",
+    "api:updateLmProviderModel",
     "api:listLmProviders",
     "api:getEmbeddings",
     "api:listFunctions",
@@ -33,9 +33,13 @@ export type MessageApiChatSendMessage = MessageApi & {
         files: UploadFileInfo[];
     };
 };
-export type MessageApiUpdateLmProvider = MessageApi & {
-    type: "api:updateLmProvider" | "api:updateLmProvider:modelSelection",
-    data: UpdateLmProviderRequest;
+export type MessageApiUpdateLmProviderInfo = MessageApi & {
+    type: "api:updateLmProviderInfo",
+    data: UpdateLmProviderInfoRequest;
+};
+export type MessageApiUpdateLmProviderModel = MessageApi & {
+    type: "api:updateLmProviderModel",
+    data: UpdateLmProviderModelRequest;
 };
 export type MessageApiListLmProviders = MessageApi & {
     type: "api:listLmProviders",

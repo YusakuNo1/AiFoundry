@@ -73,14 +73,22 @@ namespace AifPanelEvenHandlers {
             // TODO: Implement ChatAPI.getChatHistory
         } else if (_message.type === 'chat:sendMessage') {
             _chatSendMessage(_message, postMessage);
-        } else if (_message.type === "api:updateLmProvider" || _message.type === "api:updateLmProvider:modelSelection") {
-            const message = _message as types.MessageApiUpdateLmProvider;
-            LanguageModelsAPI.updateLmProvider(message.data as types.api.UpdateLmProviderRequest)
+        } else if (_message.type === "api:updateLmProviderInfo" || _message.type === "api:updateLmProviderModel") {
+            let requestPromise: Promise<any>;
+            if (_message.type === "api:updateLmProviderInfo") {
+                const message = _message as types.MessageApiUpdateLmProviderInfo;
+                requestPromise = LanguageModelsAPI.updateLmProviderInfo(message.data as types.api.UpdateLmProviderInfoRequest);
+            } else {
+                const message = _message as types.MessageApiUpdateLmProviderModel;
+                requestPromise = LanguageModelsAPI.updateLmProviderModel(message.data as types.api.UpdateLmProviderModelRequest);
+            }
+
+            requestPromise
                 .then(LanguageModelsAPI.listLmProviders)
                 .then(response => _postMessageUpdateLmProviders(response.providers, postMessage))
                 .then(() => vscode.commands.executeCommand('AiFoundry.refreshMainView', 1))
                 .then(() => {
-                    if (_message.type === "api:updateLmProvider") {
+                    if (_message.type === "api:updateLmProviderInfo") {
                         vscode.window.showInformationMessage("Language model provider setup successfully");
                         const setPageMessage = AifPanelUtils.createMessageSetPageHome();
                         postMessage(setPageMessage);

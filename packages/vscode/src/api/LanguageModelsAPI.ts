@@ -24,10 +24,24 @@ namespace LanguageModelsAPI {
             .then(ApiUtils.processApiResponse<types.api.ListLmProvidersResponse>);
     }
 
-    export async function updateLmProvider(
-        request: types.api.UpdateLmProviderRequest
+    export async function updateLmProviderInfo(
+        request: types.api.UpdateLmProviderInfoRequest
     ): Promise<types.api.UpdateLmProviderResponse> {
         const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`;
+        return fetch(endpoint, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(request),
+        })
+            .then(ApiUtils.processApiResponse<types.api.UpdateLmProviderResponse>);
+    }
+
+    export async function updateLmProviderModel(
+        request: types.api.UpdateLmProviderModelRequest
+    ): Promise<types.api.UpdateLmProviderResponse> {
+        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers/models`;
         return fetch(endpoint, {
             method: "POST",
             headers: {

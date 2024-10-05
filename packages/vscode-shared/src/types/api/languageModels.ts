@@ -22,14 +22,11 @@ export type ListLmProvidersResponse = {
 	providers: LmProviderInfoResponse[];
 };
 
-export type UpdateLmProviderRequest = {
-	lmProviderId: string,
-	properties: Record<string, string> | null,
-	weight: number | null,
-    selectedModels: string[] | null,
-	embeddingModelIndexes: number[] | null,
-	visionModelIndexes: number[] | null,
-	toolsModelIndexes: number[] | null,
+export type UpdateLmProviderInfoRequest = Pick<DatabaseLmProviderInfo, "id"> & Partial<Omit<DatabaseLmProviderInfo, "id" | "modelMap">>;
+export type UpdateLmProviderModelRequest = {
+	id: string,
+	modelUri: string,
+	selected: boolean,
 };
 
-export type UpdateLmProviderResponse = LmProviderInfoResponse;
+export type UpdateLmProviderResponse = Omit<LmProviderInfoResponse, "status">;

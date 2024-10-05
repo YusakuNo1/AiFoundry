@@ -21,7 +21,8 @@ interface ILmManager {
 
     listLanguageModels(llmFeature: types.api.LlmFeature): types.api.ListLanguageModelsResponse;
     listLmProviders(): Promise<types.api.ListLmProvidersResponse>;
-    updateLmProvider(request: types.api.UpdateLmProviderRequest): types.api.UpdateLmProviderResponse;
+    updateLmProviderInfo(request: types.api.UpdateLmProviderInfoRequest): types.api.UpdateLmProviderResponse;
+    updateLmProviderModel(request: types.api.UpdateLmProviderModelRequest): types.api.UpdateLmProviderResponse;
 }
 
 export default ILmManager;
