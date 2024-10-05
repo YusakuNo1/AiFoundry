@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 		LaunchUtils.installDevExtensions();
 	}
 
-	if (consts.AppConfig.START_SERVER) {
+	if ((process.env?.START_SERVER !== "false")) {
 		setupServer();
 	}
 

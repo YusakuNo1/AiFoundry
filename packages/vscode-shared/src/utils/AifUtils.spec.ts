@@ -1,9 +1,10 @@
 import AifUtils from "./AifUtils";
+import { AIF_PROTOCOL } from "../consts/misc";
 
 describe("AifUtils", () => {
     it("createAifUri", () => {
-        expect(AifUtils.createAifUri(AifUtils.AifUriCategory.Agents, ["mock-agent-id"])).toBe("aif://agents/mock-agent-id");
-        expect(AifUtils.createAifUri(AifUtils.AifUriCategory.Models, ["mock-model-id", "8b"], { "version": "mock-version" })).toBe("aif://models/mock-model-id/8b?version=mock-version");
+        expect(AifUtils.createAifUri(AIF_PROTOCOL, AifUtils.AifUriCategory.Agents, ["mock-agent-id"])).toBe("aif://agents/mock-agent-id");
+        expect(AifUtils.createAifUri(AIF_PROTOCOL, AifUtils.AifUriCategory.Models, ["mock-model-id", "8b"], { "version": "mock-version" })).toBe("aif://models/mock-model-id/8b?version=mock-version");
     });
 
     it("getAgentId", () => {

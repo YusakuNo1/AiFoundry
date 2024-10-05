@@ -1,8 +1,12 @@
-import { AIF_PROTOCOL, LmProviderPropValueType } from './consts';
+import { AIF_PROTOCOL, LmProviderPropValueType } from '../consts/misc';
 import { LM_PROVIDER_PROP_VALUE_MASK } from '../consts/config';
 
 namespace LmProviderPropertyUtils {
-    export function getValueFromValueUri(valueUri: string): string {
+    export function getValueFromValueUri(valueUri: string | null): string | null {
+        if (!valueUri) {
+            return null;
+        }
+
         const uri = new URL(valueUri);
 
         if (uri.protocol !== AIF_PROTOCOL) {

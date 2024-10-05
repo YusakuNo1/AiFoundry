@@ -1,4 +1,4 @@
-import { AIF_PROTOCOL } from './consts';
+import { AIF_PROTOCOL } from '../consts/misc';
 
 namespace AifUtils {
     export enum AifUriCategory {
@@ -7,10 +7,10 @@ namespace AifUtils {
     }
     const AifUriCategories = Object.values(AifUriCategory);
 
-    export function createAifUri(category: AifUriCategory, parts: string | string[], parameters?: Record<string, string>) {
+    export function createAifUri(protocol: string, category: AifUriCategory, parts: string | string[], parameters?: Record<string, string>) {
         const partsString = typeof parts === "string" ? [parts] : parts;
         const paramString = (parameters && Object.keys(parameters).length > 0) ? "?" + Object.entries(parameters).map(([key, value]) => `${key}=${value}`).join("&") : "";
-        return `${AIF_PROTOCOL}://${category}/${partsString.join("/")}${paramString}`;
+        return `${protocol}://${category}/${partsString.join("/")}${paramString}`;
     }
 
     export function getAgentId(agentUri: string): string | null {

@@ -4,7 +4,7 @@ import { BaseEntity } from "./BaseEntity";
 export type LmProviderProperty = {
 	description: string,
 	hint: string,
-	valueUri: string,           // Examples:
+	valueUri: string | null,    // Examples:
                                 //  * Normal value: `aif://plain/[value]
                                 //  * Credential URI for un-encryted secret: `aif://secret/[value]
                                 //  * Credential URI from cloud providers: `azure://keyvault/[key-vault-name]/[secret-name]
@@ -15,7 +15,7 @@ export type LmProviderBaseModelInfo = {
     uri: string,
     name: string,
     providerId: string,
-    types: LlmFeature[],
+    features: LlmFeature[],
 	selected: boolean,
 	// For provider of model catelog, e.g. Azure AI, the users can add custom model name (or deployment name) + version, and they can delete it
 	isUserDefined: boolean,
@@ -31,6 +31,7 @@ export class LmProviderInfo extends BaseEntity {
     constructor(
         public id: string,
         public name: string,
+        public description: string,
         public weight: number,
         public properties: Record<string, LmProviderProperty>,
         public supportUserDefinedModels: boolean,

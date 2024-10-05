@@ -7,7 +7,6 @@ export enum AifConfig {
 
 export namespace AppConfig {
     export const MODE: "dev" | "prod" = "prod";
-    export const START_SERVER = true;
     export const USE_DOCKER = false; // The old Python server is using Docker
 }
 

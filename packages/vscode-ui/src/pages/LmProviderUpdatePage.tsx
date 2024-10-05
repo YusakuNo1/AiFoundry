@@ -120,20 +120,20 @@ const LmProviderUpdatePage = (props: Props) => {
     const onAddUserDefinedModel = React.useCallback((modelName: string, llmFeature: types.api.LlmFeature) => {
         const existingModel = models.find(model => model.name === modelName);
         if (existingModel) {
-            if (!existingModel.types.includes(llmFeature)) {
+            if (!existingModel.features.includes(llmFeature)) {
                 const newModel = {
                     ...existingModel,
-                    types: [...existingModel.types, llmFeature],
+                    types: [...existingModel.features, llmFeature],
                 };
                 setModels([...models.filter(model => model.name !== modelName), newModel]);
             }
             return;
         } else {
             const newModel: types.api.LmProviderBaseModelInfo = {
-                uri: AifUtils.createAifUri(AifUtils.AifUriCategory.Models, modelName),
+                uri: AifUtils.createAifUri(props.lmProviderId, AifUtils.AifUriCategory.Models, modelName),
                 name: modelName,
                 providerId: props.lmProviderId,
-                types: [llmFeature],
+                features: [llmFeature],
                 selected: true,
                 isUserDefined: true,
                 tags: [llmFeature],

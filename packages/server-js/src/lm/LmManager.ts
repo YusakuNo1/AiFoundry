@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { v4 as uuid } from "uuid";
-import { AifUtils, types } from 'aifoundry-vscode-shared';
+import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
 import LmBaseProvider from './LmBaseProvider';
 import ILmManager from './ILmManager';
 import DatabaseManager from '../database/DatabaseManager';
@@ -33,7 +33,7 @@ class LmManager implements ILmManager {
         this._lmProviderMap[LmProviderOllama.ID] = new LmProviderOllama(databaseManager);
 
         for (const provider of Object.values(this._lmProviderMap)) {
-            provider.registerProviderInfo(databaseManager);
+            provider.init(databaseManager);
         }
     }
 
@@ -76,7 +76,7 @@ class LmManager implements ILmManager {
 
     public createAgent(request: types.api.CreateAgentRequest): types.api.CreateOrUpdateAgentResponse {
         const uuidValue = uuid();
-        const agentUri = AifUtils.createAifUri(AifUtils.AifUriCategory.Agents, uuidValue);
+        const agentUri = AifUtils.createAifUri(consts.AIF_PROTOCOL, AifUtils.AifUriCategory.Agents, uuidValue);
         const agent = new types.database.AgentMetadata(
             uuidValue,
             request.name || uuidValue,
