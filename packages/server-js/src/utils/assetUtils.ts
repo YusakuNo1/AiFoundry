@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { v4 as uuid } from "uuid";
@@ -58,7 +59,7 @@ namespace AssetUtils {
             throw new Error("Invalid vector store provider");
         }
 
-        return { assetId, name };
+        return { id: assetId, name };
     }
 
     export async function updateEmbeddings(
@@ -92,7 +93,18 @@ namespace AssetUtils {
             name = embeddingMetadata.name;
         }
 
-        return { assetId: embeddingMetadata.id, name };
+        return { id: embeddingMetadata.id, name };
+    }
+
+    export async function deleteEmbedding(
+        databaseManager: DatabaseManager,
+        id: string,
+    ): Promise<types.api.DeleteEmbeddingResponse> {
+        const assetsPath = getEmbeddingsAssetPath();
+        const storePath = path.join(assetsPath, id);
+        fs.rmSync(storePath, { recursive: true });
+        databaseManager.deleteDbEntity(types.database.EmbeddingMetadata.name, id);
+        return { id };
     }
 }
 

@@ -88,9 +88,12 @@ export function activate(context: vscode.ExtensionContext) {
 	EmbeddingsCommands.setupCommands(context, embeddingsViewProvider);
 
 	// Functions View
-	const functionsViewProvider = new AifFunctionsViewProvider();
-	context.subscriptions.push(vscode.window.registerTreeDataProvider('aiFoundryFunctionsViewId', functionsViewProvider));
-	FunctionsCommands.setupCommands(context, functionsViewProvider);
+	let functionsViewProvider: AifFunctionsViewProvider | null = null;
+	if (consts.AppConfig.ENABLE_FUNCTIONS) {
+		functionsViewProvider = new AifFunctionsViewProvider();
+		context.subscriptions.push(vscode.window.registerTreeDataProvider('aiFoundryFunctionsViewId', functionsViewProvider));
+		FunctionsCommands.setupCommands(context, functionsViewProvider);
+	}
 
 	// Webview
 	const viewProviderMap: AifPanelTypes.ViewProviderMap = {

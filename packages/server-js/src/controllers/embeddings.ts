@@ -32,4 +32,9 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
             ResponseUtils.handler(res, () => lmManager.updateEmbedding(req.headers[Config.HEADER_AIF_EMBEDDING_ASSET_ID] as string, req["files"], req.body?.name));
         }
     );
+
+    // Delete an embedding
+    router.delete(`${consts.ADMIN_CTRL_PREFIX}/embeddings/:embeddingId`, (req, res) => {
+        ResponseUtils.handler(res, () => lmManager.deleteEmbedding(req.params.embeddingId));
+    });
 }

@@ -1,6 +1,7 @@
 'use strict';
 import * as vscode from 'vscode';
 import type { types } from 'aifoundry-vscode-shared';
+import { consts } from 'aifoundry-vscode-shared';
 import EmbeddingsAPI from '../api/EmbeddingsAPI';
 import AgentsAPI from '../api/AgentsAPI';
 import LanguageModelsAPI from '../api/LanguageModelsAPI';
@@ -139,7 +140,13 @@ function _showEmbeddingAssetIds(isCreate: boolean, agentsViewProvider: IViewProv
 		quickPick.items = Object.keys(options).map(label => ({ label }));
 		quickPick.onDidAccept((selection) => {
 			const embeddings = quickPick.selectedItems.map(item => options[item.label]);
-			_showFunctionsAssetIds(isCreate, agentsViewProvider, name, model, embeddings);
+
+			if (consts.AppConfig.ENABLE_FUNCTIONS) {
+				_showFunctionsAssetIds(isCreate, agentsViewProvider, name, model, embeddings);
+			} else {
+				_createOrupdateAgent(isCreate, agentsViewProvider, name, model, embeddings);
+			}
+
 			quickPick.dispose();
 		});
 		quickPick.onDidHide(() => quickPick.dispose());

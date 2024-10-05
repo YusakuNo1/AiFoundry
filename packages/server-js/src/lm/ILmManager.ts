@@ -18,6 +18,7 @@ interface ILmManager {
     listEmbeddings(): types.api.ListEmbeddingsResponse;
     createEmbedding(afBaseModelUri: string | undefined, files: types.UploadFileInfo[] | undefined, name: string | undefined): Promise<types.api.CreateOrUpdateEmbeddingsResponse>;
     updateEmbedding(id: string | undefined, files: types.UploadFileInfo[] | undefined, name: string | undefined): Promise<types.api.CreateOrUpdateEmbeddingsResponse>;
+    deleteEmbedding(id: string): Promise<types.api.DeleteEmbeddingResponse>;
 
     listLanguageModels(llmFeature: types.api.LlmFeature): types.api.ListLanguageModelsResponse;
     listLmProviders(): Promise<types.api.ListLmProvidersResponse>;

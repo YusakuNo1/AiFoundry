@@ -5,6 +5,10 @@ export type ListEmbeddingsResponse = {
 };
 
 export type CreateOrUpdateEmbeddingsResponse = {
-	assetId: string,
+	id: string,
 	name: string,
 };
+
+export type DeleteEmbeddingResponse = {
+	id: string,
+}

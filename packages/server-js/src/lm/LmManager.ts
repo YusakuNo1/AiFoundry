@@ -138,6 +138,10 @@ class LmManager implements ILmManager {
         return AssetUtils.updateEmbeddings(this.databaseManager, llm, embeddingMetadata, files, name);
     }
 
+    public async deleteEmbedding(id: string): Promise<types.api.DeleteEmbeddingResponse> {
+        return AssetUtils.deleteEmbedding(this.databaseManager, id);
+    }
+
     public listLanguageModels(llmFeature: types.api.LlmFeature): types.api.ListLanguageModelsResponse {
         const basemodels: types.api.LmProviderBaseModelInfo[] = [];
         for (const provider of Object.values(this._lmProviderMap)) {
