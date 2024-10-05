@@ -48,34 +48,10 @@ class LmProviderOllama extends LmBaseProvider {
         });
     }
 
-    protected _getBaseEmbeddingsModel(modelName: string, apiKey: string, properties: Record<string, string>): Embeddings {
-        return new OllamaEmbeddings({
-            model: modelName,
-        });
-    }
-
-    public getBaseLanguageModel(aifUri: string): BaseChatModel {
-        const lmInfo = this._parseLmUri(aifUri);
-        if (!lmInfo) {
-            throw new HttpException(400, "Invalid uri not found");
-        }
-
-        // TODO: for function calling
-        // functions: Function[] = []
-
-        return this._getBaseChatModel(lmInfo.modelName, "", {});
-    }
-
-    protected _getBaseChatModel(modelName: string, apiKey: string, properties: Record<string, string>): BaseChatModel {
-        return new ChatOllama({
-            model: modelName,
-        });
-    }
-
     public getBaseEmbeddingsModel(aifUri: string): Embeddings {
-        const lmInfo = this._parseLmUri(aifUri);
+        const lmInfo = AifUtils.getModelNameAndVersion(this._info.id, aifUri);
         if (!lmInfo) {
-            throw new HttpException(400, "Invalid uri or credentials not found");
+            throw new HttpException(400, `Invalid uri ${aifUri}`);
         }
 
         const llm = new OllamaEmbeddings({
@@ -83,6 +59,20 @@ class LmProviderOllama extends LmBaseProvider {
         });
 
         return llm;
+    }
+
+    public getBaseLanguageModel(aifUri: string): BaseChatModel {
+        const lmInfo = AifUtils.getModelNameAndVersion(this._info.id, aifUri);
+        if (!lmInfo) {
+            throw new HttpException(400, `Invalid uri ${aifUri}`);
+        }
+
+        // TODO: for function calling
+        // functions: Function[] = []
+
+        return new ChatOllama({
+            model: lmInfo.modelName,
+        });
     }
 }
 

@@ -1,8 +1,9 @@
 import { Embeddings } from '@langchain/core/embeddings';
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { AzureChatOpenAI, AzureOpenAIEmbeddings } from '@langchain/openai';
-import { types } from 'aifoundry-vscode-shared';
+import { AifUtils, types } from 'aifoundry-vscode-shared';
 import LmBaseProvider, { GetInitInfoResponse } from './LmBaseProvider';
+import { HttpException } from '../exceptions';
 
 const DEFAULT_API_VERSION = "2024-07-01-preview";
 enum CredPropKey {
@@ -53,6 +54,16 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
         return [];
     }
 
+    public getBaseEmbeddingsModel(aifUri: string): Embeddings {
+        const lmInfo = AifUtils.getModelNameAndVersion(this._info.id, aifUri);
+        if (!lmInfo) {
+            throw new HttpException(400, `Invalid uri ${aifUri}`);
+        }
+
+        // return this._getBaseEmbeddingsModel(lmInfo.modelName, lmInfo.apiKey, this._info.properties);
+        throw new HttpException(400, "Not implemented");
+    }
+
     protected _getBaseEmbeddingsModel(deploymentName: string, apiKey: string, properties: Record<string, string>): Embeddings {
         return new AzureOpenAIEmbeddings({
             azureOpenAIBasePath: _updateAzureOpenAIBasePath(properties[CredPropKey.ApiBase]),
@@ -61,6 +72,14 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
             azureOpenAIApiVersion: properties[CredPropKey.ApiVerion] ?? DEFAULT_API_VERSION,
             maxRetries: 1,
         });
+    }
+
+    public getBaseLanguageModel(aifUri: string): BaseChatModel {
+        const lmInfo = AifUtils.getModelNameAndVersion(this._info.id, aifUri);
+        if (!lmInfo) {
+            throw new HttpException(400, `Invalid uri ${aifUri}`);
+        }
+        throw new HttpException(400, "Not implemented");
     }
 
     protected _getBaseChatModel(deploymentName: string, apiKey: string, properties: Record<string, string>, temperature: number = 0): BaseChatModel {

@@ -14,7 +14,8 @@ namespace AifUtils {
     }
 
     export function getAgentId(agentUri: string): string | null {
-        const extracted = extractAiUri(agentUri);
+        // Agent is only available for AIF_PROTOCOL
+        const extracted = extractAiUri(AIF_PROTOCOL, agentUri);
         if (!extracted || extracted.category !== AifUriCategory.Agents) {
             return null;
         } else {
@@ -22,9 +23,19 @@ namespace AifUtils {
         }
     }
 
-    export function extractAiUri(uri: string): null | { category: AifUriCategory, parts: string[], parameters: Record<string, string> } {
-        const [prefix, rest] = uri.split("://");
-        if (prefix !== AIF_PROTOCOL) {
+    export function getModelNameAndVersion(allowProtocol: string, modelUri: string): { modelName: string, version: string | null } | null {
+        const extracted = extractAiUri(allowProtocol, modelUri);
+        if (!extracted || extracted.category !== AifUriCategory.Models) {
+            return null;
+        } else {
+            const [modelName, version] = extracted.parts;
+            return { modelName, version: version || null };
+        }
+    }
+
+    export function extractAiUri(allowProtocol: string, uri: string): null | { protocol: string, category: AifUriCategory, parts: string[], parameters: Record<string, string> } {
+        const [protocol, rest] = uri.split("://");
+        if (protocol !== allowProtocol) {
             return null;
         }
 
@@ -35,7 +46,7 @@ namespace AifUtils {
 
         const [partsString, paramString] = parts.join("/").split("?");
         const parameters = paramString ? Object.fromEntries(new URLSearchParams(paramString).entries()) : {};
-        return { category: category as AifUriCategory, parts: partsString.split("/"), parameters };
+        return { protocol, category: category as AifUriCategory, parts: partsString.split("/"), parameters };
     }
 }
 

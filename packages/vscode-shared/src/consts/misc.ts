@@ -20,12 +20,12 @@ export const DOCKER_CONTAINER_NAME = "aifoundry-server";
 
 export const LOCAL_LM_PROVIDER_ID_OLLAMA = "ollama";
 
-// Experiments
-export const EXP_LM_PROVIDER_MODEL_SELECTION_INSTANT_UPDATE = "EXP_LM_PROVIDER_MODEL_SELECTION_INSTANT_UPDATE";
-
 export const AIF_PROTOCOL = "aif";
 
 export enum LmProviderPropValueType {
     Plain = "plain",
     Secret = "secret",
 }
+
+// Experiments
+export const EXP_LM_PROVIDER_MODEL_SELECTION_INSTANT_UPDATE = "EXP_LM_PROVIDER_MODEL_SELECTION_INSTANT_UPDATE";

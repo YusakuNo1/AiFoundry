@@ -1,11 +1,10 @@
 import * as vscode from 'vscode';
-import type { types } from 'aifoundry-vscode-shared';
+import { types } from 'aifoundry-vscode-shared';
 import EmbeddingsAPI from '../api/EmbeddingsAPI';
 import LanguageModelsAPI from '../api/LanguageModelsAPI';
 import CommandUtils from './utils';
 import { IViewProvider } from '../viewProviders/base';
-import ChatAPI from '../api/ChatAPI';
-
+import ApiUtils from '../utils/ApiUtils';
 
 namespace EmbeddingsCommands {
 	export function setupCommands(context: vscode.ExtensionContext, embeddingsViewProvider: IViewProvider) {
@@ -104,7 +103,8 @@ function _createOrUpdateEmbedding(isCreate: boolean, embeddingsViewProvider: IVi
 		canSelectMany: true,
 		openLabel: 'Select files',
 		canSelectFiles: true,
-		canSelectFolders: false
+		canSelectFolders: false,
+		filters: types.expandAcceptedFileInfoTypeToFileExtensionMap(types.AcceptedFileInfoEmbedding),
 	};
 
 	vscode.window
@@ -121,6 +121,9 @@ function _createOrUpdateEmbedding(isCreate: boolean, embeddingsViewProvider: IVi
 					.then(() => {						
 						embeddingsViewProvider.refresh(isCreate ? undefined : aifBasemodelUriOrAifEmbeddingAssetId);
 						vscode.window.showInformationMessage(isCreate ? 'Embedding is created' : 'Embedding is updated');
+					})
+					.catch((error) => {
+						ApiUtils.handleApiErrorResponse(error, vscode.window.showErrorMessage);
 					});
 			}
 		});

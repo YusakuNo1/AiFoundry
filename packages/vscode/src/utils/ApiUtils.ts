@@ -8,6 +8,15 @@ namespace ApiUtils {
             });
         }
     }
+
+    export function handleApiErrorResponse(response: string | Error, showErrorMessage: any): void {
+        if (typeof response === "string") {
+            const error = JSON.parse(response);
+            showErrorMessage(error.error);
+        } else {
+            showErrorMessage(response.message ?? response);
+        }
+    }
 }
 
 export default ApiUtils;

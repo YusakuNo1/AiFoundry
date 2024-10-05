@@ -49,36 +49,11 @@ abstract class LmBaseProvider {
     }
     protected abstract _getInitInfo(): GetInitInfoResponse;
 
-    abstract listLanguageModels(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[];
+    public abstract listLanguageModels(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[];
 
-    public getBaseEmbeddingsModel(aifUri: string): Embeddings {
-        const lmInfo = this._parseLmUri(aifUri);
-        throw new Error("not implemented");
-        // const credentials = this._databaseManager.getLmProviderCredentials(this.id);
-        // if (!lmInfo || !credentials) {
-        //     throw new HttpException(400, "Invalid uri or credentials not found");
-        // }
+    public abstract getBaseEmbeddingsModel(aifUri: string): Embeddings;
 
-        // return this._getBaseEmbeddingsModel(lmInfo.modelName, credentials.apiKey, credentials.properties);
-    }
-
-    protected abstract _getBaseEmbeddingsModel(modelName: string, apiKey: string, properties: Record<string, string>): Embeddings;
-
-    public getBaseLanguageModel(aifUri: string): BaseChatModel {
-        const lmInfo = this._parseLmUri(aifUri);
-        throw new Error("not implemented");
-        // const credentials = this._databaseManager.getLmProviderCredentials(this.id);
-        // if (!lmInfo || !credentials) {
-        //     throw new HttpException(400, "Invalid uri or credentials not found");
-        // }
-
-        // // TODO: for function calling
-        // // functions: Function[] = []
-
-        // return this._getBaseChatModel(lmInfo.modelName, credentials.apiKey, credentials.properties);
-    }
-
-    protected abstract _getBaseChatModel(modelName: string, apiKey: string, properties: Record<string, string>): BaseChatModel;
+    public abstract getBaseLanguageModel(aifUri: string): BaseChatModel;
 
     public async getLmProviderInfo(databaseManager: DatabaseManager): Promise<types.api.LmProviderInfoResponse> {
         const properties = { ...this._info.properties };
@@ -145,20 +120,6 @@ abstract class LmBaseProvider {
             modelMap: this._info.modelMap,
         }
         return response;
-    }
-
-    protected _parseLmUri(aifUri: string): { modelName: string, apiVersion: string } | null {
-        const url = new URL(aifUri);
-        const params = url.searchParams;
-
-        if (!url.hostname) {
-            return null;
-        } else {
-            return {
-                modelName: url.hostname,
-                apiVersion: params.get("api-version") || "",
-            };    
-        }
     }
 }
 

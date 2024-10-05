@@ -1,6 +1,9 @@
 export const AcceptedFileInfoTypes = ["image", "txt", "pdf"] as const;
 export type AcceptedFileInfoType = typeof AcceptedFileInfoTypes[number];
 
+// export const AcceptedFileInfoEmbedding: AcceptedFileInfoType[] = ["txt", "pdf"] as const;
+export const AcceptedFileInfoEmbedding: AcceptedFileInfoType[] = ["txt"] as const;  // "pdf" is not supported for now
+
 export type DataUrlInfo = {
     data: string,
     dataUrlPrefix: string | null,
@@ -23,7 +26,7 @@ export const AcceptedFileInfo: Record<AcceptedFileInfoType, {
     },
     "txt": {
         name: "Text",
-        extensions: ["txt"],
+        extensions: ["txt", "csv"],
         convert: (ext: string, buffer: Buffer) => {
             return {
                 data: buffer.toString('utf8'),
@@ -59,4 +62,8 @@ export function convertToDataUrlInfo(dataUrl: string): DataUrlInfo {
         data: parts[1],
         dataUrlPrefix: parts[0] + ","
     };
+}
+
+export function expandAcceptedFileInfoTypeToFileExtensionMap(types: AcceptedFileInfoType[]): Record<string, string[]> {
+    return Object.fromEntries(types.map(type => [type, AcceptedFileInfo[type].extensions]));
 }

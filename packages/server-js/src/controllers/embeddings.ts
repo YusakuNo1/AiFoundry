@@ -16,7 +16,7 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
         `${consts.ADMIN_CTRL_PREFIX}/embeddings/`,
         RouterUtils.middlewares.jsonParser,
         RouterUtils.middlewares.uploadFiles,
-        RouterUtils.fileConvertMiddleware(["txt", "pdf"]),
+        RouterUtils.fileConvertMiddleware(types.AcceptedFileInfoEmbedding),
         (req, res) => {
             ResponseUtils.handler(res, () => lmManager.createEmbedding(req.headers[Config.HEADER_AIF_BASEMODEL_URI] as string, req["files"], req.body?.name));
         }
@@ -27,7 +27,7 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
         `${consts.ADMIN_CTRL_PREFIX}/embeddings/`,
         RouterUtils.middlewares.jsonParser,
         RouterUtils.middlewares.uploadFiles,
-        RouterUtils.fileConvertMiddleware(["txt", "pdf"]),
+        RouterUtils.fileConvertMiddleware(types.AcceptedFileInfoEmbedding),
         (req, res) => {
             ResponseUtils.handler(res, () => lmManager.updateEmbedding(req.headers[Config.HEADER_AIF_EMBEDDING_ASSET_ID] as string, req["files"], req.body?.name));
         }
