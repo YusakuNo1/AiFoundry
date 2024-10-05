@@ -79,8 +79,8 @@ class LmManager implements ILmManager {
         const agentUri = AifUtils.createAifUri(consts.AIF_PROTOCOL, AifUtils.AifUriCategory.Agents, uuidValue);
         const agent = new types.database.AgentMetadata(
             uuidValue,
-            request.name || uuidValue,
             agentUri,
+            request.name || uuidValue,
             request.basemodelUri ?? "",
             request.systemPrompt ?? "",
             request.ragAssetIds ?? [],
@@ -98,8 +98,12 @@ class LmManager implements ILmManager {
         return { id: agent.id, uri: agent.agentUri };
     }
 
-    public deleteAgent(id: string): void {
-        this.databaseManager.deleteAgent(id);
+    public deleteAgent(id: string): types.api.DeleteAgentResponse {
+        if (this.databaseManager.deleteAgent(id)) {
+            return { id };
+        } else {
+            throw new HttpException(404, "Agent not found");
+        }
     }
 
     public listEmbeddings(): types.api.ListEmbeddingsResponse {

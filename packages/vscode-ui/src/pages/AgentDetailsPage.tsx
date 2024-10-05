@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useSelector } from "react-redux";
-import { types } from "aifoundry-vscode-shared";
+import { consts, types } from "aifoundry-vscode-shared";
 import { store } from "../store/store";
 import { pageInfoSlice } from "../store/pageInfoSlice";
 import BasePage, { RowSelectionItem } from "./BasePage";
@@ -26,12 +26,14 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
         };
         props.onPostMessage(messageApiGetEmbeddings);
 
-        const messageApiGetFunctions: types.MessageApiListFunctions = {
-            aifMessageType: "api",
-            type: "api:listFunctions",
-            data: {},
-        };
-        props.onPostMessage(messageApiGetFunctions);
+        if (consts.AppConfig.ENABLE_FUNCTIONS) {
+            const messageApiGetFunctions: types.MessageApiListFunctions = {
+                aifMessageType: "api",
+                type: "api:listFunctions",
+                data: {},
+            };
+            props.onPostMessage(messageApiGetFunctions);
+        }
     }, [props]);
 
     const embeddingMap = React.useMemo(() => {

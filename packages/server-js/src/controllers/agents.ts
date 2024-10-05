@@ -11,23 +11,34 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
     });
 
     // Create a new agent
-    router.post(`${consts.ADMIN_CTRL_PREFIX}/agents/`, RouterUtils.middlewares.jsonParser, (req, res) => {
-        ResponseUtils.handler(res, async () => {
-            return await lmManager.createAgent(req.body);
-        });
-    });
+    router.post(
+        `${consts.ADMIN_CTRL_PREFIX}/agents/`,
+        RouterUtils.middlewares.jsonParser,
+        (req, res) => {
+            ResponseUtils.handler(res, async () => {
+                return await lmManager.createAgent(req.body);
+            });
+        }
+    );
 
     // Update an agent
-    router.put(`${consts.ADMIN_CTRL_PREFIX}/agents/:agentId`, RouterUtils.middlewares.jsonParser, (req, res) => {
-        ResponseUtils.handler(res, async () => {
-            return await lmManager.updateAgent(req.params.agentId, req.body);
-        });
-    });
+    router.put(
+        `${consts.ADMIN_CTRL_PREFIX}/agents/:agentId`,
+        RouterUtils.middlewares.jsonParser,
+        (req, res) => {
+            ResponseUtils.handler(res, async () => {
+                return await lmManager.updateAgent(req.params.agentId, req.body);
+            });
+        }
+    );
 
     // Delete an agent
-    router.delete(`${consts.ADMIN_CTRL_PREFIX}/agents/:agentId`, (req, res) => {
-        ResponseUtils.handler(res, async () => {
-            return await lmManager.deleteAgent(req.params.agentId);
-        });
-    });
+    router.delete(
+        `${consts.ADMIN_CTRL_PREFIX}/agents/:agentId`,
+        (req, res) => {
+            ResponseUtils.handler(res, async () => {
+                return await lmManager.deleteAgent(req.params.agentId);
+            });
+        }
+    );
 }

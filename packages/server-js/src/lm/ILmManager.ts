@@ -13,7 +13,7 @@ interface ILmManager {
     listAgents(): types.api.ListAgentsResponse;
     createAgent(agent: types.api.CreateAgentRequest): types.api.CreateOrUpdateAgentResponse;
     updateAgent(id: string, request: types.api.UpdateAgentRequest): types.api.CreateOrUpdateAgentResponse;
-    deleteAgent(id: string): void;
+    deleteAgent(id: string): types.api.DeleteAgentResponse;
 
     listEmbeddings(): types.api.ListEmbeddingsResponse;
     createEmbedding(afBaseModelUri: string | undefined, files: types.UploadFileInfo[] | undefined, name: string | undefined): Promise<types.api.CreateOrUpdateEmbeddingsResponse>;

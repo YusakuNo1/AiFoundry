@@ -12,3 +12,7 @@ export type CreateOrUpdateAgentResponse = {
     id: string,
     uri: string,
 }
+
+export type DeleteAgentResponse = {
+    id: string,
+}
