@@ -14,4 +14,4 @@ export namespace AppConfig {
 export const THUMBNAIL_HEIGHT = 100;
 export const UPLOAD_IMAGE_MAX_WIDTH = 800;
 export const UPLOAD_IMAGE_MAX_HEIGHT = 600;
-export const LM_PROVIDER_PROP_VALUE_MASK = "*****";
+export const LM_PROVIDER_PROP_VALUE_MASK = "*";

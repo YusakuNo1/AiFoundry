@@ -13,13 +13,13 @@ describe("AifUtils", () => {
     });
 
     it("extractAiUri", () => {
-        expect(AifUtils.extractAiUri("aif://agents/mock-agent-id")).toEqual({
+        expect(AifUtils.extractAiUri("aif", "aif://agents/mock-agent-id")).toEqual({
             category: AifUtils.AifUriCategory.Agents,
             parts: ["mock-agent-id"],
             parameters: {},
         });
 
-        expect(AifUtils.extractAiUri("aif://models/mock-model-id/8b?version=mock-version")).toEqual({
+        expect(AifUtils.extractAiUri("aif", "aif://models/mock-model-id/8b?version=mock-version")).toEqual({
             category: AifUtils.AifUriCategory.Models,
             parts: ["mock-model-id", "8b"],
             parameters: { "version": "mock-version" },

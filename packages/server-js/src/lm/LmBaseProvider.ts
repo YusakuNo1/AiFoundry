@@ -1,8 +1,7 @@
 import { Embeddings } from '@langchain/core/embeddings';
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { types } from 'aifoundry-vscode-shared';
+import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
 import DatabaseManager from '../database/DatabaseManager';
-import { LmProviderPropertyUtils } from 'aifoundry-vscode-shared';
 
 
 export type GetInitInfoResponse = Omit<types.database.LmProviderInfo, "version" | "entityName">;
@@ -58,7 +57,24 @@ abstract class LmBaseProvider {
     public async getLmProviderInfo(databaseManager: DatabaseManager): Promise<types.api.LmProviderInfoResponse> {
         const properties = { ...this._info.properties };
         for (const key of Object.keys(properties)) {
-            properties[key].valueUri = LmProviderPropertyUtils.getValueFromValueUri(properties[key].valueUri);
+            const valueUri = properties[key].valueUri;
+            const valueUriInfo = AifUtils.extractAiUri(null, valueUri ?? "");
+            if (valueUriInfo?.protocol === consts.AIF_PROTOCOL && valueUriInfo?.category === AifUtils.AifUriCategory.Values && valueUriInfo?.parts.length === 2) {
+                const valueType = valueUriInfo.parts[0];
+                let value = valueUriInfo.parts[1];
+
+                if (valueType === AifUtils.AifUriValueType.Plain) {
+                    // Do nothing
+                } else if (valueType === AifUtils.AifUriValueType.Secret) {
+                    value = consts.LM_PROVIDER_PROP_VALUE_MASK.repeat(value.length);
+                } else {
+                    throw new Error(`Unsupported value type: ${valueType}`);
+                }
+
+                properties[key].valueUri = AifUtils.createAifUri(consts.AIF_PROTOCOL, AifUtils.AifUriCategory.Values, [valueType, value]);
+            } else {
+                throw new Error(`Invalid value URI: ${valueUri}`);
+            }
         }
 
         return {
@@ -80,7 +96,18 @@ abstract class LmBaseProvider {
         if (request.properties) {
             for (const key of Object.keys(request.properties)) {
                 if (this._info.properties[key]) {
-                    this._info.properties[key].valueUri = request.properties[key].valueUri;
+                    const value = request.properties[key];
+                    const protocol = AifUtils.getProtocol(value);
+                    if (!protocol) {
+                        const valueType = this._info.properties[key].isSecret ? AifUtils.AifUriValueType.Secret : AifUtils.AifUriValueType.Plain;
+                        this._info.properties[key].valueUri = AifUtils.createAifUri(
+                            consts.AIF_PROTOCOL,
+                            AifUtils.AifUriCategory.Values,
+                            [valueType, value],
+                        );
+                    } else {
+                        this._info.properties[key].valueUri = value;
+                    }
                 }
             }
         }

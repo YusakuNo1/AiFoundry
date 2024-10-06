@@ -21,16 +21,19 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
                 description: "Azure OpenAI API base path",
                 hint: "",
                 valueUri: null,
+                isSecret: false,
             },
             [CredPropKey.ApiVerion]: {
                 description: "Azure OpenAI API version",
                 hint: "",
                 valueUri: null,
+                isSecret: false,
             },
             [CredPropKey.ApiKey]: {
                 description: "Azure OpenAI API key",
                 hint: "",
                 valueUri: null,
+                isSecret: true,
             },
         }
 

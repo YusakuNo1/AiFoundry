@@ -22,7 +22,10 @@ export type ListLmProvidersResponse = {
 	providers: LmProviderInfoResponse[];
 };
 
-export type UpdateLmProviderInfoRequest = Pick<DatabaseLmProviderInfo, "id"> & Partial<Omit<DatabaseLmProviderInfo, "id" | "modelMap">>;
+export type UpdateLmProviderInfoRequest = Pick<DatabaseLmProviderInfo, "id"> & Partial<Omit<DatabaseLmProviderInfo, "id" | "modelMap" | "properties">> & {
+	properties?: Record<string, string>,
+};
+
 export type UpdateLmProviderModelRequest = {
 	id: string,
 	modelUri: string,

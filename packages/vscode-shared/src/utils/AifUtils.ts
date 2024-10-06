@@ -1,16 +1,46 @@
 import { AIF_PROTOCOL } from '../consts/misc';
 
 namespace AifUtils {
+    export enum AifUriValueType {
+        Plain = "plain",
+        Secret = "secret",
+    }
+
     export enum AifUriCategory {
         Agents = "agents",
         Models = "models",
+        Values = "values",
     }
     const AifUriCategories = Object.values(AifUriCategory);
 
     export function createAifUri(protocol: string, category: AifUriCategory, parts: string | string[], parameters?: Record<string, string>) {
-        const partsString = typeof parts === "string" ? [parts] : parts;
-        const paramString = (parameters && Object.keys(parameters).length > 0) ? "?" + Object.entries(parameters).map(([key, value]) => `${key}=${value}`).join("&") : "";
-        return `${protocol}://${category}/${partsString.join("/")}${paramString}`;
+        let partsStrings = typeof parts === "string" ? [parts] : parts;
+        partsStrings = partsStrings.map(part => encodeURIComponent(part));
+        const paramString = (parameters && Object.keys(parameters).length > 0) ? "?" + Object.entries(parameters).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&") : "";
+        return `${protocol}://${category}/${partsStrings.join("/")}${paramString}`;
+    }
+
+    // When allowProtocol is null, it will not check the protocol
+    export function extractAiUri(allowProtocol: string | null, uri: string): null | { protocol: string, category: AifUriCategory, parts: string[], parameters: Record<string, string> } {
+        const [protocol, rest] = uri.split("://");
+        if (!!allowProtocol && protocol !== allowProtocol) {
+            return null;
+        }
+
+        let [category, ...tempParts] = rest.split("/");
+        if (!AifUriCategories.includes(category as AifUriCategory) || tempParts.length === 0) {
+            return null;
+        }
+
+        const [partsString, paramString] = tempParts.join("/").split("?");
+        const tempParameters = paramString ? Object.fromEntries(new URLSearchParams(paramString).entries()) : {};
+
+        const parts = partsString.split("/").map(part => decodeURIComponent(part));
+        const parameters: Record<string, string> = {};
+        for (const [key, value] of Object.entries(tempParameters)) {
+            parameters[decodeURIComponent(key)] = decodeURIComponent(value);
+        }
+        return { protocol, category: category as AifUriCategory, parts, parameters };
     }
 
     export function getAgentId(agentUri: string): string | null {
@@ -33,20 +63,14 @@ namespace AifUtils {
         }
     }
 
-    export function extractAiUri(allowProtocol: string, uri: string): null | { protocol: string, category: AifUriCategory, parts: string[], parameters: Record<string, string> } {
+    export function getProtocol(uri: string): string | null {
         const [protocol, rest] = uri.split("://");
-        if (protocol !== allowProtocol) {
+        if (!rest) {
+            // If there is no rest, then it is not a valid uri
             return null;
+        } else {
+            return protocol;
         }
-
-        const [category, ...parts] = rest.split("/");
-        if (!AifUriCategories.includes(category as AifUriCategory) || parts.length === 0) {
-            return null;
-        }
-
-        const [partsString, paramString] = parts.join("/").split("?");
-        const parameters = paramString ? Object.fromEntries(new URLSearchParams(paramString).entries()) : {};
-        return { protocol, category: category as AifUriCategory, parts: partsString.split("/"), parameters };
     }
 }
 

@@ -21,9 +21,29 @@ const LmProviderUpdatePage = (props: Props) => {
     const systemMenuItem = systemMenuItemMap[props.lmProviderId];
 
     const [provider, setProvider] = React.useState<types.api.LmProviderInfoResponse | null>(null);
-    const [properties, setProperties] = React.useState<Record<string, types.api.LmProviderProperty>>({});
+    const [requestProperties, setRequestProperties] = React.useState<Record<string, string>>({});
     const [weight, setWeight] = React.useState<string>("");
     const [models, setModels] = React.useState<types.api.LmProviderBaseModelInfo[]>([]);
+
+    const lmProvider = React.useMemo(() => {
+        for (const _lmProvider of (lmProviders ?? [])) {
+            if (_lmProvider.id === props.lmProviderId) {
+                return _lmProvider;
+            }
+        }
+        return null;
+    }, [lmProviders, props.lmProviderId]);
+
+    React.useEffect(() => {
+        if (!lmProvider) {
+            return;
+        }
+
+        setProvider(lmProvider);
+        // setProperties({ ...lmProvider.properties });
+        setWeight("" + lmProvider.weight);
+        setModels(Object.values(lmProvider.modelMap));
+    }, [lmProvider]);
 
     React.useEffect(() => {
         if (!lmProviders) {
@@ -36,38 +56,16 @@ const LmProviderUpdatePage = (props: Props) => {
         }
     }, [lmProviders, props]);
 
-    React.useEffect(() => {
-        if (!lmProviders) {
-            return;
-        }
-
-        for (const lmProvider of lmProviders) {
-            if (lmProvider.id === props.lmProviderId) {
-                setProvider(lmProvider);
-                setProperties({ ...lmProvider.properties });
-                setWeight("" + lmProvider.weight);
-                setModels(Object.values(lmProvider.modelMap));
-            }
-        }
-    }, [lmProviders, props.lmProviderId]);
-
-
     const onSubmit = React.useCallback(() => {
-        const _properties: Record<string, string> = {};
-        for (const id of Object.keys(properties)) {
-            if (properties[id].valueUri) {
-                _properties[id] = properties[id].valueUri!;
-            }
-        }
         const _weight = parseInt(weight) ?? null;
-
         const message = createMessageApiUpdateLmProviderInfo(
             "api:updateLmProviderInfo",
             props.lmProviderId,
             _weight,
+            requestProperties,
         );
         props.onPostMessage(message);
-    }, [props, properties, weight]);
+    }, [props, weight, requestProperties]);
 
     const onCancel = React.useCallback(() => {
         const message: types.MessageSetPageContext = {
@@ -78,15 +76,9 @@ const LmProviderUpdatePage = (props: Props) => {
     }, []);
 
     const onChangeProperty = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        const newProperties = {
-            ...properties,
-            [event.target.id]: {
-                ...properties[event.target.id],
-                value: event.target.value,
-            }
-        };
-        setProperties(newProperties);
-    }, [properties]);
+        const newRequestProperties = { ...requestProperties, [event.target.id]: event.target.value };
+        setRequestProperties(newRequestProperties);
+    }, [requestProperties, setRequestProperties]);
 
     const onChangeWeight = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setWeight(event.target.value);
@@ -172,15 +164,13 @@ const LmProviderUpdatePage = (props: Props) => {
                 <TableBody style={tableBodyStyle}>
                     {showOllamaSetup && <LmProviderUpdatePageOllama />}
                     {!showOllamaSetup && <>
-                        {Object.keys(properties ?? {}).map((id) => {
-                            const property = properties[id];
-                            if (property.valueUri === consts.LM_PROVIDER_PROP_VALUE_MASK) {
-                                const placeholder = property.hint;
-                                return renderRow(id, <Input id={id} type="password" placeholder={placeholder} onChange={onChangeProperty} style={inputStyle} />, property.description);
-                            } else {
-                                const value = property.valueUri ?? undefined;
-                                return renderRow(id, <Input id={id} value={value} onChange={onChangeProperty} style={inputStyle} />, property.description);
-                            }
+                        {Object.keys(lmProvider?.properties ?? {}).map((id) => {
+                            const description = lmProvider?.properties[id]?.description ?? "";
+                            const isSecret = lmProvider?.properties[id]?.isSecret ?? false;
+                            const propertyValue = requestProperties[id] ?? lmProvider!.properties[id]?.valueUri;
+                            const valueInfo = AifUtils.extractAiUri(consts.AIF_PROTOCOL, propertyValue ?? "");
+                            const value = valueInfo?.parts[1] ?? "";
+                            return renderRow(id, <Input id={id} type={isSecret ? "password" : undefined} value={value} onChange={onChangeProperty} style={inputStyle} />, description);
                         })}
                         {renderRow("Weight",
                             <Input
@@ -245,10 +235,12 @@ function createMessageApiUpdateLmProviderInfo(
     messageApiType: "api:updateLmProviderInfo",
     lmProviderId: string,
     weight: number | null,
+    properties: Record<string, string>,
 ): types.MessageApiUpdateLmProviderInfo {
     const request: types.api.UpdateLmProviderInfoRequest = {
         id: lmProviderId,
         weight: weight ?? undefined,
+        properties,
     };
 
     const message: types.MessageApiUpdateLmProviderInfo = {

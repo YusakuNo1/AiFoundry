@@ -4,6 +4,7 @@ import { BaseEntity } from "./BaseEntity";
 export type LmProviderProperty = {
 	description: string,
 	hint: string,
+    isSecret: boolean,
 	valueUri: string | null,    // Examples:
                                 //  * Normal value: `aif://plain/[value]
                                 //  * Credential URI for un-encryted secret: `aif://secret/[value]
