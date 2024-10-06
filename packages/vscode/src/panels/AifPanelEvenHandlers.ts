@@ -90,8 +90,8 @@ namespace AifPanelEvenHandlers {
                 .then(() => {
                     if (_message.type === "api:updateLmProviderInfo") {
                         vscode.window.showInformationMessage("Language model provider setup successfully");
-                        const setPageMessage = AifPanelUtils.createMessageSetPageHome();
-                        postMessage(setPageMessage);
+                        // const setPageMessage = AifPanelUtils.createMessageSetPageHome();
+                        // postMessage(setPageMessage);
                     }
                 })
                 .catch((error) => {

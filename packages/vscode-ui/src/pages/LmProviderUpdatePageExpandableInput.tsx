@@ -19,13 +19,8 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
 
     React.useEffect(() => {
         const map: Record<string, types.api.LmProviderBaseModelInfo> = {};
-        const embeddingTag: types.api.LlmFeature = "embedding";
         for (const model of props.models) {
-            const shouldInclude = props.llmFeature === "all" || 
-                (props.llmFeature === "conversational" && !model.tags.includes(embeddingTag)) || // Conversational models are not embedding models
-                (props.llmFeature !== "conversational" && model.tags.includes(embeddingTag));
-
-            if (shouldInclude) {
+            if (props.llmFeature === "all" || model.features.includes(props.llmFeature)) {
                 map[model.name] = model;
             }
         }

@@ -8,6 +8,7 @@ import { getTextColor } from '../Theme';
 import LmProviderUpdatePageExpandableInput from './LmProviderUpdatePageExpandableInput';
 import LmProviderUpdatePageOllama from './LmProviderUpdatePageOllama';
 import { AifExperiments } from '../consts';
+import { createMessageApiUpdateLmProviderInfo, createMessageApiUpdateLmProviderModel } from './LmProviderUpdatePageUtils';
 
 
 type Props = {
@@ -110,6 +111,21 @@ const LmProviderUpdatePage = (props: Props) => {
     }, [props, setModels, models]);
 
     const onAddUserDefinedModel = React.useCallback((modelName: string, llmFeature: types.api.LlmFeature) => {
+        if (consts.EXP_LM_PROVIDER_MODEL_SELECTION_INSTANT_UPDATE) {
+            const params = {
+                [consts.UpdateLmProviderBaseModelFeatureKey]: llmFeature,
+            }
+            const modelUri = AifUtils.createAifUri(props.lmProviderId, AifUtils.AifUriCategory.Models, modelName, params);
+            const selected = true;
+            const message = createMessageApiUpdateLmProviderModel(
+                "api:updateLmProviderModel",
+                props.lmProviderId,
+                modelUri,
+                selected,
+            );
+            props.onPostMessage(message);    
+        }
+
         const existingModel = models.find(model => model.name === modelName);
         if (existingModel) {
             if (!existingModel.features.includes(llmFeature)) {
@@ -132,7 +148,7 @@ const LmProviderUpdatePage = (props: Props) => {
             };
             setModels([...models, newModel]);    
         }
-    }, [models, setModels, props.lmProviderId]);
+    }, [models, setModels, props]);
 
     function renderRow(name: string, valueElement: React.ReactElement | string | number | undefined, descriptionElement: React.ReactElement | string) {
         return (<TableRow key={name}>
@@ -167,9 +183,13 @@ const LmProviderUpdatePage = (props: Props) => {
                         {Object.keys(lmProvider?.properties ?? {}).map((id) => {
                             const description = lmProvider?.properties[id]?.description ?? "";
                             const isSecret = lmProvider?.properties[id]?.isSecret ?? false;
-                            const propertyValue = requestProperties[id] ?? lmProvider!.properties[id]?.valueUri;
-                            const valueInfo = AifUtils.extractAiUri(consts.AIF_PROTOCOL, propertyValue ?? "");
-                            const value = valueInfo?.parts[1] ?? "";
+
+                            let value = requestProperties[id];
+                            if (!value) {
+                                const propertyValue = requestProperties[id] ?? lmProvider!.properties[id]?.valueUri;
+                                const valueInfo = AifUtils.extractAiUri(consts.AIF_PROTOCOL, propertyValue ?? "");
+                                value = valueInfo?.parts[1] ?? "";
+                            }
                             return renderRow(id, <Input id={id} type={isSecret ? "password" : undefined} value={value} onChange={onChangeProperty} style={inputStyle} />, description);
                         })}
                         {renderRow("Weight",
@@ -230,45 +250,5 @@ const LmProviderUpdatePage = (props: Props) => {
         </>);    
     }
 };
-
-function createMessageApiUpdateLmProviderInfo(
-    messageApiType: "api:updateLmProviderInfo",
-    lmProviderId: string,
-    weight: number | null,
-    properties: Record<string, string>,
-): types.MessageApiUpdateLmProviderInfo {
-    const request: types.api.UpdateLmProviderInfoRequest = {
-        id: lmProviderId,
-        weight: weight ?? undefined,
-        properties,
-    };
-
-    const message: types.MessageApiUpdateLmProviderInfo = {
-        aifMessageType: "api",
-        type: messageApiType,
-        data: request,
-    };
-    return message;
-}
-
-function createMessageApiUpdateLmProviderModel(
-    messageApiType: "api:updateLmProviderModel",
-    lmProviderId: string,
-    modelUri: string,
-    selected: boolean,
-): types.MessageApiUpdateLmProviderModel {
-    const request: types.api.UpdateLmProviderModelRequest = {
-        id: lmProviderId,
-        modelUri,
-        selected,
-    };
-
-    const message: types.MessageApiUpdateLmProviderModel = {
-        aifMessageType: "api",
-        type: messageApiType,
-        data: request,
-    };
-    return message;
-}
 
 export default LmProviderUpdatePage;

@@ -26,6 +26,7 @@ export enum LmProviderPropValueType {
     Plain = "plain",
     Secret = "secret",
 }
+export const UpdateLmProviderBaseModelFeatureKey = "feature";
 
 // Experiments
 export const EXP_LM_PROVIDER_MODEL_SELECTION_INSTANT_UPDATE = "EXP_LM_PROVIDER_MODEL_SELECTION_INSTANT_UPDATE";

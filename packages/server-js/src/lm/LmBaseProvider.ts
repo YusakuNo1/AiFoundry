@@ -127,14 +127,41 @@ abstract class LmBaseProvider {
     }
 
     public updateLmProviderModel(databaseManager: DatabaseManager, request: types.api.UpdateLmProviderModelRequest): types.api.UpdateLmProviderResponse {
+        const modelUriInfo = AifUtils.extractAiUri(this._info.id, request.modelUri);
+        const name = modelUriInfo?.parts[0] ?? undefined;
+        const feature = modelUriInfo?.parameters[consts.UpdateLmProviderBaseModelFeatureKey] as types.api.LlmFeature ?? undefined;
+        const modelUri = name ? AifUtils.createAifUri(this._info.id, AifUtils.AifUriCategory.Models, name) : undefined;
+
+        // Find the model in the model map and update the selected field
+        let foundModel = false;
         for (const key of Object.keys(this._info.modelMap)) {
-            if (request.modelUri === this._info.modelMap[key].uri) {
-                this._info.modelMap[key].selected = request.selected;
+            if (modelUri === this._info.modelMap[key].uri) {
+                foundModel = true;
+                const model = this._info.modelMap[key];
+                model.selected = request.selected;
+
+                // If it's the request to update the feature, update the feature
+                if (this._info.supportUserDefinedModels && request.selected && feature && model.features.indexOf(feature) === -1) {
+                    model.features.push(feature);
+                }
                 break;
             }
         }
 
-        this._info.modelMap = this._info.modelMap;
+        // Add the new model to the model map
+        if (!foundModel && this._info.supportUserDefinedModels && request.selected && modelUri && name && feature) {
+            const modelInfo: types.api.LmProviderBaseModelInfo = {
+                uri: modelUri,
+                name,
+                providerId: this._info.id,
+                features: [feature],
+                selected: true,
+                isUserDefined: true,
+                tags: [],
+            }
+            this._info.modelMap[name] = modelInfo    
+        }
+
         databaseManager.saveDbEntity(this._info);
 
         const response: types.api.UpdateLmProviderResponse = {
