@@ -37,20 +37,20 @@ class LmManager implements ILmManager {
         }
     }
 
-    public chat(
+    public async chat(
         aifSessionId: string,
         aifAgentUri: string,
         outputFormat: types.api.TextFormat,
         input: string,
         files: types.UploadFileInfo[],
-    ): Observable<string> {
+    ): Promise<Observable<string>> {
         const agentId = AifUtils.getAgentId(aifAgentUri);
         if (!agentId) {
             throw new HttpException(400, "Invalid agent uri");
         }
 
         const databaseManager = this.databaseManager;
-        const chain = LmManagerUtils.getChain(this.databaseManager, this._lmProviderMap, aifSessionId, agentId, input, files, outputFormat);
+        const chain = await LmManagerUtils.getChain(this.databaseManager, this._lmProviderMap, aifSessionId, agentId, input, files, outputFormat);
         return new Observable<string>((subscriber) => {
             async function run() {
                 const response = await chain.invoke(input);
@@ -120,7 +120,7 @@ class LmManager implements ILmManager {
             throw new HttpException(400, "afBaseModelUri and files are required");
         }
 
-        const llm = LmManagerUtils.getBaseEmbeddingsModel(this._lmProviderMap, afBaseModelUri);
+        const llm = await LmManagerUtils.getBaseEmbeddingsModel(this._lmProviderMap, afBaseModelUri);
         return AssetUtils.createEmbeddings(this.databaseManager, llm, afBaseModelUri, files, name);
     }
 
@@ -138,7 +138,7 @@ class LmManager implements ILmManager {
             throw new HttpException(404, "Embedding not found");
         }
 
-        const llm = LmManagerUtils.getBaseEmbeddingsModel(this._lmProviderMap, embeddingMetadata.basemodelUri);
+        const llm = await LmManagerUtils.getBaseEmbeddingsModel(this._lmProviderMap, embeddingMetadata.basemodelUri);
         return AssetUtils.updateEmbeddings(this.databaseManager, llm, embeddingMetadata, files, name);
     }
 

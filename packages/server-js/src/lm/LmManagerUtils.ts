@@ -17,10 +17,10 @@ import { HttpException } from '../exceptions';
 import AssetUtils from '../utils/assetUtils';
 
 namespace LmManagerUtils {
-    export function getBaseEmbeddingsModel(
+    export async function getBaseEmbeddingsModel(
         lmProviderMap: Record<string, LmBaseProvider>,
         aifUri: string,
-    ): Embeddings {
+    ): Promise<Embeddings> {
         for (const lmProvider of Object.values(lmProviderMap)) {
             if (lmProvider.canHandle(aifUri)) {
                 return lmProvider.getBaseEmbeddingsModel(aifUri);
@@ -30,10 +30,10 @@ namespace LmManagerUtils {
         throw new HttpException(400, "No model found for the given uri");
     }
 
-    export function getBaseChatModel(
+    export async function getBaseChatModel(
         lmProviderMap: Record<string, LmBaseProvider>,
         aifUri: string,
-    ): BaseChatModel {
+    ): Promise<BaseChatModel> {
         for (const lmProvider of Object.values(lmProviderMap)) {
             if (lmProvider.canHandle(aifUri)) {
                 return lmProvider.getBaseLanguageModel(aifUri);
@@ -54,7 +54,7 @@ namespace LmManagerUtils {
             throw new HttpException(404, "Embedding not found");
         }
 
-        const llm = getBaseEmbeddingsModel(lmProviderMap, embeddingMetadata.basemodelUri);
+        const llm = await getBaseEmbeddingsModel(lmProviderMap, embeddingMetadata.basemodelUri);
 
         const assetsPath = AssetUtils.getEmbeddingsAssetPath();
         const storePath = path.join(assetsPath, embeddingId);
@@ -63,7 +63,7 @@ namespace LmManagerUtils {
         return document;
     }
 
-    export function getChain(
+    export async function getChain(
         databaseManager: DatabaseManager,
         lmProviderMap: Record<string, LmBaseProvider>,
         aifSessionId: string,
@@ -77,7 +77,7 @@ namespace LmManagerUtils {
             throw new HttpException(404, "Agent not found");
         }
 
-        const llm = LmManagerUtils.getBaseChatModel(lmProviderMap, agentMetadata.basemodelUri);
+        const llm = await LmManagerUtils.getBaseChatModel(lmProviderMap, agentMetadata.basemodelUri);
         const hasRAG = agentMetadata.ragAssetIds.length > 0;
         const prompt = _getPrompt(databaseManager, aifSessionId, agentMetadata, input, files, outputFormat);
         const outputParser = new StringOutputParser();

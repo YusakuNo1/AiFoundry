@@ -6,9 +6,9 @@ export type LmProviderProperty = {
 	hint: string,
     isSecret: boolean,
 	valueUri: string | null,    // Examples:
-                                //  * Normal value: `aif://plain/[value]
-                                //  * Credential URI for un-encryted secret: `aif://secret/[value]
-                                //  * Credential URI from cloud providers: `azure://keyvault/[key-vault-name]/[secret-name]
+                                //  * Normal value: `aif://values/plain/[value]`
+                                //  * Credential URI for un-encryted secret: `aif://values/secret/[value]`
+                                //  * Credential URI from cloud providers: `azure://keyvault/[key-vault-name]/[secret-name]`
 }
 
 export type LmProviderBaseModelInfo = {

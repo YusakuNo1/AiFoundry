@@ -48,7 +48,7 @@ class LmProviderOllama extends LmBaseProvider {
         });
     }
 
-    public getBaseEmbeddingsModel(aifUri: string): Embeddings {
+    public async getBaseEmbeddingsModel(aifUri: string): Promise<Embeddings> {
         const lmInfo = AifUtils.getModelNameAndVersion(this._info.id, aifUri);
         if (!lmInfo) {
             throw new HttpException(400, `Invalid uri ${aifUri}`);
@@ -61,7 +61,7 @@ class LmProviderOllama extends LmBaseProvider {
         return llm;
     }
 
-    public getBaseLanguageModel(aifUri: string): BaseChatModel {
+    public async getBaseLanguageModel(aifUri: string): Promise<BaseChatModel> {
         const lmInfo = AifUtils.getModelNameAndVersion(this._info.id, aifUri);
         if (!lmInfo) {
             throw new HttpException(400, `Invalid uri ${aifUri}`);

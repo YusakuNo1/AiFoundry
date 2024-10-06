@@ -8,7 +8,7 @@ interface ILmManager {
         outputFormat: types.api.TextFormat,
         input: string,
         requestFileInfoList: types.UploadFileInfo[],
-    ): Observable<string>;
+    ): Promise<Observable<string>>;
 
     listAgents(): types.api.ListAgentsResponse;
     createAgent(agent: types.api.CreateAgentRequest): types.api.CreateOrUpdateAgentResponse;

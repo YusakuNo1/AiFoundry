@@ -1,7 +1,7 @@
 import { Embeddings } from '@langchain/core/embeddings';
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { AzureChatOpenAI, AzureOpenAIEmbeddings } from '@langchain/openai';
-import { AifUtils, types } from 'aifoundry-vscode-shared';
+import { AifUtils, LmProviderPropertyUtils, types } from 'aifoundry-vscode-shared';
 import LmBaseProvider, { GetInitInfoResponse } from './LmBaseProvider';
 import { HttpException } from '../exceptions';
 
@@ -54,44 +54,53 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
     }
 
     public listLanguageModels(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[] {
-        return [];
+        return Object.values(this._info.modelMap).filter((model) => model.selected && (feature === "all" || model.features.includes(feature)));
     }
 
-    public getBaseEmbeddingsModel(aifUri: string): Embeddings {
+    public async getBaseEmbeddingsModel(aifUri: string): Promise<Embeddings> {
         const lmInfo = AifUtils.getModelNameAndVersion(this._info.id, aifUri);
         if (!lmInfo) {
             throw new HttpException(400, `Invalid uri ${aifUri}`);
         }
 
-        // return this._getBaseEmbeddingsModel(lmInfo.modelName, lmInfo.apiKey, this._info.properties);
-        throw new HttpException(400, "Not implemented");
-    }
+        const azureOpenAIBasePath = await LmProviderPropertyUtils.getPropertyValue(this._info.properties[CredPropKey.ApiBase]);
+        const azureOpenAIApiKey = await LmProviderPropertyUtils.getPropertyValue(this._info.properties[CredPropKey.ApiKey]);
+        const azureOpenAIApiVersion = await LmProviderPropertyUtils.getPropertyValue(this._info.properties[CredPropKey.ApiVerion]) ?? DEFAULT_API_VERSION;
+        const azureOpenAIApiDeploymentName = lmInfo.modelName;
 
-    protected _getBaseEmbeddingsModel(deploymentName: string, apiKey: string, properties: Record<string, string>): Embeddings {
+        if (!azureOpenAIBasePath || !azureOpenAIApiKey || !azureOpenAIApiVersion || !azureOpenAIApiDeploymentName) {
+            throw new HttpException(400, "Invalid provider properties");
+        }
+
         return new AzureOpenAIEmbeddings({
-            azureOpenAIBasePath: _updateAzureOpenAIBasePath(properties[CredPropKey.ApiBase]),
-            azureOpenAIApiDeploymentName: deploymentName,
-            azureOpenAIApiKey: apiKey,
-            azureOpenAIApiVersion: properties[CredPropKey.ApiVerion] ?? DEFAULT_API_VERSION,
+            azureOpenAIBasePath: _updateAzureOpenAIBasePath(azureOpenAIBasePath),
+            azureOpenAIApiDeploymentName,
+            azureOpenAIApiKey,
+            azureOpenAIApiVersion,
             maxRetries: 1,
         });
     }
 
-    public getBaseLanguageModel(aifUri: string): BaseChatModel {
+    public async getBaseLanguageModel(aifUri: string): Promise<BaseChatModel> {
         const lmInfo = AifUtils.getModelNameAndVersion(this._info.id, aifUri);
         if (!lmInfo) {
             throw new HttpException(400, `Invalid uri ${aifUri}`);
         }
-        throw new HttpException(400, "Not implemented");
-    }
 
-    protected _getBaseChatModel(deploymentName: string, apiKey: string, properties: Record<string, string>, temperature: number = 0): BaseChatModel {
+        const azureOpenAIBasePath = await LmProviderPropertyUtils.getPropertyValue(this._info.properties[CredPropKey.ApiBase]);
+        const azureOpenAIApiKey = await LmProviderPropertyUtils.getPropertyValue(this._info.properties[CredPropKey.ApiKey]);
+        const azureOpenAIApiVersion = await LmProviderPropertyUtils.getPropertyValue(this._info.properties[CredPropKey.ApiVerion]) ?? DEFAULT_API_VERSION;
+        const azureOpenAIApiDeploymentName = lmInfo.modelName;
+
+        if (!azureOpenAIBasePath || !azureOpenAIApiKey || !azureOpenAIApiVersion || !azureOpenAIApiDeploymentName) {
+            throw new HttpException(400, "Invalid provider properties");
+        }
+
         return new AzureChatOpenAI({
-            azureOpenAIBasePath: _updateAzureOpenAIBasePath(properties[CredPropKey.ApiBase]),
-            azureOpenAIApiDeploymentName: deploymentName,
-            azureOpenAIApiKey: apiKey,
-            azureOpenAIApiVersion: properties[CredPropKey.ApiVerion] ?? DEFAULT_API_VERSION,
-            temperature,
+            azureOpenAIBasePath: _updateAzureOpenAIBasePath(azureOpenAIBasePath),
+            azureOpenAIApiDeploymentName,
+            azureOpenAIApiKey,
+            azureOpenAIApiVersion,
         });
     }
 }

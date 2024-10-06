@@ -50,9 +50,9 @@ abstract class LmBaseProvider {
 
     public abstract listLanguageModels(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[];
 
-    public abstract getBaseEmbeddingsModel(aifUri: string): Embeddings;
+    public abstract getBaseEmbeddingsModel(aifUri: string): Promise<Embeddings>;
 
-    public abstract getBaseLanguageModel(aifUri: string): BaseChatModel;
+    public abstract getBaseLanguageModel(aifUri: string): Promise<BaseChatModel>;
 
     public async getLmProviderInfo(databaseManager: DatabaseManager): Promise<types.api.LmProviderInfoResponse> {
         const properties = { ...this._info.properties };
