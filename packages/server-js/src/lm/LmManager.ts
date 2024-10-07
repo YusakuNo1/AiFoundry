@@ -50,15 +50,17 @@ class LmManager implements ILmManager {
         }
 
         const databaseManager = this.databaseManager;
-        const chain = await LmManagerUtils.getChain(this.databaseManager, this._lmProviderMap, aifSessionId, agentId, input, files, outputFormat);
+        const inputMessageContent = LmManagerUtils.createMessageContent(input, files);
+        const chain = await LmManagerUtils.getChain(this.databaseManager, this._lmProviderMap, aifSessionId, agentId, input, inputMessageContent, outputFormat);
         return new Observable<string>((subscriber) => {
             async function run() {
                 const response = await chain.invoke(input);
                 subscriber.next(response);
                 subscriber.complete();
 
-                databaseManager.addChatMessage(aifSessionId, aifAgentUri, types.api.ChatRole.USER, input, outputFormat, files);
-                databaseManager.addChatMessage(aifSessionId, aifAgentUri, types.api.ChatRole.ASSISTANT, response, types.api.defaultTextFormat);
+                databaseManager.addChatMessage(aifSessionId, aifAgentUri, types.api.ChatRole.USER, inputMessageContent, outputFormat, files);
+                const responseMessageContent = LmManagerUtils.createMessageContent(response);
+                databaseManager.addChatMessage(aifSessionId, aifAgentUri, types.api.ChatRole.ASSISTANT, responseMessageContent, types.api.defaultTextFormat);
             }
 
             run().catch((ex) => {

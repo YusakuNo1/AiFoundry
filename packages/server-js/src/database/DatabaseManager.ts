@@ -140,7 +140,7 @@ class DatabaseManager {
         sessionId: string,
         aifAgentUri: string,
         role: types.api.ChatRole,
-        content: string,
+        content: types.database.ChatHistoryMessageContent,
         contentTextFormat: types.api.TextFormat,
         files: types.UploadFileInfo[] = [],
     ) {
@@ -149,12 +149,7 @@ class DatabaseManager {
             chatHistory = new types.database.ChatHistory(sessionId, aifAgentUri, []);
         }
 
-        const chatHistoryMessage: types.database.ChatHistoryMessage = {
-            role: role,
-            content: content,
-            contentTextFormat,
-            files: files,
-        };
+        const chatHistoryMessage: types.database.ChatHistoryMessage = { role, content, contentTextFormat, files };
         (chatHistory.messages as types.database.ChatHistoryMessage[]).push(chatHistoryMessage);
         this.saveDbEntity(chatHistory);
     }

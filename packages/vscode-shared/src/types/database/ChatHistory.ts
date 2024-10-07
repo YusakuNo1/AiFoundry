@@ -1,11 +1,23 @@
-
 import { UploadFileInfo } from "../common";
 import { BaseEntity } from "./BaseEntity"
+
+export type ChatHistoryMessageTextContentItem = {
+    type: "text",
+    text: string,
+};
+export type ChatHistoryMessageImageUrlContentItem = {
+    type: "image_url",
+    image_url: {
+        url: string,
+        detail?: "auto" | "low" | "high",
+    },
+};
+export type ChatHistoryMessageContent = (ChatHistoryMessageTextContentItem | ChatHistoryMessageImageUrlContentItem)[];
 
 export type ChatHistoryMessage = {
     role: string,
     contentTextFormat: string,
-    content: string,
+    content: ChatHistoryMessageContent,
     files: UploadFileInfo[],
 }
 

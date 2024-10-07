@@ -4,7 +4,7 @@ import { Embeddings } from '@langchain/core/embeddings';
 import { AIMessage, BaseMessage, HumanMessage, MessageContentComplex, SystemMessage } from "@langchain/core/messages";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { StringOutputParser } from "@langchain/core/output_parsers";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { BaseMessagePromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate } from "@langchain/core/prompts";
 import {
     RunnableLambda,
     RunnableMap,
@@ -69,7 +69,7 @@ namespace LmManagerUtils {
         aifSessionId: string,
         agentId: string,
         input: string,
-        files: types.UploadFileInfo[],
+        inputMessageContent: types.database.ChatHistoryMessageContent,
         outputFormat: types.api.TextFormat,
     ) {
         const agentMetadata = databaseManager.getAgent(agentId);
@@ -78,61 +78,65 @@ namespace LmManagerUtils {
         }
 
         const llm = await LmManagerUtils.getBaseChatModel(lmProviderMap, agentMetadata.basemodelUri);
-        const hasRAG = agentMetadata.ragAssetIds.length > 0;
-        const prompt = _getPrompt(databaseManager, aifSessionId, agentMetadata, input, files, outputFormat);
+        const prompt = await _getPrompt(databaseManager, lmProviderMap, aifSessionId, agentMetadata, input, inputMessageContent, outputFormat);
         const outputParser = new StringOutputParser();
-
-        if (hasRAG) {
-            const docPromises = agentMetadata.ragAssetIds.map((assetId) => LmManagerUtils.loadDocFromVectorStore(databaseManager, lmProviderMap, input, assetId));
-            const ragRunnable = RunnableMap.from({
-                context: new RunnableLambda({
-                    func: async () => {
-                        const docs = await Promise.all(docPromises);
-                        const docContents = docs.map((doc) => doc[0].pageContent);
-                        return docContents.join("\n");
-                    },
-                }).withConfig({ runName: "contextRetriever" }),
-                question: new RunnablePassthrough(),
-            });
-            return ragRunnable.pipe(prompt).pipe(llm).pipe(outputParser);
-        } else {
-            return prompt.pipe(llm).pipe(outputParser);
-        }
+        return prompt.pipe(llm).pipe(outputParser);
     }
 
-    function _getPrompt(
+    async function _getRagContext(
         databaseManager: DatabaseManager,
+        lmProviderMap: Record<string, LmBaseProvider>,
+        agentMetadata: types.database.AgentMetadata,
+        input: string,
+    ) {
+        const docPromises = agentMetadata.ragAssetIds.map((assetId) => LmManagerUtils.loadDocFromVectorStore(databaseManager, lmProviderMap, input, assetId));
+        const docs = await Promise.all(docPromises);
+        const docContents = docs.map((doc) => doc[0].pageContent);
+        return docContents.join("\n");
+    }
+
+    async function _getPrompt(
+        databaseManager: DatabaseManager,
+        lmProviderMap: Record<string, LmBaseProvider>,
         aifSessionId: string,
         agentMetadata: types.database.AgentMetadata,
         input: string,
-        files: types.UploadFileInfo[],
+        inputMessageContent: types.database.ChatHistoryMessageContent,
         outputFormat: types.api.TextFormat,
     ) {
         const chatHistory = databaseManager.getChatHistory(aifSessionId);
-        const hasRAG = agentMetadata.ragAssetIds.length > 0;
-        const _systemPrompt = !hasRAG ? agentMetadata.systemPrompt : `
+        let _systemPromptString = `
 ${agentMetadata.systemPrompt}
-${types.api.TextFormatPrompts[outputFormat] ?? ""}
-Answer the question only based on the given context. Do not add any additional information. Answer in a short sentence.        
-Context: {context}`;
+${types.api.TextFormatPrompts[outputFormat] ?? ""}`;
+
+        if (agentMetadata.ragAssetIds.length > 0) {
+            const ragContext = await _getRagContext(databaseManager, lmProviderMap, agentMetadata, input);
+            _systemPromptString += `${_systemPromptString}\nContext: ${ragContext}`;
+        }
 
         const messages: BaseMessage[] = [];
-        messages.push(new SystemMessage(_systemPrompt));
+        messages.push(new SystemMessage(_systemPromptString));
 
         for (const chatMessage of ((chatHistory?.messages as types.database.ChatHistoryMessage[]) ?? [])) {
             if (chatMessage.role === types.api.ChatRole.USER) {
-                messages.push(new HumanMessage(chatMessage.content));
+                messages.push(new HumanMessage({ content: chatMessage.content }));
             } else if (chatMessage.role === types.api.ChatRole.ASSISTANT) {
-                messages.push(new AIMessage(chatMessage.content));
+                messages.push(new AIMessage({ content: chatMessage.content }));
             }
         }
 
-        const messageContent: MessageContentComplex[] = [{
+        messages.push(new HumanMessage({ content: inputMessageContent }));
+        const prompt = ChatPromptTemplate.fromMessages(messages);
+        return prompt;
+    }
+
+    export function createMessageContent(input: string, files?: types.UploadFileInfo[]): types.database.ChatHistoryMessageContent {
+        const messageContent: types.database.ChatHistoryMessageContent = [{
             type: "text",
             text: input,
         }];
 
-        for (const file of files) {
+        for (const file of (files ?? [])) {
             messageContent.push({
                 type: "image_url",
                 image_url: {
@@ -141,9 +145,7 @@ Context: {context}`;
             });
         }
 
-        messages.push(new HumanMessage({ content: messageContent }));
-        const prompt = ChatPromptTemplate.fromMessages(messages);
-        return prompt;
+        return messageContent;
     }
 }
 
