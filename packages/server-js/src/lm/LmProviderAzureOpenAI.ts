@@ -58,22 +58,9 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
     }
 
     public async getBaseEmbeddingsModel(aifUri: string): Promise<Embeddings> {
-        const lmInfo = AifUtils.getModelNameAndVersion(this._info.id, aifUri);
-        if (!lmInfo) {
-            throw new HttpException(400, `Invalid uri ${aifUri}`);
-        }
-
-        const azureOpenAIBasePath = await LmProviderPropertyUtils.getPropertyValue(this._info.properties[CredPropKey.ApiBase]);
-        const azureOpenAIApiKey = await LmProviderPropertyUtils.getPropertyValue(this._info.properties[CredPropKey.ApiKey]);
-        const azureOpenAIApiVersion = await LmProviderPropertyUtils.getPropertyValue(this._info.properties[CredPropKey.ApiVerion]) ?? DEFAULT_API_VERSION;
-        const azureOpenAIApiDeploymentName = lmInfo.modelName;
-
-        if (!azureOpenAIBasePath || !azureOpenAIApiKey || !azureOpenAIApiVersion || !azureOpenAIApiDeploymentName) {
-            throw new HttpException(400, "Invalid provider properties");
-        }
-
+        const { azureOpenAIBasePath, azureOpenAIApiKey, azureOpenAIApiVersion, azureOpenAIApiDeploymentName } = await this._getCredentials(aifUri);
         return new AzureOpenAIEmbeddings({
-            azureOpenAIBasePath: _updateAzureOpenAIBasePath(azureOpenAIBasePath),
+            azureOpenAIBasePath,
             azureOpenAIApiDeploymentName,
             azureOpenAIApiKey,
             azureOpenAIApiVersion,
@@ -82,6 +69,21 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
     }
 
     public async getBaseLanguageModel(aifUri: string): Promise<BaseChatModel> {
+        const { azureOpenAIBasePath, azureOpenAIApiKey, azureOpenAIApiVersion, azureOpenAIApiDeploymentName } = await this._getCredentials(aifUri);
+        return new AzureChatOpenAI({
+            azureOpenAIBasePath,
+            azureOpenAIApiDeploymentName,
+            azureOpenAIApiKey,
+            azureOpenAIApiVersion,
+        });
+    }
+
+    private async _getCredentials(aifUri: string): Promise<{
+        azureOpenAIBasePath: string,
+        azureOpenAIApiKey: string,
+        azureOpenAIApiVersion: string,
+        azureOpenAIApiDeploymentName: string,
+    }> {
         const lmInfo = AifUtils.getModelNameAndVersion(this._info.id, aifUri);
         if (!lmInfo) {
             throw new HttpException(400, `Invalid uri ${aifUri}`);
@@ -96,12 +98,12 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
             throw new HttpException(400, "Invalid provider properties");
         }
 
-        return new AzureChatOpenAI({
+        return {
             azureOpenAIBasePath: _updateAzureOpenAIBasePath(azureOpenAIBasePath),
             azureOpenAIApiDeploymentName,
             azureOpenAIApiKey,
             azureOpenAIApiVersion,
-        });
+        };
     }
 }
 
