@@ -12,7 +12,7 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
     // });
 
     router.get(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/filter/:filter`, (req, res) => {
-        ResponseUtils.handler(res, () => {
+        ResponseUtils.handler<types.api.ListLanguageModelsResponse>(res, async () => {
             const filter = req.params.filter as types.api.LlmFeature;
             if (types.api.LlmFeatures.indexOf(filter) === -1) {
                 throw new HttpException(400, "Invalid filter");
@@ -24,7 +24,11 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
 
     // List language model provider
     router.get(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`, (req, res) => {
-        ResponseUtils.handler(res, lmManager.listLmProviders);
+        ResponseUtils.handler<types.api.ListLmProvidersResponse>(
+            res,
+            lmManager.listLmProviders,
+            ResponseUtils.maskListLmProvidersResponse,
+        );
     });
 
     // Update language model provider
@@ -32,7 +36,11 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
         `${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`,
         RouterUtils.middlewares.jsonParser,
         (req, res) => {
-            ResponseUtils.handler(res, () => lmManager.updateLmProviderInfo(req.body as types.api.UpdateLmProviderInfoRequest));
+            ResponseUtils.handler<types.api.UpdateLmProviderResponse>(
+                res,
+                async () => lmManager.updateLmProviderInfo(req.body as types.api.UpdateLmProviderInfoRequest),
+                ResponseUtils.maskUpdateLmProviderResponse,
+            );
         }
     );
 
@@ -41,7 +49,11 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
         `${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers/models`,
         RouterUtils.middlewares.jsonParser,
         (req, res) => {
-            ResponseUtils.handler(res, () => lmManager.updateLmProviderModel(req.body as types.api.UpdateLmProviderModelRequest));
+            ResponseUtils.handler<types.api.UpdateLmProviderResponse>(
+                res,
+                async () => lmManager.updateLmProviderModel(req.body as types.api.UpdateLmProviderModelRequest),
+                ResponseUtils.maskUpdateLmProviderResponse,
+            );
         }
     );
 }

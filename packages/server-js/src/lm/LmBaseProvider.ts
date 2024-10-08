@@ -62,15 +62,9 @@ abstract class LmBaseProvider {
             if (valueUriInfo?.protocol === consts.AIF_PROTOCOL && valueUriInfo?.category === AifUtils.AifUriCategory.Values && valueUriInfo?.parts.length === 2) {
                 const valueType = valueUriInfo.parts[0];
                 let value = valueUriInfo.parts[1];
-
-                if (valueType === AifUtils.AifUriValueType.Plain) {
-                    // Do nothing
-                } else if (valueType === AifUtils.AifUriValueType.Secret) {
-                    value = consts.LM_PROVIDER_PROP_VALUE_MASK.repeat(value.length);
-                } else {
+                if (valueType !== AifUtils.AifUriValueType.Plain && valueType !== AifUtils.AifUriValueType.Secret) {
                     throw new Error(`Unsupported value type: ${valueType}`);
                 }
-
                 properties[key].valueUri = AifUtils.createAifUri(consts.AIF_PROTOCOL, AifUtils.AifUriCategory.Values, [valueType, value]);
             } else {
                 throw new Error(`Invalid value URI: ${valueUri}`);
