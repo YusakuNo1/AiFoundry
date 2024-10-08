@@ -18,7 +18,6 @@ export type ChatHistoryMessage = {
     role: string,
     contentTextFormat: string,
     content: ChatHistoryMessageContent,
-    files: UploadFileInfo[],
 }
 
 export class ChatHistory extends BaseEntity {

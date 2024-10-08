@@ -142,14 +142,13 @@ class DatabaseManager {
         role: types.api.ChatRole,
         content: types.database.ChatHistoryMessageContent,
         contentTextFormat: types.api.TextFormat,
-        files: types.UploadFileInfo[] = [],
     ) {
         let chatHistory = this.getChatHistory(sessionId);
         if (!chatHistory) {
             chatHistory = new types.database.ChatHistory(sessionId, aifAgentUri, []);
         }
 
-        const chatHistoryMessage: types.database.ChatHistoryMessage = { role, content, contentTextFormat, files };
+        const chatHistoryMessage: types.database.ChatHistoryMessage = { role, content, contentTextFormat };
         (chatHistory.messages as types.database.ChatHistoryMessage[]).push(chatHistoryMessage);
         this.saveDbEntity(chatHistory);
     }

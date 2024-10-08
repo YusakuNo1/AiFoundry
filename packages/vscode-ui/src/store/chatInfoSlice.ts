@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { types } from "aifoundry-vscode-shared";
+import { ChatHistoryMessageContentUtils, types } from "aifoundry-vscode-shared";
 
 
 interface ChatInfoState {
@@ -25,21 +25,23 @@ export const chatInfoSlice = createSlice({
             state.messages = action.payload.messages;
         },
         appendChatUserMessage: (state, action: PayloadAction<{
-            content: string,
+            content: types.database.ChatHistoryMessageContent,
             contentTextFormat: types.api.TextFormat,
-            files: types.UploadFileInfo[],
         }>) => {
             // For user chat message, always append it since it's from local, we have no session ID
             state.messages.push({
                 role: types.api.ChatRole.USER,
                 content: action.payload.content,
                 contentTextFormat: action.payload.contentTextFormat,
-                files: action.payload.files,
             });
         },
 
         // For non-streaming, append chat assistant message
-        appendChatAssistantMessage: (state, action: PayloadAction<{ aifSessionId: string, content: string, contentTextFormat: types.api.TextFormat }>) => {
+        appendChatAssistantMessage: (state, action: PayloadAction<{
+            aifSessionId: string,
+            content: types.database.ChatHistoryMessageContent,
+            contentTextFormat: types.api.TextFormat,
+        }>) => {
             if (state.aifSessionId === null) {
                 state.aifSessionId = action.payload.aifSessionId;
             }
@@ -48,7 +50,6 @@ export const chatInfoSlice = createSlice({
                 role: types.api.ChatRole.ASSISTANT,
                 content: action.payload.content,
                 contentTextFormat: "plain",
-                files: [],
             });
         },
 
@@ -62,9 +63,11 @@ export const chatInfoSlice = createSlice({
             if (state.messages.length === 0 || state.messages[state.messages.length - 1].role === types.api.ChatRole.USER) {
                 state.messages.push({
                     role: types.api.ChatRole.ASSISTANT,
-                    content: action.payload.chunk,
+                    content: [{
+                        type: "text",
+                        text: action.payload.chunk,
+                    }],
                     contentTextFormat: action.payload.contentTextFormat,
-                    files: [],
                 });
             } else {
                 const lastMessage = state.messages[state.messages.length - 1];
@@ -72,15 +75,14 @@ export const chatInfoSlice = createSlice({
                     ...state.messages.slice(0, state.messages.length - 1),
                     {
                         role: types.api.ChatRole.ASSISTANT,
-                        content: lastMessage.content + action.payload.chunk,
+                        content: ChatHistoryMessageContentUtils.appendToMessageContent(lastMessage.content, action.payload.chunk),
                         contentTextFormat: action.payload.contentTextFormat,
-                        files: lastMessage.files,
                     },
                 ]
             }
         },
         // For streaming, append chunks to the last chat assistant message
-        updateLastChatAssistantMessage: (state, action: PayloadAction<{ aifSessionId: string, content: string, contentTextFormat: types.api.TextFormat }>) => {
+        updateLastChatAssistantMessage: (state, action: PayloadAction<{ aifSessionId: string, content: types.database.ChatHistoryMessageContent, contentTextFormat: types.api.TextFormat }>) => {
             if (state.aifSessionId === null) {
                 state.aifSessionId = action.payload.aifSessionId;
             }
@@ -91,16 +93,17 @@ export const chatInfoSlice = createSlice({
                     role: types.api.ChatRole.ASSISTANT,
                     content: action.payload.content,
                     contentTextFormat: action.payload.contentTextFormat,
-                    files: [],
                 });
             } else {
                 state.messages = [
                     ...state.messages.slice(0, state.messages.length - 1),
                     {
                         role: types.api.ChatRole.ASSISTANT,
-                        content: action.payload.content,
+                        content: ChatHistoryMessageContentUtils.appendToMessageContent(
+                            state.messages[state.messages.length - 1].content,
+                            ChatHistoryMessageContentUtils.getMessageContentText(action.payload.content) ?? "",
+                        ),
                         contentTextFormat: action.payload.contentTextFormat,
-                        files: [],
                     },
                 ]
             }

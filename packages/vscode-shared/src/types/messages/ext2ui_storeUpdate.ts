@@ -1,5 +1,6 @@
 import { FunctionMetadata } from '../api/functions';
 import type { EmbeddingMetadata } from '../database/EmbeddingMetadata';
+import type { ChatHistoryMessageContent } from '../database/ChatHistory';
 import { TextFormat } from '../api/chat';
 import { LmProviderInfoResponse } from '../api/languageModels';
 import { SystemMenuItem } from '../menu';
@@ -24,7 +25,7 @@ export type MessageStoreAppendChatAssistantMessage = shared.IMessage & IStoreUpd
     type: "appendChatAssistantMessage",
     data: {
         aifSessionId: string;
-        content: string;
+        content: ChatHistoryMessageContent;
         contentTextFormat: TextFormat;
     };
 }

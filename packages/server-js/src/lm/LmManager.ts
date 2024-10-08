@@ -58,7 +58,7 @@ class LmManager implements ILmManager {
                 subscriber.next(response);
                 subscriber.complete();
 
-                databaseManager.addChatMessage(aifSessionId, aifAgentUri, types.api.ChatRole.USER, inputMessageContent, outputFormat, files);
+                databaseManager.addChatMessage(aifSessionId, aifAgentUri, types.api.ChatRole.USER, inputMessageContent, outputFormat);
                 const responseMessageContent = LmManagerUtils.createMessageContent(response);
                 databaseManager.addChatMessage(aifSessionId, aifAgentUri, types.api.ChatRole.ASSISTANT, responseMessageContent, types.api.defaultTextFormat);
             }

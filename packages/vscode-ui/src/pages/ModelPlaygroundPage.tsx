@@ -7,8 +7,7 @@ import {
     LightbulbFilamentRegular as AiIcon,
   } from '@fluentui/react-icons';
 import { Text } from '@fluentui/react/lib/Text';
-import { Marked } from "marked";
-import { types, consts } from "aifoundry-vscode-shared";
+import { ChatHistoryMessageContentUtils, types, consts } from "aifoundry-vscode-shared";
 import { appendChatUserMessage } from "../store/chatInfoSlice";
 import { getTextColor, getBackgroundColor, getChatBgColorUser, getChatBgColorAi } from "../Theme";
 import { RootState, store } from "../store/store";
@@ -41,10 +40,6 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
     const [inputText, setInputText] = React.useState('');
     const [chatHistoryMessageFiles, setChatHistoryMessageFiles] = React.useState<types.UploadFileInfo[]>([]);
 
-    const marked = React.useMemo(() => {
-        return new Marked();
-    }, []);
-
     React.useEffect(() => {
         setPageChatHistoryMessages(chatHistoryMessages);
     }, [chatHistoryMessages]);
@@ -58,14 +53,8 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
                     _pageChatHistoryMessages.push({...message});
                 } else {
                     found = true;
-                    if (message.contentTextFormat === "markdown") {
-                        const convertedContent = (await marked.parse(message.content)) ?? message.content;
-                        _pageChatHistoryMessages.push({...message, convertedContent});
-                    } else {
-                        const convertedContent = message.content;
-                        _pageChatHistoryMessages.push({...message, convertedContent});
-                    }
-                    // _pageChatHistoryMessages.push(message);
+                    const convertedContent = await ChatHistoryMessageContentUtils.getAndConvertMessageContentText(message.content, message.contentTextFormat as types.api.TextFormat) ?? "";
+                    _pageChatHistoryMessages.push({...message, convertedContent});
                 }
             }
 
@@ -74,7 +63,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
             }
         }
         convert();
-    }, [pageChatHistoryMessages, marked]);
+    }, [pageChatHistoryMessages]);
 
     React.useEffect(() => {
         const inputField = document.getElementById("chat-input");
@@ -102,19 +91,10 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
         setChatHistoryMessageFiles([]);
 
         // Update Redux store for user chat message
-        const promises = chatHistoryMessageFiles.map((file) => {
-            return new Promise<types.UploadFileInfo>((resolve, reject) => {
-                WebApiImageUtils.resizeDataUrl(file.dataUrlPrefix + file.data, { maxHeight: consts.THUMBNAIL_HEIGHT }).then((dataUrl) => {
-                    const dataUrlInfo = types.convertToDataUrlInfo(dataUrl);
-                    resolve({ type: file.type, fileName: file.fileName, data: dataUrlInfo.data, dataUrlPrefix: dataUrlInfo.dataUrlPrefix });
-                })
-            });
-        });
-        Promise.all(promises).then((thumbNailFiles) => {
+        WebApiImageUtils.batchResizeUploadFileInfo(chatHistoryMessageFiles, { maxHeight: consts.THUMBNAIL_HEIGHT }).then((thumbNailFiles) => {
             store.dispatch(appendChatUserMessage({
-                content: inputText,
+                content: ChatHistoryMessageContentUtils.createChatHistoryMessageContent(inputText, thumbNailFiles),
                 contentTextFormat: props.outputFormat,
-                files: thumbNailFiles,
             }));
         });
 
@@ -157,15 +137,11 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
                 </Stack.Item>
                 <Stack.Item grow style={{ backgroundColor: isUser ? chatBgColorUser : chatBgColorAi }}>
                     <Text style={{ color: textColor, marginLeft: '8px', marginRight: '8px' }}>
-                        <div style={{ marginLeft: '8px', marginRight: '8px' }} dangerouslySetInnerHTML={{ __html: message.convertedContent ?? message.content }} />
+                        <div style={{ marginLeft: '8px', marginRight: '8px' }} dangerouslySetInnerHTML={{ __html: ChatHistoryMessageContentUtils.getMessageContentTextSync(message.content) ?? "" }} />
                     </Text>
-                    {message.files && <>
-                        {message.files.map((file, index) => {
-                            return (
-                                <FluentUIImage key={`file-${index}`} src={file.dataUrlPrefix + file.data} alt={file.fileName} style={{ padding: '2px', border: 2, borderColor: 'black' }} />
-                            );
-                        })}
-                    </>}
+                    {ChatHistoryMessageContentUtils.getMessageContentImageUrl(message.content).map((imageUrl, index) =>
+                        <FluentUIImage key={`file-${index}`} src={imageUrl} style={{ padding: '2px', border: 2, borderColor: 'black' }} />
+                    )}
                 </Stack.Item>
                 <Stack.Item styles={{ root: { width: ICON_SIZE } }}>
                     <AiIcon style={{ width: ICON_SIZE, height: ICON_SIZE, visibility: !isUser ? "visible" : "hidden" }} />
