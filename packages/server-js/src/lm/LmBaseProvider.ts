@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import { Embeddings } from '@langchain/core/embeddings';
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
@@ -76,9 +77,9 @@ abstract class LmBaseProvider {
             name: this.name,
             description: this._info.description,
             weight: this._info.weight,
-            properties,
+            properties: _.cloneDeep(properties),
             supportUserDefinedModels: this._info.supportUserDefinedModels,
-            modelMap: this._info.modelMap,
+            modelMap: _.cloneDeep(this._info.modelMap),
             status: await this.isHealthy() ? "available" : "unavailable",        
         };
     }
@@ -113,9 +114,9 @@ abstract class LmBaseProvider {
             name: this._info.name,
             description: this._info.description,
             weight: this._info.weight,
-            properties: this._info.properties,
+            properties: _.cloneDeep(this._info.properties),
             supportUserDefinedModels: this._info.supportUserDefinedModels,
-            modelMap: this._info.modelMap,
+            modelMap: _.cloneDeep(this._info.modelMap),
         }
         return response;
     }
@@ -163,9 +164,9 @@ abstract class LmBaseProvider {
             name: this._info.name,
             description: this._info.description,
             weight: this._info.weight,
-            properties: this._info.properties,
+            properties: _.cloneDeep(this._info.properties),
             supportUserDefinedModels: this._info.supportUserDefinedModels,
-            modelMap: this._info.modelMap,
+            modelMap: _.cloneDeep(this._info.modelMap),
         }
         return response;
     }
