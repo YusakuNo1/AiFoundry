@@ -51,12 +51,6 @@
 					"icon": "media/icon-main.svg",
 					"name": "AIF Embeddings",
 					"contextualTitle": "AIF Embeddings"
-				},
-				{
-					"id": "aiFoundryFunctionsViewId",
-					"icon": "media/icon-main.svg",
-					"name": "AIF Functions",
-					"contextualTitle": "AIF Functions"
 				}
 			]
 		},
