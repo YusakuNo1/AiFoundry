@@ -27,6 +27,10 @@ namespace AifUtils {
             return null;
         }
 
+        if (!rest) {
+            return null;
+        }
+
         let [category, ...tempParts] = rest.split("/");
         if (!AifUriCategories.includes(category as AifUriCategory) || tempParts.length === 0) {
             return null;

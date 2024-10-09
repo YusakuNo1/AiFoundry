@@ -2,9 +2,12 @@ import React from 'react';
 import { List, Stack } from '@fluentui/react';
 import { Button, Checkbox, Input } from '@fluentui/react-components';
 import { types } from 'aifoundry-vscode-shared';
+import { themeName } from '../Theme';
+import { AifIcons } from '../theme/icons';
 
 
 type Props = {
+    lmProviderId: string;
     inputId: string;
     style: React.CSSProperties;
     models: types.api.LmProviderBaseModelInfo[];
@@ -54,15 +57,31 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
 
     const inputStyle = { width: "100%" };
 
+    const renderLabel = (model: types.api.LmProviderBaseModelInfo | null, showLock: boolean) => {
+        if (!model) {
+            return null;
+        } else if (!showLock) {
+            return model.name;
+        } else {
+            return (
+                <div>
+                    <img width={12} height={12} alt="lock-icon" src={`data:image/svg+xml;utf8,${encodeURIComponent(AifIcons[themeName].lock)}`} />
+                    &nbsp;&nbsp;
+                    {model.name}
+                </div>
+            );    
+        }
+    }
+
     return (<>
-        <List items={items} onRenderCell={(item, index) => (
-            <Checkbox
+        <List items={items} onRenderCell={(item, index) => {
+            const showLock = props.lmProviderId === "ollama" && ((item?.model as types.api.LmProviderBaseModelInfoOllama)?.isDownloaded ?? false);
+            return (<Checkbox
                 key={item?.key ?? `checkbox-${index}`}
-                label={item?.model.name ?? ""}
+                label={renderLabel(item?.model ?? null, showLock)}
                 checked={item?.model.selected ?? false} 
                 onChange={(e) => item && onChange(item.key, e.target.checked)} 
-            />
-        )} />
+            />)}} />
         {props.supportUserDefinedModels && (<Stack horizontal>
             <Input placeholder="<model> or <model>:<version>" style={inputStyle} onChange={event => setModelName(event.target.value)} value={modelName} />
             <Button style={{ marginLeft: "8px" }} onClick={onAddUserDefinedModel}>Add</Button>

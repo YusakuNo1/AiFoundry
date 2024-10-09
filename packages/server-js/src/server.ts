@@ -30,7 +30,8 @@ export async function setupServer() {
         const databaseManager = new DatabaseManager();
         await databaseManager.setup(Config.SQLITE_FOLDER_NAME);
         const lmManager = new LmManager(databaseManager);
-    
+        await lmManager.init();
+        
         controllers.system.registerRoutes(apiRouter, lmManager);
         controllers.chat.registerRoutes(apiRouter, lmManager);
         controllers.agents.registerAdminRoutes(apiRouter, lmManager);

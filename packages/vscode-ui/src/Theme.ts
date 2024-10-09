@@ -5,6 +5,10 @@ import {
     Theme,
 } from "@fluentui/react-components";
 
+const themeNames = ["dark", "light"] as const;
+export type ThemeNameType = typeof themeNames[number];
+export const themeName: ThemeNameType = "dark";
+
 const aiFoundryTheme: BrandVariants = {
     10: "#020305",
     20: "#111723",
@@ -36,7 +40,11 @@ darkTheme.colorBrandForeground1 = aiFoundryTheme[110];
 darkTheme.colorBrandForeground2 = aiFoundryTheme[120];
 
 export function currentTheme(): Theme {
-    return darkTheme;
+    if (themeName === "light") {
+        return lightTheme;
+    } else {
+        return darkTheme;
+    }
 }
 
 export function getTextColor(): string {

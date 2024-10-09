@@ -11,18 +11,18 @@ import OllamaModels from "../config/model_info/ollama_models";
 class LmProviderOllama extends LmBaseProvider {
     public static readonly ID = "ollama";
 
-    protected _getInitInfo(): GetInitInfoResponse {
+    protected async _getInitInfo(): Promise<GetInitInfoResponse> {
         const modelMap: Record<string, types.api.LmProviderBaseModelInfo> = {};
         const models = (OllamaModels as ModelDef).models;
         for (const model of models) {
-            const modelInfo: types.api.LmProviderBaseModelInfo = {
+            const modelInfo: types.api.LmProviderBaseModelInfoOllama = {
                 uri: AifUtils.createAifUri(LmProviderOllama.ID, AifUtils.AifUriCategory.Models, model.title),
                 name: model.title,
                 providerId: LmProviderOllama.ID,
                 features: OllamaUtils.convertTagToLmFeature(model.tags),
                 selected: false,
                 isUserDefined: false,
-                tags: model.tags,
+                isDownloaded: false,    // setup in _postInit
             }
             modelMap[model.title] = modelInfo;
         }
@@ -35,6 +35,18 @@ class LmProviderOllama extends LmBaseProvider {
             supportUserDefinedModels: false,
             modelMap,
             properties: {},
+        }
+    }
+
+    protected async _postInit(lmProviderInfo: types.database.LmProviderInfo): Promise<void> {
+        const listModels = await OllamaUtils.listDownloadedModels();
+        const listModelNames = listModels.map((model) => model.split(":")[0]);   // format is "model:version"
+
+        for (const modelName of listModelNames) {
+            const modelInfo = lmProviderInfo.modelMap[modelName] as types.database.LmProviderBaseModelInfoOllama;
+            if (modelInfo) {
+                modelInfo.isDownloaded = true;
+            }
         }
     }
 

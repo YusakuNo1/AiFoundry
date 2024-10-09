@@ -1,6 +1,7 @@
 import {
 	LmProviderInfo as DatabaseLmProviderInfo,
 	LmProviderBaseModelInfo as DatabaseLmProviderBaseModelInfo,
+	LmProviderBaseModelInfoOllamaExtras,
 	LmProviderProperty as DatabaseLmProviderProperty,
 } from "../database/LmProviderInfo";
 
@@ -8,6 +9,7 @@ export const LlmFeatures = ["all", "conversational", "vision", "embedding", "too
 export type LlmFeature = typeof LlmFeatures[number];
 
 export type LmProviderBaseModelInfo = Omit<DatabaseLmProviderBaseModelInfo, "version" | "entityName">;
+export type LmProviderBaseModelInfoOllama = LmProviderBaseModelInfo & LmProviderBaseModelInfoOllamaExtras;
 export type ListLanguageModelsResponse = {
 	basemodels: LmProviderBaseModelInfo[];
 };

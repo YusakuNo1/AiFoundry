@@ -85,7 +85,7 @@ namespace AifPanelEvenHandlers {
 
             requestPromise
                 .then(LanguageModelsAPI.listLmProviders)
-                .then(response => _postMessageUpdateLmProviders(response.providers, postMessage))
+                .then(response => postMessageUpdateLmProviders(response.providers, postMessage))
                 .then(() => vscode.commands.executeCommand('AiFoundry.refreshMainView', 1))
                 .then(() => {
                     if (_message.type === "api:updateLmProviderInfo") {
@@ -99,7 +99,7 @@ namespace AifPanelEvenHandlers {
                 });
         } else if (_message.type === "api:listLmProviders") {
             LanguageModelsAPI.listLmProviders()
-                .then(response => _postMessageUpdateLmProviders(response.providers, postMessage))
+                .then(response => postMessageUpdateLmProviders(response.providers, postMessage))
                 .catch((error) => {
                     vscode.window.showErrorMessage("Error listing language model providers: " + error);
                 });
@@ -136,7 +136,7 @@ namespace AifPanelEvenHandlers {
         }
     }
 
-    function _postMessageUpdateLmProviders(providers: types.api.LmProviderInfoResponse[], postMessage: (message: types.IMessage) => void): void {
+    export function postMessageUpdateLmProviders(providers: types.api.LmProviderInfoResponse[], postMessage: (message: types.IMessage) => void): void {
         const message: types.MessageStoreUpdateLmProviders = {
             aifMessageType: 'store:update',
             type: 'updateLmProviders',

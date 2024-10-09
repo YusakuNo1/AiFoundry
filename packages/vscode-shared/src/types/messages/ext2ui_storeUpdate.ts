@@ -3,7 +3,6 @@ import type { EmbeddingMetadata } from '../database/EmbeddingMetadata';
 import type { ChatHistoryMessageContent } from '../database/ChatHistory';
 import { TextFormat } from '../api/chat';
 import { LmProviderInfoResponse } from '../api/languageModels';
-import { SystemMenuItem } from '../menu';
 import { FileInfo, FileSelection } from '../store/serverData';
 import * as shared from "./shared";
 
@@ -11,7 +10,6 @@ export const IStoreUpdateTypes = [
     "appendChatAssistantMessage",
     "appendToLastChatAssistantMessage",
     "updateLastChatAssistantMessage",
-    "updateSystemMenuItemMap",
     "updateLmProviders",
     "updateEmbeddings",
     "updateFunctions",
@@ -43,12 +41,6 @@ export type MessageStoreUpdateLastChatAssistantMessage = shared.IMessage & IStor
         aifSessionId: string;
         content: string;
         contentTextFormat: TextFormat;
-    };
-}
-export type MessageStoreUpdateSystemMenuItemMap = shared.IMessage & IStoreUpdate & {
-    type: "updateSystemMenuItemMap",
-    data: {
-        systemMenuItemMap: Record<string, SystemMenuItem>;
     };
 }
 export type MessageStoreUpdateLmProviders = shared.IMessage & IStoreUpdate & {

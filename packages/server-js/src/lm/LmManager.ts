@@ -24,16 +24,14 @@ class LmManager implements ILmManager {
         this.updateEmbedding = this.updateEmbedding.bind(this);
         this.listLmProviders = this.listLmProviders.bind(this);
         this.listLanguageModels = this.listLanguageModels.bind(this);
-
-        this._initLmProviders(databaseManager);
     }
 
-    private _initLmProviders(databaseManager: DatabaseManager) {
-        this._lmProviderMap[LmProviderAzureOpenAI.ID] = new LmProviderAzureOpenAI(databaseManager);
-        this._lmProviderMap[LmProviderOllama.ID] = new LmProviderOllama(databaseManager);
+    public async init(): Promise<void> {
+        this._lmProviderMap[LmProviderAzureOpenAI.ID] = new LmProviderAzureOpenAI(this.databaseManager);
+        this._lmProviderMap[LmProviderOllama.ID] = new LmProviderOllama(this.databaseManager);
 
         for (const provider of Object.values(this._lmProviderMap)) {
-            provider.init(databaseManager);
+            await provider.init(this.databaseManager);
         }
     }
 
@@ -161,11 +159,13 @@ class LmManager implements ILmManager {
     }
 
     public async listLmProviders(): Promise<types.api.ListLmProvidersResponse> {
-        const providers: types.api.LmProviderInfoResponse[] = [];
+        let providers: types.api.LmProviderInfoResponse[] = [];
         for (const provider of Object.values(this._lmProviderMap)) {
-            const providerInfo = await provider.getLmProviderInfo(this.databaseManager);
+            const providerInfo = await provider.getLmProviderInfo();
             providers.push(providerInfo);
         }
+
+        providers = providers.sort((a, b) => a.weight - b.weight);
         return { providers };
     }
 

@@ -144,7 +144,6 @@ const LmProviderUpdatePage = (props: Props) => {
                 features: [llmFeature],
                 selected: true,
                 isUserDefined: true,
-                tags: [llmFeature],
             };
             setModels([...models, newModel]);    
         }
@@ -201,6 +200,7 @@ const LmProviderUpdatePage = (props: Props) => {
                             />, "The sorting order for the language model provider")}
                         {renderRow("Embedding Models",
                             <LmProviderUpdatePageExpandableInput
+                                lmProviderId={props.lmProviderId}
                                 inputId="embedding-models"
                                 models={models}
                                 supportUserDefinedModels={provider.supportUserDefinedModels}
@@ -211,6 +211,7 @@ const LmProviderUpdatePage = (props: Props) => {
                             />, "The chosen embedding models")}
                         {renderRow("Conversational Models",
                             <LmProviderUpdatePageExpandableInput
+                                lmProviderId={props.lmProviderId}
                                 inputId="conversational-models"
                                 models={models}
                                 supportUserDefinedModels={provider.supportUserDefinedModels}
@@ -221,6 +222,7 @@ const LmProviderUpdatePage = (props: Props) => {
                             />, "The chosen conversational models")}
                         {AifExperiments.ENABLE_VISION_MODELS && renderRow("Vision Models",
                             <LmProviderUpdatePageExpandableInput
+                                lmProviderId={props.lmProviderId}
                                 inputId="vision-models"
                                 models={models}
                                 supportUserDefinedModels={provider.supportUserDefinedModels}
@@ -231,6 +233,7 @@ const LmProviderUpdatePage = (props: Props) => {
                             />, "The chosen vision models")}
                         {AifExperiments.ENABLE_TOOLS_MODELS && renderRow("Tools Models",
                             <LmProviderUpdatePageExpandableInput
+                                lmProviderId={props.lmProviderId}
                                 inputId="tools-models"
                                 models={models}
                                 supportUserDefinedModels={provider.supportUserDefinedModels}

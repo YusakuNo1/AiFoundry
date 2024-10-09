@@ -15,7 +15,7 @@ enum CredPropKey {
 class LmProviderAzureOpenAI extends LmBaseProvider {
     public static readonly ID = "azureopenai";
 
-    protected _getInitInfo(): GetInitInfoResponse {
+    protected async _getInitInfo(): Promise<GetInitInfoResponse> {
         const properties: Record<string, types.api.LmProviderProperty> = {
             [CredPropKey.ApiBase]: {
                 description: "Azure OpenAI API base path",

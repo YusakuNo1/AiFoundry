@@ -16,6 +16,12 @@ namespace OllamaUtils {
         }
     }
 
+    export async function listDownloadedModels(): Promise<string[]> {
+        const endpoint = `${getHost()}/api/tags`;
+        const response = await (await fetch(endpoint)).json();
+        return (response as any).models.map((model) => model.name);
+    }
+
     export function convertTagToLmFeature(tags: string[]): types.api.LlmFeature[] {
         const features: types.api.LlmFeature[] = []
 

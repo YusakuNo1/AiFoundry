@@ -29,8 +29,8 @@ abstract class LmBaseProvider {
         return aifUri.startsWith(`${this.id}://`)
     }
 
-    public init(databaseManager: DatabaseManager): void {
-        const initInfo = this._getInitInfo();
+    public async init(databaseManager: DatabaseManager): Promise<void> {
+        const initInfo = await this._getInitInfo();
 
         let lmProviderInfo = databaseManager.getLmProviderInfo(initInfo.id);
         if (!lmProviderInfo) {
@@ -43,11 +43,18 @@ abstract class LmBaseProvider {
                 initInfo.supportUserDefinedModels,
                 initInfo.modelMap,
             );
+
+            await this._postInit(lmProviderInfo);
             databaseManager.saveDbEntity(lmProviderInfo);
+        } else {
+            await this._postInit(lmProviderInfo);
         }
         this._info = lmProviderInfo;
     }
-    protected abstract _getInitInfo(): GetInitInfoResponse;
+    protected abstract _getInitInfo(): Promise<GetInitInfoResponse>;
+    protected async _postInit(lmProviderInfo: types.database.LmProviderInfo): Promise<void> {
+        // Do nothing by default
+    }
 
     public abstract listLanguageModels(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[];
 
@@ -55,29 +62,13 @@ abstract class LmBaseProvider {
 
     public abstract getBaseLanguageModel(aifUri: string): Promise<BaseChatModel>;
 
-    public async getLmProviderInfo(databaseManager: DatabaseManager): Promise<types.api.LmProviderInfoResponse> {
-        const properties = { ...this._info.properties };
-        for (const key of Object.keys(properties)) {
-            const valueUri = properties[key].valueUri;
-            const valueUriInfo = AifUtils.extractAiUri(null, valueUri ?? "");
-            if (valueUriInfo?.protocol === consts.AIF_PROTOCOL && valueUriInfo?.category === AifUtils.AifUriCategory.Values && valueUriInfo?.parts.length === 2) {
-                const valueType = valueUriInfo.parts[0];
-                let value = valueUriInfo.parts[1];
-                if (valueType !== AifUtils.AifUriValueType.Plain && valueType !== AifUtils.AifUriValueType.Secret) {
-                    throw new Error(`Unsupported value type: ${valueType}`);
-                }
-                properties[key].valueUri = AifUtils.createAifUri(consts.AIF_PROTOCOL, AifUtils.AifUriCategory.Values, [valueType, value]);
-            } else {
-                throw new Error(`Invalid value URI: ${valueUri}`);
-            }
-        }
-
+    public async getLmProviderInfo(): Promise<types.api.LmProviderInfoResponse> {
         return {
             id: this.id,
             name: this.name,
             description: this._info.description,
             weight: this._info.weight,
-            properties: _.cloneDeep(properties),
+            properties: _.cloneDeep(this._info.properties),
             supportUserDefinedModels: this._info.supportUserDefinedModels,
             modelMap: _.cloneDeep(this._info.modelMap),
             status: await this.isHealthy() ? "available" : "unavailable",        
@@ -152,7 +143,6 @@ abstract class LmBaseProvider {
                 features: [feature],
                 selected: true,
                 isUserDefined: true,
-                tags: [],
             }
             this._info.modelMap[name] = modelInfo    
         }

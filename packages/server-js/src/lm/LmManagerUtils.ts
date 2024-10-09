@@ -111,7 +111,7 @@ ${types.api.TextFormatPrompts[outputFormat] ?? ""}`;
 
         if (agentMetadata.ragAssetIds.length > 0) {
             const ragContext = await _getRagContext(databaseManager, lmProviderMap, agentMetadata, input);
-            _systemPromptString += `${_systemPromptString}\nContext: ${ragContext}`;
+            _systemPromptString = `${_systemPromptString}\nContext: ${ragContext}`;
         }
 
         const messages: BaseMessage[] = [];

@@ -23,11 +23,6 @@ export const serverDataSlice = createSlice({
         updateLmProviders: (state, action: PayloadAction<types.api.LmProviderInfoResponse[]>) => {
             state.lmProviders = action.payload;
         },
-        updateSystemMenuItemMap: (state, action: PayloadAction<{ systemMenuItemMap: Record<string, types.SystemMenuItem> }>) => {
-            for (const key in action.payload.systemMenuItemMap) {
-                state.systemMenuItemMap[key] = action.payload.systemMenuItemMap[key];
-            }
-        },
         updateEmbeddings: (state, action: PayloadAction<types.database.EmbeddingMetadata[]>) => {
             state.embeddings = action.payload;
         },
@@ -41,7 +36,6 @@ export const {
     updateEmbeddings,
     updateFunctions,
     updateLmProviders,
-    updateSystemMenuItemMap,
 } = serverDataSlice.actions;
 
 export default serverDataSlice.reducer;
