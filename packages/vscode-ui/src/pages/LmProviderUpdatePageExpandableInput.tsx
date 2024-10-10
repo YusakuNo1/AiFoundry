@@ -57,10 +57,10 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
 
     const inputStyle = { width: "100%" };
 
-    const renderLabel = (model: types.api.LmProviderBaseModelInfo | null, showLock: boolean) => {
+    const renderLabel = (model: types.api.LmProviderBaseModelInfo | null, hideLock: boolean) => {
         if (!model) {
             return null;
-        } else if (!showLock) {
+        } else if (hideLock) {
             return model.name;
         } else {
             return (
@@ -75,10 +75,10 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
 
     return (<>
         <List items={items} onRenderCell={(item, index) => {
-            const showLock = props.lmProviderId === "ollama" && ((item?.model as types.api.LmProviderBaseModelInfoOllama)?.isDownloaded ?? false);
+            const hideLock = props.lmProviderId === "ollama" && ((item?.model as types.api.LmProviderBaseModelInfoOllama)?.isDownloaded ?? false);
             return (<Checkbox
                 key={item?.key ?? `checkbox-${index}`}
-                label={renderLabel(item?.model ?? null, showLock)}
+                label={renderLabel(item?.model ?? null, hideLock)}
                 checked={item?.model.selected ?? false} 
                 onChange={(e) => item && onChange(item.key, e.target.checked)} 
             />)}} />

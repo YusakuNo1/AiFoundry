@@ -22,7 +22,7 @@ class LmProviderOllama extends LmBaseProvider {
                 features: OllamaUtils.convertTagToLmFeature(model.tags),
                 selected: false,
                 isUserDefined: false,
-                isDownloaded: false,    // setup in _postInit
+                isDownloaded: false,    // setup in _updateLmProviderRuntimeInfo
             }
             modelMap[model.title] = modelInfo;
         }
@@ -38,7 +38,7 @@ class LmProviderOllama extends LmBaseProvider {
         }
     }
 
-    protected async _postInit(lmProviderInfo: types.database.LmProviderInfo): Promise<void> {
+    protected async _updateLmProviderRuntimeInfo(lmProviderInfo: types.database.LmProviderInfo): Promise<void> {
         const listModels = await OllamaUtils.listDownloadedModels();
         const listModelNames = listModels.map((model) => model.split(":")[0]);   // format is "model:version"
 

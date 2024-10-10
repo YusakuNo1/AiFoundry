@@ -140,13 +140,13 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
                 { width: "10%" },
             ]}
             rows={[
-                { type: "label", key: "id", label: "ID", item: { name: props.data?.id }},
+                // { type: "label", key: "id", label: "ID", item: { name: props.data?.id }},
                 { type: "label", key: "name", label: "Name", item: { name: props.data?.name, onClick: () => onPostMessage("agent:update:name") }},
                 { type: "label", key: "agentUri", label: "URI", item: { name: props.data?.agentUri }},
-                { type: "label", key: "basemodelUri", label: "Base Model URI", item: { name: props.data?.basemodelUri }},
+                { type: "label", key: "basemodelUri", label: "Base Model", item: { name: props.data?.basemodelUri }},
                 { type: "label", key: "systemPrompt", label: "System Prompt", item: { name: props.data?.systemPrompt, onClick: () => onPostMessage("agent:update:systemPrompt") }},
                 { type: "collection", key: "ragAssetIds", label: "RAG Assets", item: ragAssetsItems },
-                { type: "collection", key: "functionAssetIds", label: "Function Calling Assets", item: functionAssetsItems },
+                // { type: "collection", key: "functionAssetIds", label: "Function Calling Assets", item: functionAssetsItems },
                 { type: "selection", key: "output_format", label: "Output Format", item: outputFormatRow},
             ]} actionButtons={[
                 { key: "model-playground", label: "Playground", onClick: () => onShowModelPlayground() },

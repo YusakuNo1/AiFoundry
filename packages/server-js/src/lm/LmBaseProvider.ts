@@ -44,15 +44,15 @@ abstract class LmBaseProvider {
                 initInfo.modelMap,
             );
 
-            await this._postInit(lmProviderInfo);
+            await this._updateLmProviderRuntimeInfo(lmProviderInfo);
             databaseManager.saveDbEntity(lmProviderInfo);
         } else {
-            await this._postInit(lmProviderInfo);
+            await this._updateLmProviderRuntimeInfo(lmProviderInfo);
         }
         this._info = lmProviderInfo;
     }
     protected abstract _getInitInfo(): Promise<GetInitInfoResponse>;
-    protected async _postInit(lmProviderInfo: types.database.LmProviderInfo): Promise<void> {
+    protected async _updateLmProviderRuntimeInfo(lmProviderInfo: types.database.LmProviderInfo): Promise<void> {
         // Do nothing by default
     }
 
