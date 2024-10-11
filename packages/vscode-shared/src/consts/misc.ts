@@ -5,6 +5,8 @@ export const HEADER_AIF_BASEMODEL_URI = "aif-basemodel-uri";
 export const HEADER_AIF_EMBEDDING_ASSET_ID = "aif-embedding-asset-id";
 export const COOKIE_AIF_SESSION_ID = "aif-session-id";
 
+export const QUERY_PARAM_FORCE = "force";
+
 export const DOCKER_DOWNLOAD_URL = "https://www.docker.com/products/docker-desktop";
 
 export const ADMIN_CTRL_PREFIX = "/admin";

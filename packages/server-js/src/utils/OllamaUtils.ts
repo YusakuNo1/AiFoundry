@@ -41,6 +41,28 @@ namespace OllamaUtils {
 
         return features;
     }
+
+    export async function downloadModel(modelName: string): Promise<void> {
+        const endpoint = `${getHost()}/api/pull`;
+        await fetch(
+            endpoint,
+            {
+                method: "POST",
+                body: JSON.stringify({ name: modelName, stream: true }),
+            },
+        );
+    }
+
+    export async function deleteModel(modelName: string): Promise<void> {
+        const endpoint = `${getHost()}/api/delete`;
+        await fetch(
+            endpoint,
+            {
+                method: "DELETE",
+                body: JSON.stringify({ name: modelName }),
+            },
+        );
+    }
 }
 
 export default OllamaUtils;

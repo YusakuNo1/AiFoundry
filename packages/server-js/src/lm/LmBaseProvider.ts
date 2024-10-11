@@ -62,7 +62,12 @@ abstract class LmBaseProvider {
 
     public abstract getBaseLanguageModel(aifUri: string): Promise<BaseChatModel>;
 
-    public async getLmProviderInfo(): Promise<types.api.LmProviderInfoResponse> {
+    public async getLmProviderInfo(force: boolean): Promise<types.api.LmProviderInfoResponse> {
+        if (force) {
+            await this._updateLmProviderRuntimeInfo(this._info);
+            this._databaseManager.saveDbEntity(this._info);
+        }
+
         return {
             id: this.id,
             name: this.name,

@@ -7,7 +7,7 @@ import { IconButton } from '@fluentui/react/lib/Button';
 import { initializeIcons } from '@fluentui/react/lib/Icons';
 import type { types } from 'aifoundry-vscode-shared';
 import { consts } from 'aifoundry-vscode-shared';
-import { getTextColor } from '../Theme';
+import { getTextColor } from '../theme/themes';
 import type { VSCodeInterface } from '../types';
 import { store } from '../store/store';
 import { pageInfoSlice } from '../store/pageInfoSlice';

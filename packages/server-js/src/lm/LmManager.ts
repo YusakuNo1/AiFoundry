@@ -9,6 +9,7 @@ import AssetUtils from '../utils/assetUtils';
 import LmProviderAzureOpenAI from './LmProviderAzureOpenAI';
 import LmManagerUtils from './LmManagerUtils';
 import LmProviderOllama from './LmProviderOllama';
+import OllamaUtils from '../utils/OllamaUtils';
 
 
 class LmManager implements ILmManager {
@@ -158,10 +159,36 @@ class LmManager implements ILmManager {
         return { basemodels };
     }
 
-    public async listLmProviders(): Promise<types.api.ListLmProvidersResponse> {
+    public async downloadLanguageModel(lmProviderId: string, id: string): Promise<types.api.DownloadLanguageModelResponse> {
+        if (lmProviderId === LmProviderOllama.ID) {
+            try {
+                await OllamaUtils.downloadModel(id);
+                return { uri: AifUtils.createAifUri(LmProviderOllama.ID, AifUtils.AifUriCategory.Models, id) };
+            } catch (error) {
+                throw new HttpException(500, `Failed to download model: ${error}`);
+            }
+        } else {
+            throw new HttpException(404, "Language model not found");
+        }
+    }
+
+    public async deleteLanguageModel(lmProviderId: string, id: string): Promise<types.api.DeleteLanguageModelResponse> {
+        if (lmProviderId === LmProviderOllama.ID) {
+            try {
+                await OllamaUtils.deleteModel(id);
+                return { uri: AifUtils.createAifUri(LmProviderOllama.ID, AifUtils.AifUriCategory.Models, id) };    
+            } catch (error) {
+                throw new HttpException(500, `Failed to delete model: ${error}`);
+            }
+        } else {
+            throw new HttpException(404, "Language model not found");
+        }
+    }
+
+    public async listLmProviders(force: boolean): Promise<types.api.ListLmProvidersResponse> {
         let providers: types.api.LmProviderInfoResponse[] = [];
         for (const provider of Object.values(this._lmProviderMap)) {
-            const providerInfo = await provider.getLmProviderInfo();
+            const providerInfo = await provider.getLmProviderInfo(force);
             providers.push(providerInfo);
         }
 

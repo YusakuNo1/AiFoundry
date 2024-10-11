@@ -84,7 +84,7 @@ export class AifMainViewProvider implements IViewProvider {
 	private async _refreshLmProviders(): Promise<boolean> {
 		// Update the status of LM components
 		try {
-			const lmProviders: types.api.ListLmProvidersResponse = await LanguageModelsAPI.listLmProviders();
+			const lmProviders: types.api.ListLmProvidersResponse = await LanguageModelsAPI.listLmProviders(true);
 			this._lmProviders = lmProviders.providers;
 			AifPanelEvenHandlers.postMessageUpdateLmProviders(this._lmProviders, AifPanel.postMessage);
 			this._onDidChangeTreeData.fire();

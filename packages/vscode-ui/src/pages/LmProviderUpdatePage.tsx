@@ -4,7 +4,7 @@ import { Input, Label, Table, TableCell, TableHeader, TableRow, TableHeaderCell,
 import { DefaultButton } from '@fluentui/react/lib/Button';
 import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
 import { RootState } from '../store/store';
-import { getTextColor } from '../Theme';
+import { getTextColor } from '../theme/themes';
 import LmProviderUpdatePageExpandableInput from './LmProviderUpdatePageExpandableInput';
 import LmProviderUpdatePageOllama from './LmProviderUpdatePageOllama';
 import { AifExperiments } from '../consts';
@@ -149,6 +149,28 @@ const LmProviderUpdatePage = (props: Props) => {
         }
     }, [models, setModels, props]);
 
+    const onDownloadModel = React.useCallback((modelUri: string) => {
+        const message: types.MessageApiDownloadModel = {
+            aifMessageType: "api",
+            type: "api:download:model",
+            data: {
+                modelUri,
+            },
+        };
+        props.onPostMessage(message);
+    }, [props]);
+
+    const onDeleteModel = React.useCallback((modelUri: string) => {
+        const message: types.MessageApiDeleteModel = {
+            aifMessageType: "api",
+            type: "api:delete:model",
+            data: {
+                modelUri,
+            },
+        };
+        props.onPostMessage(message);
+    }, [props]);
+
     function renderRow(name: string, valueElement: React.ReactElement | string | number | undefined, descriptionElement: React.ReactElement | string) {
         return (<TableRow key={name}>
             <TableCell>{name}</TableCell>
@@ -207,6 +229,8 @@ const LmProviderUpdatePage = (props: Props) => {
                                 llmFeature='embedding'
                                 onChange={onChangeModel}
                                 onAddUserDefinedModel={onAddUserDefinedModel}
+                                onDownloadModel={onDownloadModel}
+                                onDeleteModel={onDeleteModel}
                                 style={inputStyle}
                             />, "The chosen embedding models")}
                         {renderRow("Conversational Models",
@@ -218,6 +242,8 @@ const LmProviderUpdatePage = (props: Props) => {
                                 llmFeature='conversational'
                                 onChange={onChangeModel}
                                 onAddUserDefinedModel={onAddUserDefinedModel}
+                                onDownloadModel={onDownloadModel}
+                                onDeleteModel={onDeleteModel}
                                 style={inputStyle}
                             />, "The chosen conversational models")}
                         {AifExperiments.ENABLE_VISION_MODELS && renderRow("Vision Models",
@@ -229,6 +255,8 @@ const LmProviderUpdatePage = (props: Props) => {
                                 llmFeature='vision'
                                 onChange={onChangeModel}
                                 onAddUserDefinedModel={onAddUserDefinedModel}
+                                onDownloadModel={onDownloadModel}
+                                onDeleteModel={onDeleteModel}
                                 style={inputStyle}
                             />, "The chosen vision models")}
                         {AifExperiments.ENABLE_TOOLS_MODELS && renderRow("Tools Models",
@@ -240,6 +268,8 @@ const LmProviderUpdatePage = (props: Props) => {
                                 llmFeature='tools'
                                 onChange={onChangeModel}
                                 onAddUserDefinedModel={onAddUserDefinedModel}
+                                onDownloadModel={onDownloadModel}
+                                onDeleteModel={onDeleteModel}
                                 style={inputStyle}
                             />, "The chosen models for function calling")}
                     </>}

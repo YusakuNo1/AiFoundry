@@ -22,11 +22,28 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
         });
     });
 
+    // Download language model
+    router.post(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/crud/:lmproviderid/:id`, (req, res) => {
+        ResponseUtils.handler<types.api.DownloadLanguageModelResponse>(
+            res,
+            async () => lmManager.downloadLanguageModel(req.params.lmproviderid, req.params.id),
+        );
+    });
+
+    // Delete language model
+    router.delete(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/crud/:lmproviderid/:id`, (req, res) => {
+        ResponseUtils.handler<types.api.DeleteLanguageModelResponse>(
+            res,
+            async () => lmManager.deleteLanguageModel(req.params.lmproviderid, req.params.id),
+        );
+    });
+
     // List language model provider
     router.get(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`, (req, res) => {
+        const force = req.query[consts.QUERY_PARAM_FORCE] === "true";
         ResponseUtils.handler<types.api.ListLmProvidersResponse>(
             res,
-            lmManager.listLmProviders,
+            async () => lmManager.listLmProviders(force),
             ResponseUtils.maskListLmProvidersResponse,
         );
     });

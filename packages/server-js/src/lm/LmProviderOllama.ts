@@ -42,11 +42,8 @@ class LmProviderOllama extends LmBaseProvider {
         const listModels = await OllamaUtils.listDownloadedModels();
         const listModelNames = listModels.map((model) => model.split(":")[0]);   // format is "model:version"
 
-        for (const modelName of listModelNames) {
-            const modelInfo = lmProviderInfo.modelMap[modelName] as types.database.LmProviderBaseModelInfoOllama;
-            if (modelInfo) {
-                modelInfo.isDownloaded = true;
-            }
+        for (const modelName of Object.keys(lmProviderInfo.modelMap)) {
+            (lmProviderInfo.modelMap[modelName] as types.database.LmProviderBaseModelInfoOllama).isDownloaded = listModelNames.includes(modelName);
         }
     }
 

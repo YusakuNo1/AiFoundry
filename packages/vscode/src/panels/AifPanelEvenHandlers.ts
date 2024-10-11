@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { consts, types } from 'aifoundry-vscode-shared';
+import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
 import AifPanelTypes from './types';
 import ChatAPI from '../api/ChatAPI';
 import LanguageModelsAPI from '../api/LanguageModelsAPI';
@@ -84,7 +84,7 @@ namespace AifPanelEvenHandlers {
             }
 
             requestPromise
-                .then(LanguageModelsAPI.listLmProviders)
+                .then(() => LanguageModelsAPI.listLmProviders(true))
                 .then(response => postMessageUpdateLmProviders(response.providers, postMessage))
                 .then(() => vscode.commands.executeCommand('AiFoundry.refreshMainView', 1))
                 .then(() => {
@@ -98,7 +98,7 @@ namespace AifPanelEvenHandlers {
                     vscode.window.showErrorMessage("Error updating language model provider: " + error);
                 });
         } else if (_message.type === "api:listLmProviders") {
-            LanguageModelsAPI.listLmProviders()
+            LanguageModelsAPI.listLmProviders(false)
                 .then(response => postMessageUpdateLmProviders(response.providers, postMessage))
                 .catch((error) => {
                     vscode.window.showErrorMessage("Error listing language model providers: " + error);
@@ -133,6 +133,30 @@ namespace AifPanelEvenHandlers {
                 .catch((error) => {
                     vscode.window.showErrorMessage("Error listing functions: " + error);
                 });
+        } else if (_message.type === "api:download:model") {
+            const message = _message as types.MessageApiDownloadModel;
+            const uriInfo = AifUtils.extractAiUri(null, message.data.modelUri);
+            if (uriInfo && uriInfo.parts.length === 1) {
+                const lmProviderId = uriInfo.protocol;
+                const id = uriInfo.parts[0];
+                LanguageModelsAPI.downloadLanguageModel(lmProviderId, id).then(() => {
+                    vscode.window.showInformationMessage("Model downloaded successfully");
+                }).catch((error) => {
+                    vscode.window.showErrorMessage("Error downloading model: " + error);
+                });
+            }
+        } else if (_message.type === "api:delete:model") {
+            const message = _message as types.MessageApiDeleteModel;
+            const uriInfo = AifUtils.extractAiUri(null, message.data.modelUri);
+            if (uriInfo && uriInfo.parts.length === 1) {
+                const lmProviderId = uriInfo.protocol;
+                const id = uriInfo.parts[0];
+                LanguageModelsAPI.deleteLanguageModel(lmProviderId, id).then(() => {
+                    vscode.window.showInformationMessage("Model deleted successfully");
+                }).catch((error) => {
+                    vscode.window.showErrorMessage("Error deleting model: " + error);
+                });
+            }
         }
     }
 

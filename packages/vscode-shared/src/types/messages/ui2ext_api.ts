@@ -11,6 +11,8 @@ export const MessageApiTypes = [
     "api:listLmProviders",
     "api:getEmbeddings",
     "api:listFunctions",
+    "api:download:model",
+    "api:delete:model",
 ] as const;
 export type MessageApiType = typeof MessageApiTypes[number];
 export type MessageApi = shared.IMessage & {
@@ -52,4 +54,16 @@ export type MessageApiGetEmbeddings = MessageApi & {
 export type MessageApiListFunctions = MessageApi & {
     type: "api:listFunctions",
     data: {};
+};
+export type MessageApiDownloadModel = MessageApi & {
+    type: "api:download:model",
+    data: {
+        modelUri: string;
+    };
+};
+export type MessageApiDeleteModel = MessageApi & {
+    type: "api:delete:model",
+    data: {
+        modelUri: string;
+    };
 };

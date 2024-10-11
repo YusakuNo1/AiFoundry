@@ -9,7 +9,7 @@ import {
 import { Text } from '@fluentui/react/lib/Text';
 import { ChatHistoryMessageContentUtils, types, consts } from "aifoundry-vscode-shared";
 import { appendChatUserMessage } from "../store/chatInfoSlice";
-import { getTextColor, getBackgroundColor, getChatBgColorUser, getChatBgColorAi } from "../Theme";
+import { getTextColor, getBackgroundColor, getChatBgColorUser, getChatBgColorAi } from "../theme/themes";
 import { RootState, store } from "../store/store";
 import WebApiImageUtils from "../utils/WebApiImageUtils";
 

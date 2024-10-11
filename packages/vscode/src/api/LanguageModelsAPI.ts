@@ -13,8 +13,38 @@ namespace LanguageModelsAPI {
         return _listLanguageModels("conversational");
     }
 
-    export async function listLmProviders(): Promise<types.api.ListLmProvidersResponse> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`;
+    export async function downloadLanguageModel(
+        lmProviderId: string,
+        id: string
+    ): Promise<types.api.DownloadLanguageModelResponse> {
+        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/crud/${lmProviderId}/${id}`;
+        return fetch(endpoint, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then(ApiUtils.processApiResponse<types.api.DownloadLanguageModelResponse>);
+    }
+
+    export async function deleteLanguageModel(
+        lmProviderId: string,
+        id: string
+    ): Promise<types.api.DeleteLanguageModelResponse> {
+        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/crud/${lmProviderId}/${id}`;
+        return fetch(endpoint, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then(ApiUtils.processApiResponse<types.api.DeleteLanguageModelResponse>);
+        
+    }
+
+    export async function listLmProviders(force: boolean): Promise<types.api.ListLmProvidersResponse> {
+        const forceParam = force ? `?${consts.QUERY_PARAM_FORCE}=true` : "";
+        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers${forceParam}`;
         return fetch(endpoint, {
             method: "GET",
             headers: {

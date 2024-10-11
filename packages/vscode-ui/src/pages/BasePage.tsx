@@ -12,7 +12,7 @@ import {
     TableCellLayout,
 } from "@fluentui/react-components";
 import { DefaultButton } from '@fluentui/react/lib/Button';
-import { getTextColor } from "../Theme";
+import { getTextColor } from "../theme/themes";
 
 export type ColumnHeader = {
     key: string;
