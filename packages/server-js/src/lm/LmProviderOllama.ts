@@ -52,8 +52,9 @@ class LmProviderOllama extends LmBaseProvider {
     }
 
     public listLanguageModels(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[] {
-        return Object.values(this._info.modelMap).filter((model) => {
-            return model.selected && (feature === "all" || model.features.includes(feature));
+        return Object.values(this._info.modelMap).filter((_model: types.database.LmProviderBaseModelInfo) => {
+            const model = _model as types.database.LmProviderBaseModelInfoOllama;
+            return model.selected && model.isDownloaded && (feature === "all" || model.features.includes(feature));
         });
     }
 

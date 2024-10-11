@@ -117,8 +117,8 @@ abstract class LmBaseProvider {
         return response;
     }
 
-    public updateLmProviderModel(databaseManager: DatabaseManager, request: types.api.UpdateLmProviderModelRequest): types.api.UpdateLmProviderResponse {
-        const modelUriInfo = AifUtils.extractAiUri(this._info.id, request.modelUri);
+    public updateLmProviderModel(databaseManager: DatabaseManager, _modelUri: string, selected: boolean): types.api.UpdateLmProviderResponse {
+        const modelUriInfo = AifUtils.extractAiUri(this._info.id, _modelUri);
         const name = modelUriInfo?.parts[0] ?? undefined;
         const feature = modelUriInfo?.parameters[consts.UpdateLmProviderBaseModelFeatureKey] as types.api.LlmFeature ?? undefined;
         const modelUri = name ? AifUtils.createAifUri(this._info.id, AifUtils.AifUriCategory.Models, name) : undefined;
@@ -129,10 +129,10 @@ abstract class LmBaseProvider {
             if (modelUri === this._info.modelMap[key].uri) {
                 foundModel = true;
                 const model = this._info.modelMap[key];
-                model.selected = request.selected;
+                model.selected = selected;
 
                 // If it's the request to update the feature, update the feature
-                if (this._info.supportUserDefinedModels && request.selected && feature && model.features.indexOf(feature) === -1) {
+                if (this._info.supportUserDefinedModels && selected && feature && model.features.indexOf(feature) === -1) {
                     model.features.push(feature);
                 }
                 break;
@@ -140,7 +140,7 @@ abstract class LmBaseProvider {
         }
 
         // Add the new model to the model map
-        if (!foundModel && this._info.supportUserDefinedModels && request.selected && modelUri && name && feature) {
+        if (!foundModel && this._info.supportUserDefinedModels && selected && modelUri && name && feature) {
             const modelInfo: types.api.LmProviderBaseModelInfo = {
                 uri: modelUri,
                 name,

@@ -159,11 +159,11 @@ class LmManager implements ILmManager {
         return { basemodels };
     }
 
-    public async downloadLanguageModel(lmProviderId: string, id: string): Promise<types.api.DownloadLanguageModelResponse> {
+    public async downloadLanguageModel(lmProviderId: string, id: string): Promise<ReadableStream> {
         if (lmProviderId === LmProviderOllama.ID) {
             try {
-                await OllamaUtils.downloadModel(id);
-                return { uri: AifUtils.createAifUri(LmProviderOllama.ID, AifUtils.AifUriCategory.Models, id) };
+                const response = await OllamaUtils.downloadModel(id);
+                return response.body.getReader();
             } catch (error) {
                 throw new HttpException(500, `Failed to download model: ${error}`);
             }
@@ -176,6 +176,7 @@ class LmManager implements ILmManager {
         if (lmProviderId === LmProviderOllama.ID) {
             try {
                 await OllamaUtils.deleteModel(id);
+                this._updateLmProviderModel(lmProviderId, id, false);
                 return { uri: AifUtils.createAifUri(LmProviderOllama.ID, AifUtils.AifUriCategory.Models, id) };    
             } catch (error) {
                 throw new HttpException(500, `Failed to delete model: ${error}`);
@@ -215,9 +216,13 @@ class LmManager implements ILmManager {
             throw new HttpException(400, "Invalid request to update language model provider model")
         }
 
+        return this._updateLmProviderModel(request.id, request.modelUri, request.selected);
+    }
+
+    private _updateLmProviderModel(lmProviderId: string, modelUri: string, selected: boolean): types.api.UpdateLmProviderResponse {
         for (const provider of Object.values(this._lmProviderMap)) {
-            if (provider.id === request.id) {
-                return provider.updateLmProviderModel(this.databaseManager, request);
+            if (provider.id === lmProviderId) {
+                return provider.updateLmProviderModel(this.databaseManager, modelUri, selected);
             }
         }
 

@@ -21,6 +21,7 @@ export const DOCKER_SERVER_ID = "docker-server";
 export const DOCKER_CONTAINER_NAME = "aifoundry-server";
 
 export const LOCAL_LM_PROVIDER_ID_OLLAMA = "ollama";
+export const LOCAL_LM_PROVIDERS = [LOCAL_LM_PROVIDER_ID_OLLAMA];
 
 export const AIF_PROTOCOL = "aif";
 

@@ -1,4 +1,5 @@
 import * as express from "express";
+import { Observable } from 'rxjs';
 import { AifUtils, consts, type types } from 'aifoundry-vscode-shared';
 import { HttpException } from "../exceptions";
 
@@ -22,6 +23,41 @@ namespace ResponseUtils {
         } else {
             response.status(500).json({ error: "Unknown error: " + ex });
         }
+    }
+
+    export function handleStreamingResponse(res: express.Response, sub: Observable<string>) {
+        res.status(200).type('text');
+
+        let streamingStarted = false;
+        let streamingFinished = false;
+
+        // Different exception cases:
+        //  1. Exceptions before sending the first byte
+        //  2. Exceptions after sending the first chunk, attach the error message to the response with HTTP 200
+        //  3. Exceptions after completing the response, ignore the exception
+        sub.subscribe({
+            next: (chunk) => {
+                if (!streamingStarted) {
+                    streamingStarted = true;
+                }
+                res.write(chunk);
+            },
+            complete: () => {
+                streamingFinished = true;
+                res.end();
+            },
+            error: (err) => {
+                if (!streamingStarted) {
+                    // Case 1
+                    ResponseUtils.handleException(res, err);
+                } else if (!streamingFinished) {
+                    // Case 2
+                    res.write(err);
+                } else {
+                    // Case 3, ignore the exception
+                }
+            },
+        });
     }
 
     export function maskListLmProvidersResponse(response: types.api.ListLmProvidersResponse): types.api.ListLmProvidersResponse {

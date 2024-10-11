@@ -1,3 +1,4 @@
+import * as express from "express";
 import { types } from 'aifoundry-vscode-shared';
 import ServerConfig from "../config/ServerConfig";
 
@@ -42,9 +43,9 @@ namespace OllamaUtils {
         return features;
     }
 
-    export async function downloadModel(modelName: string): Promise<void> {
+    export async function downloadModel(modelName: string): Promise<any> {
         const endpoint = `${getHost()}/api/pull`;
-        await fetch(
+        return await fetch(
             endpoint,
             {
                 method: "POST",

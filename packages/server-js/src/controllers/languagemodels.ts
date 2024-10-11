@@ -1,5 +1,5 @@
 import * as express from "express";
-import { consts, types } from 'aifoundry-vscode-shared';
+import { consts, types, StreamingUtils } from 'aifoundry-vscode-shared';
 import ILmManager from "../lm/ILmManager";
 import ResponseUtils from "../utils/ResponseUtils";
 import RouterUtils from "../utils/RouterUtils";
@@ -24,10 +24,14 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
 
     // Download language model
     router.post(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/crud/:lmproviderid/:id`, (req, res) => {
-        ResponseUtils.handler<types.api.DownloadLanguageModelResponse>(
-            res,
-            async () => lmManager.downloadLanguageModel(req.params.lmproviderid, req.params.id),
-        );
+        try {
+            lmManager.downloadLanguageModel(req.params.lmproviderid, req.params.id).then(readableStream => {
+                const sub = StreamingUtils.convertReadableStreamToObservable(readableStream as any);
+                ResponseUtils.handleStreamingResponse(res, sub);
+            });
+        } catch (err) {
+            ResponseUtils.handleException(res, err);
+        }
     });
 
     // Delete language model

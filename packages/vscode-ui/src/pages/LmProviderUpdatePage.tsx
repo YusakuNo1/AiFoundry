@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Input, Label, Table, TableCell, TableHeader, TableRow, TableHeaderCell, TableBody } from '@fluentui/react-components';
+import { Input, Label, Table, TableCell, TableHeader, TableRow, TableHeaderCell, TableBody, Divider } from '@fluentui/react-components';
 import { DefaultButton } from '@fluentui/react/lib/Button';
 import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
 import { RootState } from '../store/store';
@@ -171,11 +171,10 @@ const LmProviderUpdatePage = (props: Props) => {
         props.onPostMessage(message);
     }, [props]);
 
-    function renderRow(name: string, valueElement: React.ReactElement | string | number | undefined, descriptionElement: React.ReactElement | string) {
+    function renderRow(name: string, valueElement: React.ReactElement | string | number | undefined) {
         return (<TableRow key={name}>
-            <TableCell>{name}</TableCell>
-            <TableCell>{valueElement}</TableCell>
-            <TableCell>{descriptionElement}</TableCell>
+            <TableCell style={{ width: "150px" }}>{name}</TableCell>
+            <TableCell style={{ width: "100%", maxWidth: "350px" }}>{valueElement}</TableCell>
         </TableRow>);
     }
 
@@ -190,28 +189,21 @@ const LmProviderUpdatePage = (props: Props) => {
         return null;
     } else {
         return (<>
+            <Label style={{ color: textColor, paddingLeft: "8px" }} size='large' weight='semibold'>{`Setup ${provider.name}`}</Label>
+            <Divider style={{ color: textColor, paddingTop: "8px" }} />
             <Table arial-label="lm-provider-setup-table">
-                <TableHeader>
-                    <TableRow>
-                        <TableHeaderCell key="lm-provider-setup-table-header" colSpan={3}>
-                            <Label style={{ color: textColor }} size='large'>{`Setup ${provider.name}`}</Label>
-                        </TableHeaderCell>
-                    </TableRow>
-                </TableHeader>
                 <TableBody style={tableBodyStyle}>
                     {showOllamaSetup && <LmProviderUpdatePageOllama />}
                     {!showOllamaSetup && <>
                         {Object.keys(lmProvider?.properties ?? {}).map((id) => {
-                            const description = lmProvider?.properties[id]?.description ?? "";
                             const isSecret = lmProvider?.properties[id]?.isSecret ?? false;
-
                             let value = requestProperties[id];
                             if (!value) {
                                 const propertyValue = requestProperties[id] ?? lmProvider!.properties[id]?.valueUri;
                                 const valueInfo = AifUtils.extractAiUri(consts.AIF_PROTOCOL, propertyValue ?? "");
                                 value = valueInfo?.parts[1] ?? "";
                             }
-                            return renderRow(id, <Input id={id} type={isSecret ? "password" : undefined} value={value} onChange={onChangeProperty} style={inputStyle} />, description);
+                            return renderRow(id, <Input id={id} type={isSecret ? "password" : undefined} value={value} onChange={onChangeProperty} style={inputStyle} />);
                         })}
                         {renderRow("Weight",
                             <Input
@@ -219,7 +211,7 @@ const LmProviderUpdatePage = (props: Props) => {
                                 value={"" + weight}
                                 onChange={onChangeWeight}
                                 style={inputStyle}
-                            />, "The sorting order for the language model provider")}
+                            />)}
                         {renderRow("Embedding Models",
                             <LmProviderUpdatePageExpandableInput
                                 lmProviderId={props.lmProviderId}
@@ -232,7 +224,7 @@ const LmProviderUpdatePage = (props: Props) => {
                                 onDownloadModel={onDownloadModel}
                                 onDeleteModel={onDeleteModel}
                                 style={inputStyle}
-                            />, "The chosen embedding models")}
+                            />)}
                         {renderRow("Conversational Models",
                             <LmProviderUpdatePageExpandableInput
                                 lmProviderId={props.lmProviderId}
@@ -245,7 +237,7 @@ const LmProviderUpdatePage = (props: Props) => {
                                 onDownloadModel={onDownloadModel}
                                 onDeleteModel={onDeleteModel}
                                 style={inputStyle}
-                            />, "The chosen conversational models")}
+                            />)}
                         {AifExperiments.ENABLE_VISION_MODELS && renderRow("Vision Models",
                             <LmProviderUpdatePageExpandableInput
                                 lmProviderId={props.lmProviderId}
@@ -258,7 +250,7 @@ const LmProviderUpdatePage = (props: Props) => {
                                 onDownloadModel={onDownloadModel}
                                 onDeleteModel={onDeleteModel}
                                 style={inputStyle}
-                            />, "The chosen vision models")}
+                            />)}
                         {AifExperiments.ENABLE_TOOLS_MODELS && renderRow("Tools Models",
                             <LmProviderUpdatePageExpandableInput
                                 lmProviderId={props.lmProviderId}
@@ -271,7 +263,7 @@ const LmProviderUpdatePage = (props: Props) => {
                                 onDownloadModel={onDownloadModel}
                                 onDeleteModel={onDeleteModel}
                                 style={inputStyle}
-                            />, "The chosen models for function calling")}
+                            />)}
                     </>}
                 </TableBody>
             </Table>

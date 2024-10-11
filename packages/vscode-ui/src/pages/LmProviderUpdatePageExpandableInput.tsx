@@ -21,6 +21,7 @@ type Props = {
 const LmProviderUpdatePageExpandableInput = (props: Props) => {
     const [modelName, setModelName] = React.useState<string>("");
     const [modelMap, setModelMap] = React.useState<Record<string, types.api.LmProviderBaseModelInfo>>({});
+    const isLocalLmProvider = React.useMemo(() => consts.LOCAL_LM_PROVIDERS.includes(props.lmProviderId), [props.lmProviderId]);
 
     React.useEffect(() => {
         const map: Record<string, types.api.LmProviderBaseModelInfo> = {};
@@ -62,6 +63,8 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
     const renderLabel = (model: types.api.LmProviderBaseModelInfo | null, isDownloaded: boolean) => {
         if (!model) {
             return null;
+        } else if (!isLocalLmProvider) {
+            return model.name;
         } else {
             return (
                 <div>
@@ -76,7 +79,8 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
 
     return (<>
         <List items={items} onRenderCell={(item, index) => {
-            const isDownloaded = props.lmProviderId === consts.LOCAL_LM_PROVIDER_ID_OLLAMA && ((item?.model as types.api.LmProviderBaseModelInfoOllama)?.isDownloaded ?? false);
+            // Ollama is the only local provider for now
+            const isDownloaded = !isLocalLmProvider || ((item?.model as types.api.LmProviderBaseModelInfoOllama)?.isDownloaded ?? false);
             return (<Checkbox
                 disabled={!isDownloaded}
                 key={item?.key ?? `checkbox-${index}`}

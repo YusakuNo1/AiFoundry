@@ -1,6 +1,7 @@
+import { Observable } from 'rxjs';
 import type { types } from "aifoundry-vscode-shared";
+import { consts, StreamingUtils } from "aifoundry-vscode-shared";
 import { APIConfig } from "./config";
-import { consts } from "aifoundry-vscode-shared";
 import ApiUtils from "../utils/ApiUtils";
 
 
@@ -13,18 +14,21 @@ namespace LanguageModelsAPI {
         return _listLanguageModels("conversational");
     }
 
-    export async function downloadLanguageModel(
+    export function downloadLanguageModel(
         lmProviderId: string,
         id: string
-    ): Promise<types.api.DownloadLanguageModelResponse> {
+    ): Promise<string> {
         const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/crud/${lmProviderId}/${id}`;
         return fetch(endpoint, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-        })
-            .then(ApiUtils.processApiResponse<types.api.DownloadLanguageModelResponse>);
+        }).then((response) => {
+            return response.text();
+        }).catch((err) => {
+            throw new Error(`Failed to download language model: ${err}`);
+        });
     }
 
     export async function deleteLanguageModel(

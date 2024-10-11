@@ -14,10 +14,6 @@ export type ListLanguageModelsResponse = {
 	basemodels: LmProviderBaseModelInfo[];
 };
 
-export type DownloadLanguageModelResponse = {
-	uri: string;
-}
-
 export type DeleteLanguageModelResponse = {
 	uri: string;
 }

@@ -31,7 +31,7 @@ export function registerRoutes(router: express.Router, llmManager: ILmManager) {
         }
 
         // Different cases:
-        //  1. Exceptions before sending the first 
+        //  1. Exceptions before sending the first byte
         //    1.1 Exception within `llmManager.chat`. Handle by `ResponseUtils.handler`. If it's HttpException, follow the instruction; otherwise send HTTP 500
         //    1.2 Exception within `sub.subscribe`. Handle by `ResponseUtils.handleException`. If it's HttpException, follow the instruction; otherwise send HTTP 500
         //  2. Exceptions after sending the first chunk, attach the error message to the response with HTTP 200
@@ -44,33 +44,7 @@ export function registerRoutes(router: express.Router, llmManager: ILmManager) {
             req.files as types.UploadFileInfo[],
         )
 
-        res.status(200).type('text');
         res.cookie(consts.COOKIE_AIF_SESSION_ID, aif_session_id);
-        let streamingStarted = false;
-        let streamingFinished = false;
-
-        sub.subscribe({
-            next: (chunk) => {
-                if (!streamingStarted) {
-                    streamingStarted = true;
-                }
-                res.write(chunk);
-            },
-            complete: () => {
-                streamingFinished = true;
-                res.end();
-            },
-            error: (err) => {
-                if (!streamingStarted) {
-                    // Case 1
-                    ResponseUtils.handleException(res, err);
-                } else if (!streamingFinished) {
-                    // Case 2
-                    res.write(err);
-                } else {
-                    // Case 3, ignore the exception
-                }
-            },
-        });
+        ResponseUtils.handleStreamingResponse(res, sub);
     }
 }
