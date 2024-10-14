@@ -14,26 +14,48 @@ namespace LanguageModelsAPI {
         return _listLanguageModels("conversational");
     }
 
-    export async function setupLmProvider(
+    export function setupLmProvider(
         lmProviderId: string,
-    ): Promise<Observable<string>> {
-        const body = JSON.stringify({ id: lmProviderId });
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/setup`;
+    ): Observable<string> {
+        return new Observable<string>((subscriber) => {
+            const body = JSON.stringify({ id: lmProviderId });
+            const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/setup`;
 
-        const response = await fetch(endpoint, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body,
+            fetch(endpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body,
+            }).then(async (response) => {
+                if (!response.body || !response.ok) {
+                    const message = await response.text();
+                    const messageJson = (typeof message === "string") ? {
+                        type: "error",
+                        message,
+                    } : message;            
+                    subscriber.next(JSON.stringify(messageJson));
+                } else {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder("utf-8");
+                    let finished = false;
+                    while (!finished) {
+                        const result: any = await reader!.read();
+                        finished = result.done;
+                        if (!finished) {
+                            const message = {
+                                type: "info",
+                                message: decoder.decode(result.value),
+                            };
+                            subscriber.next(JSON.stringify(message));
+                        }    
+                    }
+                    subscriber.complete();    
+                }
+            }).catch((err) => {
+                subscriber.error(err);
+            });
         });
-
-        if (!response.body || !response.ok) {
-            const message = await response.text();
-            return StreamingUtils.createErrorObservable(message ?? "Fail to setup language model provider");
-        } else {
-            return StreamingUtils.convertReadableStreamToObservable(response.body.getReader());
-        }
     }
 
     export function downloadLanguageModel(
@@ -78,6 +100,18 @@ namespace LanguageModelsAPI {
             },
         })
             .then(ApiUtils.processApiResponse<types.api.ListLmProvidersResponse>);
+    }
+
+    export async function getLmProvider(id: string, force: boolean): Promise<types.api.LmProviderInfoResponse> {
+        const forceParam = force ? `?${consts.QUERY_PARAM_FORCE}=true` : "";
+        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers/${id}${forceParam}`;
+        return fetch(endpoint, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then(ApiUtils.processApiResponse<types.api.LmProviderInfoResponse>);
     }
 
     export async function updateLmProviderInfo(

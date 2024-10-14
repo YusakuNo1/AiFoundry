@@ -1,6 +1,7 @@
 import React from 'react';
 import { Divider, Text, Link, Button, Table, TableBody, TableRow, TableCell } from "@fluentui/react-components";
 import { consts, types } from 'aifoundry-vscode-shared';
+import ConfigUtils from '../../utils/ConfigUtils';
 
 const platforms = ["win32", "darwin", "linux"] as const;
 type PlatformType = typeof platforms[number];
@@ -40,6 +41,7 @@ const SetupInstructionOllama = (props: Props) => {
         };
         props.onPostMessage(message);
     }, [props]);
+    const currentPlatform = React.useMemo(() => ConfigUtils.getConfig(consts.AifConfig.platform), []);
 
     return (<>
         <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={500}>Step 1: Download</Text></div>
@@ -63,11 +65,15 @@ const SetupInstructionOllama = (props: Props) => {
 
         <Divider></Divider>
 
-        <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }}>Option 1: start with this button: </Text><Button onClick={() => onPostMessage()}>Start</Button></div>
+        {currentPlatform === "darwin" && <>
+            <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={300}>Option 1: start with this button: </Text><Button onClick={() => onPostMessage()}>Start</Button></div>
+            <Divider></Divider>
+            <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={300}>Option 2: run `ollama serve` from Terminal</Text></div>
+        </>}
 
-        <Divider></Divider>
-
-        <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={300}>Option 2: run `ollama serve` from Terminal</Text></div>
+        {currentPlatform !== "darwin" && <>
+            <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={300}>Run `ollama serve` from Terminal</Text></div>
+        </>}
     </>)
 };
 

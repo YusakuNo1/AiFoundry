@@ -72,6 +72,11 @@ namespace ResponseUtils {
         return response;
     }
 
+    export function maskGetLmProviderInfoResponse(response: types.api.LmProviderInfoResponse): types.api.LmProviderInfoResponse {
+        Object.values(response.properties).forEach(_maskLmProviderProperty);
+        return response;
+    }
+
     export function maskUpdateLmProviderResponse(response: types.api.UpdateLmProviderResponse): types.api.UpdateLmProviderResponse {
         Object.values(response.properties).forEach(_maskLmProviderProperty);
         return response;

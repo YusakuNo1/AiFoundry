@@ -215,6 +215,14 @@ class LmManager implements ILmManager {
         return { providers };
     }
 
+    public async getLmProvider(id: string, force: boolean): Promise<types.api.LmProviderInfoResponse> {
+        const provider = this._lmProviderMap[id];
+        if (!provider) {
+            throw new HttpException(404, "Language model provider not found");
+        }
+        return provider.getLmProviderInfo(force);
+    }
+
     public updateLmProviderInfo(request: types.api.UpdateLmProviderInfoRequest): types.api.UpdateLmProviderResponse {
         if (!request) {
             throw new HttpException(400, "Invalid request to update language model provider")

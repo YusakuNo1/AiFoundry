@@ -29,6 +29,7 @@ interface ILmManager {
 
     setupLmProvider(request: types.api.SetupLmProviderRequest, out: ApiOutputCtrl): void;
     listLmProviders(force: boolean): Promise<types.api.ListLmProvidersResponse>;
+    getLmProvider(id: string, force: boolean): Promise<types.api.LmProviderInfoResponse>;
     updateLmProviderInfo(request: types.api.UpdateLmProviderInfoRequest): types.api.UpdateLmProviderResponse;
     updateLmProviderModel(request: types.api.UpdateLmProviderModelRequest): types.api.UpdateLmProviderResponse;
 }

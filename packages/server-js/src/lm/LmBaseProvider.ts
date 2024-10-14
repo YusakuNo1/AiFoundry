@@ -68,6 +68,7 @@ abstract class LmBaseProvider {
             this._databaseManager.saveDbEntity(this._info);
         }
 
+        const status = await this.isHealthy() ? "available" : "unavailable";
         return {
             id: this.id,
             name: this.name,
@@ -76,7 +77,7 @@ abstract class LmBaseProvider {
             properties: _.cloneDeep(this._info.properties),
             supportUserDefinedModels: this._info.supportUserDefinedModels,
             modelMap: _.cloneDeep(this._info.modelMap),
-            status: await this.isHealthy() ? "available" : "unavailable",        
+            status,        
         };
     }
 

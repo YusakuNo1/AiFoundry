@@ -63,6 +63,16 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
         );
     });
 
+    // Get language model provider by id
+    router.get(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers/:id`, (req, res) => {
+        const force = req.query[consts.QUERY_PARAM_FORCE] === "true";
+        ResponseUtils.handler<types.api.LmProviderInfoResponse>(
+            res,
+            async () => lmManager.getLmProvider(req.params.id, force),
+            ResponseUtils.maskGetLmProviderInfoResponse,
+        );
+    });
+    
     // Update language model provider
     router.post(
         `${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`,

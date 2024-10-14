@@ -10,6 +10,7 @@ import AgentsCommands from '../commands/agents';
 import FunctionsCommands from '../commands/functions';
 import FileUtils from '../utils/FileUtils';
 import ApiOutputMessageUtils from "../utils/ApiOutputMessageUtils";
+import ApiUtils from '../utils/ApiUtils';
 
 
 namespace AifPanelEvenHandlers {
@@ -151,17 +152,27 @@ namespace AifPanelEvenHandlers {
             }
         } else if (_message.type === "api:setup:lmProvider") {
             const message = _message as types.MessageApiSetupLmProvider;
-            LanguageModelsAPI.setupLmProvider(message.data.id).then((sub) => {
-                sub.subscribe({
-                    next: (message) => {
-                        const msgObj = JSON.parse(message) as types.api.ApiOutputMessage;
-                        ApiOutputMessageUtils.show(msgObj);
-
-                        if (msgObj.type === "success") {
-                            _updateLmProviders(undefined, postMessage);
-                        }
-                    },
-                });
+            const sub = LanguageModelsAPI.setupLmProvider(message.data.id);
+            sub.subscribe({
+                next: (message) => {
+                    const msgObj = JSON.parse(message) as types.api.ApiOutputMessage;
+                    ApiOutputMessageUtils.show(msgObj);
+                },
+                complete: () => {
+                    ApiUtils.apiPoller(
+                        () => LanguageModelsAPI.getLmProvider(message.data.id, true),
+                        (response) => response.status === "available",
+                        2000,   // 2 seconds
+                        10,     // 10 attempts
+                    ).then(() => {
+                        _updateLmProviders(undefined, postMessage);
+                    }).catch((error) => {
+                        vscode.window.showErrorMessage("Error setting up language model provider: " + error);
+                    });
+                },
+                error: (error) => {
+                    vscode.window.showErrorMessage("Error setting up language model provider: " + error);
+                },
             });
         }
     }
