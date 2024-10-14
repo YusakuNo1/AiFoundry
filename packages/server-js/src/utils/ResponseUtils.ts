@@ -18,6 +18,11 @@ namespace ResponseUtils {
     }
 
     export function handleException(response: express.Response, ex: any) {
+        if (response.headersSent) {
+            response.write("\nFailed to handle the request");
+            return;
+        }
+
         if (ex instanceof HttpException) {
             response.status(ex.status).json({ error: ex.message });
         } else {

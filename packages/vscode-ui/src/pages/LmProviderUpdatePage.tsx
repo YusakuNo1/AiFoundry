@@ -6,7 +6,7 @@ import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
 import { RootState } from '../store/store';
 import { getTextColor } from '../theme/themes';
 import LmProviderUpdatePageExpandableInput from './LmProviderUpdatePageExpandableInput';
-import LmProviderUpdatePageOllama from './LmProviderUpdatePageOllama';
+import SetupInstructionOllama from './setup_instructions/SetupInstructionOllama';
 import { AifExperiments } from '../consts';
 import { createMessageApiUpdateLmProviderInfo, createMessageApiUpdateLmProviderModel } from './LmProviderUpdatePageUtils';
 
@@ -18,9 +18,6 @@ type Props = {
 const LmProviderUpdatePage = (props: Props) => {
     const textColor = React.useMemo(() => getTextColor(), []);
     const lmProviders = useSelector((state: RootState) => state.serverData.lmProviders);
-    const systemMenuItemMap = useSelector((state: RootState) => state.serverData.systemMenuItemMap);
-    const systemMenuItem = systemMenuItemMap[props.lmProviderId];
-
     const [provider, setProvider] = React.useState<types.api.LmProviderInfoResponse | null>(null);
     const [requestProperties, setRequestProperties] = React.useState<Record<string, string>>({});
     const [weight, setWeight] = React.useState<string>("");
@@ -179,7 +176,7 @@ const LmProviderUpdatePage = (props: Props) => {
     }
 
     const inputStyle = { width: "100%" };
-    const showOllamaSetup = provider?.id === consts.LOCAL_LM_PROVIDER_ID_OLLAMA && systemMenuItem?.status === "unavailable";
+    const showOllamaSetup = props.lmProviderId === consts.LOCAL_LM_PROVIDER_ID_OLLAMA && provider?.status === "unavailable";
     const tableBodyStyle = {
         width: "100%",
         ...(showOllamaSetup ? { height: "64px" } : {}),
@@ -193,7 +190,7 @@ const LmProviderUpdatePage = (props: Props) => {
             <Divider style={{ color: textColor, paddingTop: "8px" }} />
             <Table arial-label="lm-provider-setup-table">
                 <TableBody style={tableBodyStyle}>
-                    {showOllamaSetup && <LmProviderUpdatePageOllama />}
+                    {showOllamaSetup && <SetupInstructionOllama onPostMessage={props.onPostMessage} />}
                     {!showOllamaSetup && <>
                         {Object.keys(lmProvider?.properties ?? {}).map((id) => {
                             const isSecret = lmProvider?.properties[id]?.isSecret ?? false;

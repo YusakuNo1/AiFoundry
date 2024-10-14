@@ -4,14 +4,12 @@ import type { types } from "aifoundry-vscode-shared";
 
 interface ServerDataState {
     lmProviders: types.api.LmProviderInfoResponse[] | null;
-    systemMenuItemMap: Record<string, types.SystemMenuItem>;
     embeddings: types.database.EmbeddingMetadata[];
 	functions: types.api.FunctionMetadata[];
 }
 
 const initialState: ServerDataState = {
     lmProviders: null,
-    systemMenuItemMap: {},
     embeddings: [],
     functions: [],
 };

@@ -10,6 +10,7 @@ import LmProviderAzureOpenAI from './LmProviderAzureOpenAI';
 import LmManagerUtils from './LmManagerUtils';
 import LmProviderOllama from './LmProviderOllama';
 import OllamaUtils from '../utils/OllamaUtils';
+import { ApiOutputCtrl } from '../types/ApiOutput';
 
 
 class LmManager implements ILmManager {
@@ -184,6 +185,23 @@ class LmManager implements ILmManager {
         } else {
             throw new HttpException(404, "Language model not found");
         }
+    }
+
+    // public async setupLmProvider(request: types.api.SetupLmProviderRequest, res: ApiOutput): Promise<types.api.SetupLmProviderResponse> {
+    public setupLmProvider(request: types.api.SetupLmProviderRequest, out: ApiOutputCtrl): void {
+        if (!request) {
+            throw new HttpException(400, "Invalid request to setup language model provider")
+        }
+
+        const lmProvider = this._lmProviderMap[request.id];
+        if (lmProvider) {
+            if (lmProvider.id === LmProviderOllama.ID) {
+                OllamaUtils.startOllamaServer(out);
+                return;
+            }
+        }
+
+        throw new HttpException(404, `Language model provider ${request.id} not found`);
     }
 
     public async listLmProviders(force: boolean): Promise<types.api.ListLmProvidersResponse> {

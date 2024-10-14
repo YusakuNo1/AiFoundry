@@ -39,11 +39,15 @@ class LmProviderOllama extends LmBaseProvider {
     }
 
     protected async _updateLmProviderRuntimeInfo(lmProviderInfo: types.database.LmProviderInfo): Promise<void> {
-        const listModels = await OllamaUtils.listDownloadedModels();
-        const listModelNames = listModels.map((model) => model.split(":")[0]);   // format is "model:version"
-
-        for (const modelName of Object.keys(lmProviderInfo.modelMap)) {
-            (lmProviderInfo.modelMap[modelName] as types.database.LmProviderBaseModelInfoOllama).isDownloaded = listModelNames.includes(modelName);
+        try {
+            const listModels = await OllamaUtils.listDownloadedModels();
+            const listModelNames = listModels.map((model) => model.split(":")[0]);   // format is "model:version"
+    
+            for (const modelName of Object.keys(lmProviderInfo.modelMap)) {
+                (lmProviderInfo.modelMap[modelName] as types.database.LmProviderBaseModelInfoOllama).isDownloaded = listModelNames.includes(modelName);
+            }    
+        } catch (error) {
+            console.error(`Failed to update Ollama models: ${error}`);
         }
     }
 

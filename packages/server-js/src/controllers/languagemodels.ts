@@ -4,13 +4,24 @@ import ILmManager from "../lm/ILmManager";
 import ResponseUtils from "../utils/ResponseUtils";
 import RouterUtils from "../utils/RouterUtils";
 import { HttpException } from "../exceptions";
+import { ApiOutputCtrl } from "../types/ApiOutput";
 
 
 export function registerAdminRoutes(router: express.Router, lmManager: ILmManager) {
-    // router.get(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/`, (req, res) => {
-    //     ResponseUtils.handler(res, lmManager.listLanguagemodels);
-    // });
+    // Setup language model provider, for example, download Ollama to the host environment
+    router.post(
+        `${consts.ADMIN_CTRL_PREFIX}/languagemodels/setup`,
+        RouterUtils.middlewares.jsonParser,
+        (req, res) => {
+            try {
+                const request: types.api.SetupLmProviderRequest = req.body;
+                lmManager.setupLmProvider(request, new ApiOutputCtrl(res));    
+            } catch (err) {
+                ResponseUtils.handleException(res, err);
+            }
+        });
 
+    // Get language model by feature filter, e.g. "embedding", "conversational"
     router.get(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/filter/:filter`, (req, res) => {
         ResponseUtils.handler<types.api.ListLanguageModelsResponse>(res, async () => {
             const filter = req.params.filter as types.api.LlmFeature;

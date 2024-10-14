@@ -1,6 +1,6 @@
-import * as express from "express";
 import { types } from 'aifoundry-vscode-shared';
 import ServerConfig from "../config/ServerConfig";
+import { ApiOutputCtrl } from "../types/ApiOutput";
 
 namespace OllamaUtils {
     export function getHost(): string {
@@ -15,6 +15,17 @@ namespace OllamaUtils {
         } catch (error) {
             return false;
         }
+    }
+
+    export async function startOllamaServer(out: ApiOutputCtrl): Promise<void> {
+        const healthy = await isHealthy();
+        if (healthy) {
+            return;
+        }
+
+        out.write("Ollama server is not running. Starting Ollama server...");
+        _startOllamaServer(out);
+        out.end();
     }
 
     export async function listDownloadedModels(): Promise<string[]> {
@@ -64,6 +75,30 @@ namespace OllamaUtils {
             },
         );
     }
+}
+
+function _startOllamaServer(out: ApiOutputCtrl): void {
+    let command: string | undefined;
+    
+    if (process.platform === "win32") {
+        out.write("\nError: not implemented");
+    } else if (process.platform === "darwin") {
+        command = `osascript -e 'tell app "Terminal"
+do script "ollama serve"
+end tell'`;
+    } else if (process.platform === "linux") {
+        out.write("\nError: not implemented");
+    }
+
+    const { exec } = require('child_process');
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            out.error(`Failed to start Ollama server: ${error}`);
+            return;
+        } else {
+            out.write("Ollama server is running.", "success");
+        }      
+    });
 }
 
 export default OllamaUtils;

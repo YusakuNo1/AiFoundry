@@ -10,6 +10,7 @@ export type LlmFeature = typeof LlmFeatures[number];
 
 export type LmProviderBaseModelInfo = Omit<DatabaseLmProviderBaseModelInfo, "version" | "entityName">;
 export type LmProviderBaseModelInfoOllama = LmProviderBaseModelInfo & LmProviderBaseModelInfoOllamaExtras;
+
 export type ListLanguageModelsResponse = {
 	basemodels: LmProviderBaseModelInfo[];
 };
@@ -23,6 +24,10 @@ export type LmProviderProperty = Omit<DatabaseLmProviderProperty, "version" | "e
 export type LmProviderInfoResponse = Omit<DatabaseLmProviderInfo, "version" | "entityName"> & {
 	status: string,
 }
+
+export type SetupLmProviderRequest = {
+	id: string,
+};
 
 export type ListLmProvidersResponse = {
 	providers: LmProviderInfoResponse[];

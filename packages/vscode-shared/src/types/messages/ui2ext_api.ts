@@ -13,6 +13,7 @@ export const MessageApiTypes = [
     "api:listFunctions",
     "api:download:model",
     "api:delete:model",
+    "api:setup:lmProvider",
 ] as const;
 export type MessageApiType = typeof MessageApiTypes[number];
 export type MessageApi = shared.IMessage & {
@@ -65,5 +66,11 @@ export type MessageApiDeleteModel = MessageApi & {
     type: "api:delete:model",
     data: {
         modelUri: string;
+    };
+};
+export type MessageApiSetupLmProvider = MessageApi & {
+    type: "api:setup:lmProvider",
+    data: {
+        id: string;
     };
 };

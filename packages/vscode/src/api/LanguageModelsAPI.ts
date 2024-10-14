@@ -14,6 +14,28 @@ namespace LanguageModelsAPI {
         return _listLanguageModels("conversational");
     }
 
+    export async function setupLmProvider(
+        lmProviderId: string,
+    ): Promise<Observable<string>> {
+        const body = JSON.stringify({ id: lmProviderId });
+        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/setup`;
+
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body,
+        });
+
+        if (!response.body || !response.ok) {
+            const message = await response.text();
+            return StreamingUtils.createErrorObservable(message ?? "Fail to setup language model provider");
+        } else {
+            return StreamingUtils.convertReadableStreamToObservable(response.body.getReader());
+        }
+    }
+
     export function downloadLanguageModel(
         lmProviderId: string,
         id: string

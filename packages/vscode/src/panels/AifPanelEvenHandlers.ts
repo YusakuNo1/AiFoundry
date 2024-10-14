@@ -9,6 +9,7 @@ import EmbeddingsCommands from '../commands/embeddings';
 import AgentsCommands from '../commands/agents';
 import FunctionsCommands from '../commands/functions';
 import FileUtils from '../utils/FileUtils';
+import ApiOutputMessageUtils from "../utils/ApiOutputMessageUtils";
 
 
 namespace AifPanelEvenHandlers {
@@ -148,6 +149,20 @@ namespace AifPanelEvenHandlers {
                     vscode.window.showErrorMessage("Error deleting model: " + error);
                 });
             }
+        } else if (_message.type === "api:setup:lmProvider") {
+            const message = _message as types.MessageApiSetupLmProvider;
+            LanguageModelsAPI.setupLmProvider(message.data.id).then((sub) => {
+                sub.subscribe({
+                    next: (message) => {
+                        const msgObj = JSON.parse(message) as types.api.ApiOutputMessage;
+                        ApiOutputMessageUtils.show(msgObj);
+
+                        if (msgObj.type === "success") {
+                            _updateLmProviders(undefined, postMessage);
+                        }
+                    },
+                });
+            });
         }
     }
 
