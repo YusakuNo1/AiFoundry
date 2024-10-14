@@ -25,7 +25,7 @@ const ICON_SIZE = 32;
 
 // Add converted content to the message, e.g. convert markdown to HTML
 type PageChatHistoryMessage = types.database.ChatHistoryMessage & {
-    convertedContent?: string;
+    convertedContent: string;
 };
 
 const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
@@ -35,35 +35,21 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
     const chatBgColorUser = React.useMemo(() => getChatBgColorUser(), []);
     const chatBgColorAi = React.useMemo(() => getChatBgColorAi(), []);
     const chatHistoryMessages = useSelector((state: RootState) => state.chatInfo.messages);
-    const [pageChatHistoryMessages, setPageChatHistoryMessages] = React.useState<PageChatHistoryMessage[]>(chatHistoryMessages);
+    const [pageChatHistoryMessages, setPageChatHistoryMessages] = React.useState<PageChatHistoryMessage[]>([]);
     const aifSessionId = useSelector((state: RootState) => state.chatInfo.aifSessionId);
     const [inputText, setInputText] = React.useState('');
     const [chatHistoryMessageFiles, setChatHistoryMessageFiles] = React.useState<types.UploadFileInfo[]>([]);
 
     React.useEffect(() => {
-        setPageChatHistoryMessages(chatHistoryMessages);
-    }, [chatHistoryMessages]);
-
-    React.useEffect(() => {
-        async function convert() {
-            let found = false;
-            const _pageChatHistoryMessages: PageChatHistoryMessage[] = [];
-            for (const message of pageChatHistoryMessages) {
-                if (message.convertedContent) {
-                    _pageChatHistoryMessages.push({...message});
-                } else {
-                    found = true;
-                    const convertedContent = await ChatHistoryMessageContentUtils.getAndConvertMessageContentText(message.content, message.contentTextFormat as types.api.TextFormat) ?? "";
-                    _pageChatHistoryMessages.push({...message, convertedContent});
-                }
-            }
-
-            if (found) {
-                setPageChatHistoryMessages(_pageChatHistoryMessages);
-            }
+        async function run() {
+            const _pageChatHistoryMessages = await Promise.all(chatHistoryMessages.map(async (message) => {
+                const convertedContent = await ChatHistoryMessageContentUtils.getAndConvertMessageContentText(message.content, message.contentTextFormat as types.api.TextFormat) ?? "";
+                return {...message, convertedContent};
+            }));
+            setPageChatHistoryMessages(_pageChatHistoryMessages);
         }
-        convert();
-    }, [pageChatHistoryMessages]);
+        run();
+    }, [chatHistoryMessages]);
 
     React.useEffect(() => {
         const inputField = document.getElementById("chat-input");
@@ -137,7 +123,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
                 </Stack.Item>
                 <Stack.Item grow style={{ backgroundColor: isUser ? chatBgColorUser : chatBgColorAi }}>
                     <Text style={{ color: textColor, marginLeft: '8px', marginRight: '8px' }}>
-                        <div style={{ marginLeft: '8px', marginRight: '8px' }} dangerouslySetInnerHTML={{ __html: ChatHistoryMessageContentUtils.getMessageContentTextSync(message.content) ?? "" }} />
+                        <div style={{ marginLeft: '8px', marginRight: '8px' }} dangerouslySetInnerHTML={{ __html: message.convertedContent }} />
                     </Text>
                     {ChatHistoryMessageContentUtils.getMessageContentImageUrl(message.content).map((imageUrl, index) =>
                         <FluentUIImage key={`file-${index}`} src={imageUrl} style={{ padding: '2px', border: 2, borderColor: 'black' }} />

@@ -14,7 +14,7 @@ interface Props {
 }
 
 const AgentDetailsPage: React.FC<Props> = (props: Props) => {
-    const [outputFormat, setOutputFormat] = React.useState<types.api.TextFormat>(types.api.defaultTextFormat);
+    const [outputFormatIndex, setOutputFormatIndex] = React.useState<number>(types.api.TextFormats.indexOf(types.api.defaultTextFormat));
     const embeddings = useSelector((state: RootState) => state.serverData.embeddings);
     const functions = useSelector((state: RootState) => state.serverData.functions);
 
@@ -88,29 +88,20 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
             pageType: "modelPlayground",
             data: {
                 aifAgentUri: props.data.agentUri,
-                outputFormat,
+                outputFormat: types.api.TextFormats[outputFormatIndex],
             }
         };
         store.dispatch(pageInfoSlice.actions.setPageContext(pageContext));
-    }, [props.data?.agentUri, outputFormat]);
+    }, [props.data?.agentUri, outputFormatIndex]);
 
-    const outputFormatRow: RowSelectionItem = React.useMemo(() => {
-        const textFormatKeys = types.api.TextFormats;
-        const textFormatValues = types.api.TextFormats.map(key => types.api.TextFormatDisplayNames[key]);
-        let options: Record<string, string> = {};
-        for (let i=0; i<textFormatKeys.length; i++) {
-            options[textFormatValues[i]] = textFormatKeys[i];
-        }
+    const outputFormatOptions: string[] = React.useMemo(() => {
+        return types.api.TextFormats.map(key => key);
+    }, []);
 
-        return {
-            selectedIndex: 0,
-            options,
-            onChanged: (value: string) => {
-                const index = Math.max(0, textFormatValues.indexOf(value)); // Ensure index is valid
-                setOutputFormat(textFormatKeys[index]);
-            },
-        };
-    }, [setOutputFormat]);
+    const onChangeOutputFormat = React.useCallback((value: string) => {
+        const index = types.api.TextFormats.indexOf(value as types.api.TextFormat); // Ensure index is valid
+        setOutputFormatIndex(index);
+    }, [setOutputFormatIndex]);
 
     const ragAssetsItems = React.useMemo(() => {
         return props.data?.ragAssetIds?.map(id => {
@@ -147,7 +138,11 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
                 { type: "label", key: "systemPrompt", label: "System Prompt", item: { name: props.data?.systemPrompt, onClick: () => onPostMessage("agent:update:systemPrompt") }},
                 { type: "collection", key: "ragAssetIds", label: "RAG Assets", item: ragAssetsItems },
                 // { type: "collection", key: "functionAssetIds", label: "Function Calling Assets", item: functionAssetsItems },
-                { type: "selection", key: "output_format", label: "Output Format", item: outputFormatRow},
+                { type: "selection", key: "output_format", label: "Output Format", item: {
+                    selectedIndex: outputFormatIndex,
+                    options: outputFormatOptions,
+                    onChanged: onChangeOutputFormat,
+                }},
             ]} actionButtons={[
                 { key: "model-playground", label: "Playground", onClick: () => onShowModelPlayground() },
             ]}

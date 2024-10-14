@@ -26,7 +26,7 @@ export type RowItem = {
 
 export type RowSelectionItem = {
     selectedIndex: number;
-    options: Record<string, string>; // key -> return value, value -> display name
+    options: string[];
     onChanged: (value: string) => void;
 };
 
@@ -107,7 +107,7 @@ const BasePage: React.FC<Props> = (props: Props) => {
                     value={rowItem.options[rowItem.selectedIndex]}
                     id="selection-id"
                 >
-                    {Object.keys(rowItem.options).map(key => (
+                    {rowItem.options.map(key => (
                         <option key={key}>{key}</option>
                     ))}
                 </Select>
