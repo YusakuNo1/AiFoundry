@@ -10,6 +10,7 @@ import LmProviderAzureOpenAI from './LmProviderAzureOpenAI';
 import LmManagerUtils from './LmManagerUtils';
 import LmProviderOllama from './LmProviderOllama';
 import LmProviderOpenAI from './LmProviderOpenAI';
+import LmProviderGoogleGemini from './LmProviderGoogleGemini';
 import OllamaUtils from '../utils/OllamaUtils';
 import { ApiOutputCtrl } from '../types/ApiOutput';
 
@@ -33,6 +34,7 @@ class LmManager implements ILmManager {
         this._lmProviderMap[LmProviderAzureOpenAI.ID] = new LmProviderAzureOpenAI(this.databaseManager);
         this._lmProviderMap[LmProviderOpenAI.ID] = new LmProviderOpenAI(this.databaseManager);
         this._lmProviderMap[LmProviderOllama.ID] = new LmProviderOllama(this.databaseManager);
+        this._lmProviderMap[LmProviderGoogleGemini.ID] = new LmProviderGoogleGemini(this.databaseManager);
 
         for (const provider of Object.values(this._lmProviderMap)) {
             await provider.init(this.databaseManager);
