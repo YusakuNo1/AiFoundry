@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch AI Foundry",
+            "name": "Launch AI Foundry without server",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
@@ -21,6 +21,21 @@
             "env": {
                 "START_SERVER": "false"
             }
+        },
+        {
+            "name": "Launch AI Foundry",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceRoot}/packages/vscode",
+                "--enable-proposed-api",
+                "aifoundry.aifoundry"
+            ],
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceRoot}/packages/vscode/out/**/*.js"
+            ]
         },
         {
             "type": "node",

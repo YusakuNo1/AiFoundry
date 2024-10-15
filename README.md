@@ -107,4 +107,5 @@ AI Foundry uses URI as resource identifier as well as keys for map. A typical AI
 * Download vsce from this special branch: https://github.com/YusakuNo1/vscode-vsce/tree/main.yusakuno1
 * In vscode-vsce run command: `npm i && npm run compile`
 * Update `packages/vscode/build.sh` with the path for `vscode-vsce`, e.g. if `vscode-vsce` is in `/Users/david/vscode-vsce`, set `VSCE_HOME=/Users/david/vscode-vsce`
- 
+#### VS Code extension FAQ:
+* Error `Activating extension 'aifoundry.aifoundry' failed: Cannot find module 'marked'`: add package `marked` to the first line `array=( "aifoundry-vscode-shared" "rxjs" "uuid", "marked" )` 
