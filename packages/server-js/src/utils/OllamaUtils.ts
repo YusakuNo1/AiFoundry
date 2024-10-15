@@ -34,26 +34,6 @@ namespace OllamaUtils {
         return (response as any).models.map((model) => model.name);
     }
 
-    export function convertTagToLmFeature(tags: string[]): types.api.LlmFeature[] {
-        const features: types.api.LlmFeature[] = []
-
-        if (tags.includes("embedding")) {
-            features.push("embedding");
-        } else {
-            features.push("conversational");
-
-            if (tags.includes("vision")) {
-                features.push("vision");
-            }
-
-            if (tags.includes("tools")) {
-                features.push("tools");
-            }
-        }
-
-        return features;
-    }
-
     export async function downloadModel(modelName: string): Promise<any> {
         const endpoint = `${getHost()}/api/pull`;
         return await fetch(

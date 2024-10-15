@@ -85,7 +85,8 @@ namespace EmbeddingsCommands {
 
 function _showEmbeddingLlmOptions(name: string, embeddingsViewProvider: IViewProvider) {
 	LanguageModelsAPI.listLanguageModelsEmbedding().then((response) => {
-		const options = Object.fromEntries(response.basemodels.map(basemodel => [basemodel.name, basemodel]));
+		// use `${basemodel.providerId}-${basemodel.name}` as key because there could be multiple basemodels with the same name from different providers
+		const options = Object.fromEntries(response.basemodels.map(basemodel => [`${basemodel.providerId}-${basemodel.name}`, basemodel]));
 		const quickPick = vscode.window.createQuickPick();
 		quickPick.title = 'Select LLM model';
 		quickPick.items = Object.keys(options).map(key => ({ label: options[key].uri, key }));

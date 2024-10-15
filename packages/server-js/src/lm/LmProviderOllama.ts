@@ -5,6 +5,7 @@ import { AifUtils, types } from 'aifoundry-vscode-shared';
 import LmBaseProvider, { GetInitInfoResponse } from './LmBaseProvider';
 import { HttpException } from '../exceptions';
 import OllamaUtils from "../utils/OllamaUtils";
+import LmProviderUtils from "./LmProviderUtils";
 import { ModelDef } from '../config/model_info/types';
 import OllamaModels from "../config/model_info/ollama_models";
 
@@ -19,7 +20,7 @@ class LmProviderOllama extends LmBaseProvider {
                 uri: AifUtils.createAifUri(LmProviderOllama.ID, AifUtils.AifUriCategory.Models, model.title),
                 name: model.title,
                 providerId: LmProviderOllama.ID,
-                features: OllamaUtils.convertTagToLmFeature(model.tags),
+                features: LmProviderUtils.convertTagToLmFeature(model.tags),
                 selected: false,
                 isUserDefined: false,
                 isDownloaded: false,    // setup in _updateLmProviderRuntimeInfo

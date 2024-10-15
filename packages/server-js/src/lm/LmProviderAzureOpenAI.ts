@@ -53,10 +53,6 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
         return !!apiKey && apiKey.length > 0;
     }
 
-    public listLanguageModels(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[] {
-        return Object.values(this._info.modelMap).filter((model) => model.selected && (feature === "all" || model.features.includes(feature)));
-    }
-
     public async getBaseEmbeddingsModel(aifUri: string): Promise<Embeddings> {
         const { azureOpenAIBasePath, azureOpenAIApiKey, azureOpenAIApiVersion, azureOpenAIApiDeploymentName } = await this._getCredentials(aifUri);
         return new AzureOpenAIEmbeddings({

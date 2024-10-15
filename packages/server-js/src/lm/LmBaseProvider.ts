@@ -56,7 +56,9 @@ abstract class LmBaseProvider {
         // Do nothing by default
     }
 
-    public abstract listLanguageModels(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[];
+    public listLanguageModels(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[] {
+        return Object.values(this._info.modelMap).filter((model) => model.selected && (feature === "all" || model.features.includes(feature)));
+    }
 
     public abstract getBaseEmbeddingsModel(aifUri: string): Promise<Embeddings>;
 
