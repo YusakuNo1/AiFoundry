@@ -284,14 +284,10 @@
 	},
 	"dependencies": {
 		"aifoundry-server-js": "*",
-		"aifoundry-vscode-shared": "*",
-		"express": "^4.21.0",
-		"server-js": "*",
-		"uuid": "^10.0.0"
+		"aifoundry-vscode-shared": "*"
 	},
 	"devDependencies": {
 		"@types/node": "^18",
-		"@types/uuid": "^10.0.0",
 		"@types/vscode": "^1.73.0",
 		"@typescript-eslint/eslint-plugin": "^6.7.0",
 		"@typescript-eslint/parser": "^6.7.0",
