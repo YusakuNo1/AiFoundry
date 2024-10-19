@@ -1,4 +1,7 @@
 # Releases
+## Version 0.4.0
+Javascript server with parity feature, except for function calling
+
 ## Version 0.2.0
 Support image to text
 ![Image to text](media/intro_image_to_text.gif)
@@ -18,25 +21,17 @@ Setup video:
 
 ## Install AI Foundry VS Code extension
 * Download [VS Code](https://code.visualstudio.com/download) and install
-* Download AI Foundry VS Code extension [version 0.2.0](https://drive.google.com/file/d/1SeksmC-PxCH1j2EFn_4lxkdY3hnbXO-c/view?usp=sharing)
+* Download AI Foundry VS Code extension [version 0.4.0](https://drive.google.com/file/d/1GRvuOVqKXkFOATh2s_3Pv5DblVkLvaWK/view?usp=drive_link)
 * Launch VS Code and choose `Extensions` from the activity bar (on the left by default)
 * Click the 3 dots at top right
 * Click `Install from VSIX` from the menu and choose the VS Code extension file (*.vsix)
 
-## Setup environment
-* Download [Docker Desktop](https://www.docker.com/products/docker-desktop/), install and then launch
-* (Special Step) As the setup step is not finished in AI Foundry, please run Docker step manually: `docker pull davidwuno1/aifoundry` from Terminal.
-* Choose AI Foundry icon from side bar, if you have many icons on the right, it may hide within the three dots
-* Click "Docker Server", from the tab, choose "Start Server"
-
 ## Setup language model providers
 Choose at least one of the following language model providers: 
 * **Ollama**: Download Ollama https://ollama.com/download, install and run `ollama serve` from Terminal
-* **Azure OpenAI**: [setup link](https://learn.microsoft.com/en-us/azure/api-management/api-management-authenticate-authorize-azure-openai)
 * **OpenAI**: [setup link](https://platform.openai.com/api-keys)
+* **Azure OpenAI**: [setup link](https://learn.microsoft.com/en-us/azure/api-management/api-management-authenticate-authorize-azure-openai)
 * **Google Gemini**: [setup link](https://ai.google.dev/)
-* **Anthropic Claude**: [setup link](https://console.anthropic.com/settings/keys)
-* **HuggingFace**: [setup link](https://huggingface.co/docs/hub/security-tokens)
 * **AWS Bedrock**: Register AWS account and setup AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY (you may need AWS_SESSION_TOKEN depends on the configurations) with `aws configure` ([link](https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-files.html)) and then [request the model access](https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-files.html).
 
 # User manual
@@ -67,44 +62,26 @@ Download source code: https://github.com/YusakuNo1/AiFoundry
 ### AI Foundry URI
 AI Foundry uses URI as resource identifier as well as keys for map. A typical AI Foundry URI is: `[provider]://[category]/[path1]/[path2]/[path3]?[param1=value1]&[param2=value2]`, a concrete example is `aif://agents/[agent-id]`, `azureopenai://models/gpt-4o-mini?version=2024-07-01-preview`
 
-## Compile frontend
+## Compile
 ### Setup (only the first time)
-* In folder of AiFoundry, run `yarn`
+* In folder of AiFoundry, run `npm i`
 ### Start source code change monitoring
 * Start 3 different terminals to monitor code changes
-  * In folder of AiFoundry, run `cd packages\vscode-shared && yarn watch` and keep this Terminal openned
-  * In folder of AiFoundry, run `cd packages\vscode-ui && yarn watch` and keep this Terminal openned
-  * In folder of AiFoundry, run `cd packages\vscode && yarn watch` and keep this Terminal openned
+  * In folder of AiFoundry, run `cd packages\vscode-shared && npm run watch` and keep this Terminal openned
+  * In folder of AiFoundry, run `cd packages\vscode-ui && npm run watch` and keep this Terminal openned
+  * In folder of AiFoundry, run `cd packages\server-js && npm run watch` and keep this Terminal openned
 * Start VS Code extension debug mode
-  * Launch a VS Code instance (let's call it `VS Code Instance 1`)
+  * Launch a VS Code instance
   * Choose `Run and Debug` from the activity bar
-  * Select configuration `Launch VSCode Ext AI Foundry`
-  * Click `Start Debugging` or press `F5`, a new VS Code window will be launched. Let's call it `VS Code Instance 2`
-
-## Start backend server
-* In folder of AiFoundry, build the debug docker image: `docker compose build`
-* Replace the folder of [aifoundry-src] and run command (and keep this Terminal openned): `docker run -it -p 8000:8000 --name aifoundry-server-dev -v /Users/weiwu/.aifoundry/assets:/home/vscode/assets -v [aifoundry-src]:/home/vscode/aifoundry --add-host=host.docker.internal:host-gateway davidwuno1/aifoundry-dev /bin/bash`
-* Open new VS Code instance from the Docker container `aifoundry-server-dev`
-  * In VS Code, choose `Remote Explorer` from the activity bar
-  * For the frist time of using remote explorer:
-    * Choose `aifoundry` from the containers and choose `Attach in New Window` button on the right (the button was hidden until mouse over), a new VS Code instance will be launched, let's call it `VS Code Instance 3`
-    * Choose `File -> Open Folder`, insert path `/home/vscode/aifoundry/server/` and then click `OK`
-    * Copy file `.env_example` to `.env` from the folder: `cp .env_example .env`
-  * For the 2nd or later time of using remote explorer:
-    * Choose the folder `server` under container `aifounry`, a new VS Code instance will be launched, let's call it `VS Code Instance 3`
-  * Start backend server from debugger:
-    * In VS Code, choose `Run and Debug` from the activity bar
-    * Select configuration `Start Server`
-    * Click `Start Debugging` or press `F5`
+  * Select configuration `Launch AI Foundry`
 
 ## How to debug
-* For VS Code extension debugging, it's Node.js code, use `VS Code Instance 1`
-* For anything from VS Code extension "webview", which is the tab in file editor within VS Code window. Debug the code from `VS Code Instance 2` by launching `Inspect` with menu `Help -> Toggle Developer Tools` -- it's the same inspect like Chromium/Chrome/Edge, because VS Code is an Electron app.
-* For backend debugging, use `VS Code Instance 3`
+* For AI Foundry VS Code extension debugging, it's Node.js code, use the VS Code instance
+* For AI Foundry VS Code extension webview, debug from new VS Code instance, by launching `Inspect` with menu `Help -> Toggle Developer Tools` -- it's the same inspect like Chromium/Chrome/Edge, because VS Code is an Electron app.
 
 ## Release
 ### VS Code extension
-* Download vsce from this special branch: https://github.com/YusakuNo1/vscode-vsce/tree/main.yusakuno1
+* Download vsce from this special branch: https://github.com/YusakuNo1/vscode-vsce/tree/main.aifoundry
 * In vscode-vsce run command: `npm i && npm run compile`
 * Update `packages/vscode/build.sh` with the path for `vscode-vsce`, e.g. if `vscode-vsce` is in `/Users/david/vscode-vsce`, set `VSCE_HOME=/Users/david/vscode-vsce`
  
