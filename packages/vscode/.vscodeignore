@@ -7,6 +7,22 @@ tsconfig.json
 
 # Ignore the following files to make the build smaller
 build.sh
+../server-js/node_modules/typescript/**
+../vscode-shared/node_modules/typescript/**
+../../node_modules/typescript/**
+./node_modules/typescript/**
+**/README.md
+../**/README.md
+../../**/README.md
+**/CHANGELOG.md
+../**/CHANGELOG.md
+../../**/CHANGELOG.md
+../**/LICENSE
+../../**/LICENSE
+
+**/tsconfig.json
+../**/tsconfig.json
+../../**/tsconfig.json
 
 ../../.git/**/*
 ../../**/__pycache__/**/*
@@ -22,6 +38,10 @@ build.sh
 ../**/*.d.ts
 ../../**/*.d.ts
 
+**/*.d.mts
+../**/*.d.mts
+../../**/*.d.mts
+
 **/*.ts.map
 ../**/*.ts.map
 ../../**/*.ts.map
@@ -29,6 +49,22 @@ build.sh
 **/*.js.map
 ../**/*.js.map
 ../../**/*.js.map
+
+**/*.cjs.map
+../**/*.cjs.map
+../../**/*.cjs.map
+
+**/*.mjs.map
+../**/*.mjs.map
+../../**/*.mjs.map
+
+**/*.mts.map
+../**/*.mts.map
+../../**/*.mts.map
+
+**/*.cts.map
+../**/*.cts.map
+../../**/*.cts.map
 
 # ../../**
 # ../**

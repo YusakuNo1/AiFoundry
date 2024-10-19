@@ -277,7 +277,8 @@
 		}
 	},
 	"scripts": {
-		"vscode:prepublish": "npm run compile",
+		"old:vscode:prepublish": "npm run compile",
+		"vscode:prepublish": "cd ../.. && npm prune --production",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"lint": "eslint \"src/**/*.ts\""
