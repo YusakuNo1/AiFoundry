@@ -6,6 +6,7 @@ src/**
 tsconfig.json
 
 # Ignore the following files to make the build smaller
+build.sh
 
 ../../.git/**/*
 ../../**/__pycache__/**/*
