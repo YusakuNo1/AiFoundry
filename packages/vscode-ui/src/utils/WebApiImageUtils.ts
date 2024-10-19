@@ -2,8 +2,43 @@
  * Image processing with web APIs
  */
 
+import { types } from "aifoundry-vscode-shared";
+
 namespace WebApiImageUtils {
-    export async function resizeDataUrl(dataUrl: string, options: { maxWidth?: number, maxHeight?: number }): Promise<string> {
+    export async function batchResizeUploadFileInfo(
+        uploadFileInfoList: types.UploadFileInfo[],
+        options: { maxWidth?: number, maxHeight?: number },
+    ): Promise<types.UploadFileInfo[]> {
+        const promises = uploadFileInfoList.map((file) => {
+            return new Promise<types.UploadFileInfo>((resolve, reject) => {
+                _resizeDataUrl(file.dataUrlPrefix + file.data, options).then((dataUrl) => {
+                    const dataUrlInfo = types.convertToDataUrlInfo(dataUrl);
+                    resolve({ type: file.type, fileName: file.fileName, data: dataUrlInfo.data, dataUrlPrefix: dataUrlInfo.dataUrlPrefix });
+                })
+            });
+        });
+        return await Promise.all(promises);
+    }
+
+    export async function readImageFileToDataUrl(file: File, options?: { maxWidth?: number, maxHeight?: number }): Promise<types.DataUrlInfo> {
+        return new Promise<types.DataUrlInfo>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (!options || (!options.maxWidth && !options.maxHeight)) {
+                    const dataUrl = e.target?.result as string;
+                    resolve(types.convertToDataUrlInfo(dataUrl));
+                    return;
+                } else {
+                    _resizeDataUrl(e.target?.result as string, options).then((dataUrl) => {
+                        resolve(types.convertToDataUrlInfo(dataUrl));
+                    });
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function _resizeDataUrl(dataUrl: string, options: { maxWidth?: number, maxHeight?: number }): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             const img = new Image(); 
             img.onload = function() {
@@ -33,22 +68,6 @@ namespace WebApiImageUtils {
             }
 
             img.src = dataUrl;
-        });
-    }
-
-    export async function readImageFileToDataUrl(file: File, options?: { maxWidth?: number, maxHeight?: number }): Promise<string> {
-        return new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                if (!options || (!options.maxWidth && !options.maxHeight)) {
-                    resolve(e.target?.result as string);
-                    return;
-                } else {
-                    const dataUrl = resizeDataUrl(e.target?.result as string, options);
-                    resolve(dataUrl);
-                }
-            };
-            reader.readAsDataURL(file);
         });
     }
 }

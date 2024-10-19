@@ -1,4 +1,5 @@
 from typing import List
+from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 
 
@@ -8,16 +9,16 @@ class EmbeddingMetadata(SQLModel, table=True):
     vs_provider: str
     basemodel_uri: str
 
-class CreateEmbeddingsRequest(SQLModel):
+class CreateEmbeddingsRequest(BaseModel):
     input: str | List[str]
     name: str | None = None
 
-class CreateOrUpdateEmbeddingsResponse(SQLModel):
+class CreateOrUpdateEmbeddingsResponse(BaseModel):
     asset_id: str
     name: str
 
-class ListEmbeddingsResponse(SQLModel):
+class ListEmbeddingsResponse(BaseModel):
     embeddings: List[EmbeddingMetadata]
 
-class UpdateEmbeddingMetadataRequest(SQLModel):
+class UpdateEmbeddingMetadataRequest(BaseModel):
     name: str

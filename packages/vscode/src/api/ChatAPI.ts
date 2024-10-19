@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import { Observable } from 'rxjs';
 import { consts, types } from 'aifoundry-vscode-shared';
 import { APIConfig } from "./config";
@@ -30,19 +31,18 @@ namespace ChatAPI {
         }
 
         return new Observable<string>((subscriber) => {
+            function outputError(message: string) {
+                vscode.window.showErrorMessage(`Failed to send chat message ${message}`);
+                subscriber.complete();
+            }
+
             fetch(endpoint, {
                 method: "POST",
                 headers: headers,
                 body: formData,
             }).then(async (response) => {
-                function outputError(message: string) {
-                    subscriber.next(consts.Markup.ErrorPrefix);
-                    subscriber.next(message);
-                    subscriber.complete();
-                }
-
                 if (!response.ok || !response.body || !response.headers) {
-                    outputError("Failed to send chat message");
+                    outputError("");
                     return;
                 }
     
@@ -67,6 +67,8 @@ namespace ChatAPI {
                 } while(!done);
 
                 subscriber.complete();
+            }).catch((error) => {
+                outputError(error.toString());
             });
         });
     }

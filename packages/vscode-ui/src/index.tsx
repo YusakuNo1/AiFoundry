@@ -4,7 +4,7 @@ import ReactDOM from "react-dom/client";
 import { FluentProvider, teamsDarkTheme } from "@fluentui/react-components";
 
 import App from "./App";
-import { currentTheme } from "./Theme";
+import { currentTheme } from "./theme/themes";
 import { store } from "./store/store";
 import { PageContext } from "./contexts";
 import { mockVSCodeExt } from "./AppMockUtils";

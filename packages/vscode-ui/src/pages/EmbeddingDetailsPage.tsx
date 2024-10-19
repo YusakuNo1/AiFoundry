@@ -3,7 +3,7 @@ import { types } from "aifoundry-vscode-shared";
 import BasePage from "./BasePage";
 
 interface Props {
-    data: types.api.EmbeddingInfo;
+    data: types.database.EmbeddingMetadata;
     onPostMessage: (message: types.IMessage) => void;
 }
 
@@ -55,10 +55,10 @@ const EmbeddingDetailsPage: React.FC<Props> = (props: Props) => {
                 { width: "10%" },
             ]}
             rows={[
-                { type: "label", key: "id", label: "ID", item: { name: props.data.id }},
+                // { type: "label", key: "id", label: "ID", item: { name: props.data.id }},
                 { type: "label", key: "name", label: "Name", item: { name: props.data.name ?? "", onClick: () => onPostMessage("UpdateEmbeddingName") }},
+                { type: "label", key: "model_uri", label: "Model URI", item: { name: props.data.basemodelUri }},
                 { type: "label", key: "vs_provider", label: "Vector Store Provider", item: { name: props.data.vs_provider }},
-                { type: "label", key: "model_uri", label: "Model URI", item: { name: props.data.basemodel_uri }},
             ]}
             actionButtons={[
                 { key: "append-new-document", label: "Append New Document", onClick: () => onPostMessage("UpdateEmbeddingDoc") },

@@ -1,35 +1,18 @@
-export type AgentInfo = {
-    id: string,
-    agent_uri: string,
-    name: string,
-    base_model_uri: string,
-    system_prompt: string,
-    rag_asset_ids: string[],
-    function_asset_ids: string[],
-}
+import type { AgentMetadata } from "../database/AgentMetadata";
 
 export type ListAgentsResponse = {
-	agents: AgentInfo[];
+	agents: AgentMetadata[];
 };
 
-export type CreateAgentRequest = {
-    base_model_uri: string,
-    name: string | undefined,
-    system_prompt: string | undefined,
-    rag_asset_ids: string[] | undefined,
-    function_asset_ids: string[] | undefined,
-}
+export type CreateAgentRequest = Partial<Omit<AgentMetadata, 'id' | 'agentUri'>> & Pick<AgentMetadata, 'basemodelUri'>;
 
-export type UpdateAgentRequest = {
-    agent_uri: string,
-    base_model_uri: string | undefined,
-    name: string | undefined,
-    system_prompt: string | undefined,
-    rag_asset_ids: string[] | undefined,
-    function_asset_ids: string[] | undefined,
-}
+export type UpdateAgentRequest = Partial<Omit<AgentMetadata, "id">> & Pick<AgentMetadata, "agentUri">;
 
 export type CreateOrUpdateAgentResponse = {
     id: string,
     uri: string,
+}
+
+export type DeleteAgentResponse = {
+    id: string,
 }

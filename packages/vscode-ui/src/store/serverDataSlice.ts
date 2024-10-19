@@ -3,15 +3,13 @@ import type { types } from "aifoundry-vscode-shared";
 
 
 interface ServerDataState {
-    lmProviders: types.api.LmProviderInfo[] | null;
-    systemMenuItemMap: Record<string, types.SystemMenuItem>;
-    embeddings: types.api.EmbeddingInfo[];
+    lmProviders: types.api.LmProviderInfoResponse[] | null;
+    embeddings: types.database.EmbeddingMetadata[];
 	functions: types.api.FunctionMetadata[];
 }
 
 const initialState: ServerDataState = {
     lmProviders: null,
-    systemMenuItemMap: {},
     embeddings: [],
     functions: [],
 };
@@ -20,15 +18,10 @@ export const serverDataSlice = createSlice({
     name: "serverData",
     initialState,
     reducers: {
-        updateLmProviders: (state, action: PayloadAction<types.api.LmProviderInfo[]>) => {
+        updateLmProviders: (state, action: PayloadAction<types.api.LmProviderInfoResponse[]>) => {
             state.lmProviders = action.payload;
         },
-        updateSystemMenuItemMap: (state, action: PayloadAction<{ systemMenuItemMap: Record<string, types.SystemMenuItem> }>) => {
-            for (const key in action.payload.systemMenuItemMap) {
-                state.systemMenuItemMap[key] = action.payload.systemMenuItemMap[key];
-            }
-        },
-        updateEmbeddings: (state, action: PayloadAction<types.api.EmbeddingInfo[]>) => {
+        updateEmbeddings: (state, action: PayloadAction<types.database.EmbeddingMetadata[]>) => {
             state.embeddings = action.payload;
         },
         updateFunctions: (state, action: PayloadAction<types.api.FunctionMetadata[]>) => {
@@ -41,7 +34,6 @@ export const {
     updateEmbeddings,
     updateFunctions,
     updateLmProviders,
-    updateSystemMenuItemMap,
 } = serverDataSlice.actions;
 
 export default serverDataSlice.reducer;

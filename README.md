@@ -62,6 +62,11 @@ Intro video:
 
 # Engine Developer Instructions
 Download source code: https://github.com/YusakuNo1/AiFoundry
+
+## Base concepts
+### AI Foundry URI
+AI Foundry uses URI as resource identifier as well as keys for map. A typical AI Foundry URI is: `[provider]://[category]/[path1]/[path2]/[path3]?[param1=value1]&[param2=value2]`, a concrete example is `aif://agents/[agent-id]`, `azureopenai://models/gpt-4o-mini?version=2024-07-01-preview`
+
 ## Compile frontend
 ### Setup (only the first time)
 * In folder of AiFoundry, run `yarn`

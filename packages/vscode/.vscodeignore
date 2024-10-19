@@ -1,12 +1,34 @@
 .vscode/**
-.vscode-test/**
 out/test/**
-test/**
 src/**
 **/*.map
 .gitignore
 tsconfig.json
-vsc-extension-quickstart.md
 
-../../**
-../**
+# Ignore the following files to make the build smaller
+build.sh
+
+../../.git/**/*
+../../**/__pycache__/**/*
+
+.yarn/**/*
+../../.yarn/**/*
+
+**/.DS_Store
+../**/.DS_Store
+../../**/.DS_Store
+
+**/*.d.ts
+../**/*.d.ts
+../../**/*.d.ts
+
+**/*.ts.map
+../**/*.ts.map
+../../**/*.ts.map
+
+**/*.js.map
+../**/*.js.map
+../../**/*.js.map
+
+# ../../**
+# ../**

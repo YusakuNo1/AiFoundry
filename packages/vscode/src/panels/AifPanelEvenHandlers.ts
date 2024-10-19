@@ -1,15 +1,16 @@
 import * as vscode from 'vscode';
-import { consts, types } from 'aifoundry-vscode-shared';
+import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
 import AifPanelTypes from './types';
 import ChatAPI from '../api/ChatAPI';
 import LanguageModelsAPI from '../api/LanguageModelsAPI';
-import AifPanelUtils from './AifPanelUtils';
 import EmbeddingsAPI from '../api/EmbeddingsAPI';
 import FunctionsAPI from '../api/FunctionsAPI';
 import EmbeddingsCommands from '../commands/embeddings';
 import AgentsCommands from '../commands/agents';
 import FunctionsCommands from '../commands/functions';
 import FileUtils from '../utils/FileUtils';
+import ApiOutputMessageUtils from "../utils/ApiOutputMessageUtils";
+import ApiUtils from '../utils/ApiUtils';
 
 
 namespace AifPanelEvenHandlers {
@@ -49,7 +50,7 @@ namespace AifPanelEvenHandlers {
                 AgentsCommands.startupdateAgentNameFlow(viewProviderMap.agents, messageEditInfo.data.id, messageEditInfo.data.name);
             } else if (_message.type === 'agent:update:systemPrompt') {
                 const messageEditInfo = message as types.MessageEditInfoAgentsystemPrompt;
-                AgentsCommands.startupdateAgentSystemPromptFlow(viewProviderMap.agents, messageEditInfo.data.id, messageEditInfo.data.system_prompt);
+                AgentsCommands.startupdateAgentSystemPromptFlow(viewProviderMap.agents, messageEditInfo.data.id, messageEditInfo.data.systemPrompt);
             } else if (_message.type === 'agent:delete') {
                 const messageEditInfo = message as types.MessageEditInfodeleteAgent;
                 AgentsCommands.startdeleteAgentFlow(viewProviderMap.agents, messageEditInfo.data.id);
@@ -73,24 +74,21 @@ namespace AifPanelEvenHandlers {
             // TODO: Implement ChatAPI.getChatHistory
         } else if (_message.type === 'chat:sendMessage') {
             _chatSendMessage(_message, postMessage);
-        } else if (_message.type === "api:updateLmProvider" || _message.type === "api:updateLmProvider:modelSelection") {
-            const message = _message as types.MessageApiUpdateLmProvider;
-            LanguageModelsAPI.updateLmProvider(message.data as types.api.UpdateLmProviderRequest)
-                .then(response => _postMessageUpdateLmProviders(response, postMessage))
-                .then(() => vscode.commands.executeCommand('AiFoundry.refreshMainView', 1))
-                .then(() => {
-                    if (_message.type === "api:updateLmProvider") {
-                        vscode.window.showInformationMessage("Language model provider setup successfully");
-                        const setPageMessage = AifPanelUtils.createMessageSetPageHome();
-                        postMessage(setPageMessage);
-                    }
-                })
-                .catch((error) => {
-                    vscode.window.showErrorMessage("Error updating language model provider: " + error);
-                });
+        } else if (_message.type === "api:updateLmProviderInfo" || _message.type === "api:updateLmProviderModel") {
+            let requestPromise: Promise<any>;
+            if (_message.type === "api:updateLmProviderInfo") {
+                const message = _message as types.MessageApiUpdateLmProviderInfo;
+                requestPromise = LanguageModelsAPI.updateLmProviderInfo(message.data as types.api.UpdateLmProviderInfoRequest);
+            } else {
+                const message = _message as types.MessageApiUpdateLmProviderModel;
+                requestPromise = LanguageModelsAPI.updateLmProviderModel(message.data as types.api.UpdateLmProviderModelRequest);
+            }
+
+            const successMessage = _message.type === "api:updateLmProviderInfo" ? "Language model provider setup successfully" : undefined;
+            requestPromise.then(() => _updateLmProviders(successMessage, postMessage));
         } else if (_message.type === "api:listLmProviders") {
-            LanguageModelsAPI.listLmProviders()
-                .then(response => _postMessageUpdateLmProviders(response, postMessage))
+            LanguageModelsAPI.listLmProviders(false)
+                .then(response => postMessageUpdateLmProviders(response.providers, postMessage))
                 .catch((error) => {
                     vscode.window.showErrorMessage("Error listing language model providers: " + error);
                 });
@@ -124,20 +122,82 @@ namespace AifPanelEvenHandlers {
                 .catch((error) => {
                     vscode.window.showErrorMessage("Error listing functions: " + error);
                 });
+        } else if (_message.type === "api:download:model") {
+            const message = _message as types.MessageApiDownloadModel;
+            const uriInfo = AifUtils.extractAiUri(null, message.data.modelUri);
+            if (uriInfo && uriInfo.parts.length === 1) {
+                const lmProviderId = uriInfo.protocol;
+                const id = uriInfo.parts[0];
+
+                vscode.window.showInformationMessage(`Start downloading model ${message.data.modelUri}...`);
+                LanguageModelsAPI.downloadLanguageModel(lmProviderId, id).then(() => {
+                    return _updateLmProviders("Model downloaded successfully", postMessage);
+                }).then(() => {
+                    vscode.window.showInformationMessage(`Model ${message.data.modelUri} is downloaded.`);
+                }).catch((error) => {
+                    vscode.window.showErrorMessage(error);
+                });
+            }
+        } else if (_message.type === "api:delete:model") {
+            const message = _message as types.MessageApiDeleteModel;
+            const uriInfo = AifUtils.extractAiUri(null, message.data.modelUri);
+            if (uriInfo && uriInfo.parts.length === 1) {
+                const lmProviderId = uriInfo.protocol;
+                const id = uriInfo.parts[0];
+                LanguageModelsAPI.deleteLanguageModel(lmProviderId, id).then(() => {
+                    _updateLmProviders("Model deleted successfully", postMessage);
+                }).catch((error) => {
+                    vscode.window.showErrorMessage("Error deleting model: " + error);
+                });
+            }
+        } else if (_message.type === "api:setup:lmProvider") {
+            const message = _message as types.MessageApiSetupLmProvider;
+            const sub = LanguageModelsAPI.setupLmProvider(message.data.id);
+            sub.subscribe({
+                next: (message) => {
+                    const msgObj = JSON.parse(message) as types.api.ApiOutputMessage;
+                    ApiOutputMessageUtils.show(msgObj);
+                },
+                complete: () => {
+                    ApiUtils.apiPoller(
+                        () => LanguageModelsAPI.getLmProvider(message.data.id, true),
+                        (response) => response.status === "available",
+                        2000,   // 2 seconds
+                        10,     // 10 attempts
+                    ).then(() => {
+                        _updateLmProviders(undefined, postMessage);
+                    }).catch((error) => {
+                        vscode.window.showErrorMessage("Error setting up language model provider: " + error);
+                    });
+                },
+                error: (error) => {
+                    vscode.window.showErrorMessage("Error setting up language model provider: " + error);
+                },
+            });
         }
     }
 
-    function _postMessageUpdateLmProviders(response: types.api.ListLmProvidersResponse, postMessage: (message: types.IMessage) => void): void {
+    export function postMessageUpdateLmProviders(providers: types.api.LmProviderInfoResponse[], postMessage: (message: types.IMessage) => void): void {
         const message: types.MessageStoreUpdateLmProviders = {
             aifMessageType: 'store:update',
             type: 'updateLmProviders',
             data: {
-                lmProviders: response.providers,
+                lmProviders: providers,
             },
         };
         postMessage(message);
     }
 
+    async function _updateLmProviders(successMessage: string | undefined, postMessage: (message: types.IMessage) => void) {
+        return LanguageModelsAPI.listLmProviders(true)
+            .then(response => postMessageUpdateLmProviders(response.providers, postMessage))
+            .then(() => vscode.commands.executeCommand('AiFoundry.refreshMainView', 1))
+            .then(() => successMessage && vscode.window.showInformationMessage(successMessage))
+            .catch((error) => {
+                vscode.window.showErrorMessage("Error updating language model provider: " + error);
+            });
+    }
+    
     async function _chatSendMessage(_message: types.IMessage, postMessage: (message: types.IMessage) => void) {
         const chatSendApiMessage = _message as types.MessageApiChatSendMessage;
         const files: File[] = [];

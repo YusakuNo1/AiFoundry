@@ -2,7 +2,7 @@ import io, uuid
 from typing import List, Optional
 from fastapi import APIRouter, Header, Cookie, Query, UploadFile, HTTPException
 from fastapi.responses import StreamingResponse
-from PIL import Image
+# from aif_types.chat import ChatHistory
 from llm.llm_manager import LlmManager
 from consts import HEADER_AIF_AGENT_URI, COOKIE_AIF_SESSION_ID
 from aif_types.common import RequestFileInfo
@@ -46,10 +46,13 @@ def create_routers(llm_manager: LlmManager):
         # Only support image files for now
         requestFileInfoList: List[RequestFileInfo] = []
         if files is not None:
-            for file in files:
-                requestFileInfo = await createRequestFileInfo(file)
-                if requestFileInfo:
-                    requestFileInfoList.append(requestFileInfo)
+            try:
+                for file in files:
+                    requestFileInfo = await createRequestFileInfo(file)
+                    if requestFileInfo:
+                        requestFileInfoList.append(requestFileInfo)
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=str(e))
 
 
         process_output = llm_manager.chat(

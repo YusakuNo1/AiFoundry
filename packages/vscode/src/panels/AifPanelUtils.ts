@@ -18,7 +18,7 @@ namespace AifPanelUtils {
 		return createCommandShowAifPanel(message);
 	}
 
-	export function createMessageSetPageEmbeddings(embeddingInfo: types.api.EmbeddingInfo): types.MessageSetPageContextEmbeddings {
+	export function createMessageSetPageEmbeddings(embeddingInfo: types.database.EmbeddingMetadata): types.MessageSetPageContextEmbeddings {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "embeddings",
@@ -26,12 +26,12 @@ namespace AifPanelUtils {
 		};
 	}
 
-	export function createCommandShowAifPanelEmbeddings(embeddingInfo: types.api.EmbeddingInfo): vscode.Command {
+	export function createCommandShowAifPanelEmbeddings(embeddingInfo: types.database.EmbeddingMetadata): vscode.Command {
 		const message = createMessageSetPageEmbeddings(embeddingInfo);
 		return createCommandShowAifPanel(message);
 	}
 
-	export function createMessageSetPageAgents(agentInfo: types.api.AgentInfo): types.MessageSetPageContextAgentDetails {
+	export function createMessageSetPageAgents(agentInfo: types.database.AgentMetadata): types.MessageSetPageContextAgentDetails {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "agents",
@@ -39,7 +39,7 @@ namespace AifPanelUtils {
 		};
 	}
 
-	export function createCommandShowAifPanelAgents(agentInfo: types.api.AgentInfo): vscode.Command {
+	export function createCommandShowAifPanelAgents(agentInfo: types.database.AgentMetadata): vscode.Command {
 		const message = createMessageSetPageAgents(agentInfo);
 		return createCommandShowAifPanel(message);
 	}

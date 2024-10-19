@@ -1,11 +1,10 @@
 import * as vscode from 'vscode';
-import type { types } from 'aifoundry-vscode-shared';
+import { types } from 'aifoundry-vscode-shared';
 import EmbeddingsAPI from '../api/EmbeddingsAPI';
 import LanguageModelsAPI from '../api/LanguageModelsAPI';
 import CommandUtils from './utils';
 import { IViewProvider } from '../viewProviders/base';
-import ChatAPI from '../api/ChatAPI';
-
+import ApiUtils from '../utils/ApiUtils';
 
 namespace EmbeddingsCommands {
 	export function setupCommands(context: vscode.ExtensionContext, embeddingsViewProvider: IViewProvider) {
@@ -86,20 +85,14 @@ namespace EmbeddingsCommands {
 
 function _showEmbeddingLlmOptions(name: string, embeddingsViewProvider: IViewProvider) {
 	LanguageModelsAPI.listLanguageModelsEmbedding().then((response) => {
-		const options = Object.fromEntries(response.basemodels.map(basemodel => [basemodel.name, basemodel]));
+		// use `${basemodel.providerId}-${basemodel.name}` as key because there could be multiple basemodels with the same name from different providers
+		const options = Object.fromEntries(response.basemodels.map(basemodel => [`${basemodel.providerId}-${basemodel.name}`, basemodel]));
 		const quickPick = vscode.window.createQuickPick();
 		quickPick.title = 'Select LLM model';
-
-		const items = Object.keys(options).map(key => ({ label: options[key].basemodel_uri, key }));
-		items.sort((a, b) => {
-			const aWeight = options[a.key].weight;
-			const bWeight = options[b.key].weight;
-			return bWeight - aWeight;
-		});
-		quickPick.items = items;
+		quickPick.items = Object.keys(options).map(key => ({ label: options[key].uri, key }));
 
 		quickPick.onDidChangeSelection(selection => {
-			_createOrUpdateEmbedding(true, embeddingsViewProvider, options[(selection[0] as any).key].basemodel_uri, name);
+			_createOrUpdateEmbedding(true, embeddingsViewProvider, options[(selection[0] as any).key].uri, name);
 		});
 		quickPick.onDidHide(() => quickPick.dispose());
 		quickPick.show();
@@ -111,7 +104,8 @@ function _createOrUpdateEmbedding(isCreate: boolean, embeddingsViewProvider: IVi
 		canSelectMany: true,
 		openLabel: 'Select files',
 		canSelectFiles: true,
-		canSelectFolders: false
+		canSelectFolders: false,
+		filters: types.expandAcceptedFileInfoTypeToFileExtensionMap(types.AcceptedFileInfoEmbedding),
 	};
 
 	vscode.window
@@ -128,6 +122,9 @@ function _createOrUpdateEmbedding(isCreate: boolean, embeddingsViewProvider: IVi
 					.then(() => {						
 						embeddingsViewProvider.refresh(isCreate ? undefined : aifBasemodelUriOrAifEmbeddingAssetId);
 						vscode.window.showInformationMessage(isCreate ? 'Embedding is created' : 'Embedding is updated');
+					})
+					.catch((error) => {
+						ApiUtils.handleApiErrorResponse(error, vscode.window.showErrorMessage);
 					});
 			}
 		});

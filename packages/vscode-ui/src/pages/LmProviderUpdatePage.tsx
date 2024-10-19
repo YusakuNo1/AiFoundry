@@ -1,13 +1,14 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Input, Label, Table, TableCell, TableHeader, TableRow, TableHeaderCell, TableBody } from '@fluentui/react-components';
+import { Input, Label, Table, TableCell, TableHeader, TableRow, TableHeaderCell, TableBody, Divider } from '@fluentui/react-components';
 import { DefaultButton } from '@fluentui/react/lib/Button';
-import { consts, types } from 'aifoundry-vscode-shared';
+import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
 import { RootState } from '../store/store';
-import { getTextColor } from '../Theme';
+import { getTextColor } from '../theme/themes';
 import LmProviderUpdatePageExpandableInput from './LmProviderUpdatePageExpandableInput';
-import LmProviderUpdatePageOllama from './LmProviderUpdatePageOllama';
+import SetupInstructionOllama from './setup_instructions/SetupInstructionOllama';
 import { AifExperiments } from '../consts';
+import { createMessageApiUpdateLmProviderInfo, createMessageApiUpdateLmProviderModel } from './LmProviderUpdatePageUtils';
 
 
 type Props = {
@@ -17,13 +18,30 @@ type Props = {
 const LmProviderUpdatePage = (props: Props) => {
     const textColor = React.useMemo(() => getTextColor(), []);
     const lmProviders = useSelector((state: RootState) => state.serverData.lmProviders);
-    const systemMenuItemMap = useSelector((state: RootState) => state.serverData.systemMenuItemMap);
-    const systemMenuItem = systemMenuItemMap[props.lmProviderId];
-
-    const [provider, setProvider] = React.useState<types.api.LmProviderInfo | null>(null);
-    const [properties, setProperties] = React.useState<Record<string, types.api.LmProviderProperty>>({});
+    const [provider, setProvider] = React.useState<types.api.LmProviderInfoResponse | null>(null);
+    const [requestProperties, setRequestProperties] = React.useState<Record<string, string>>({});
     const [weight, setWeight] = React.useState<string>("");
     const [models, setModels] = React.useState<types.api.LmProviderBaseModelInfo[]>([]);
+
+    const lmProvider = React.useMemo(() => {
+        for (const _lmProvider of (lmProviders ?? [])) {
+            if (_lmProvider.id === props.lmProviderId) {
+                return _lmProvider;
+            }
+        }
+        return null;
+    }, [lmProviders, props.lmProviderId]);
+
+    React.useEffect(() => {
+        if (!lmProvider) {
+            return;
+        }
+
+        setProvider(lmProvider);
+        // setProperties({ ...lmProvider.properties });
+        setWeight("" + lmProvider.weight);
+        setModels(Object.values(lmProvider.modelMap));
+    }, [lmProvider]);
 
     React.useEffect(() => {
         if (!lmProviders) {
@@ -36,55 +54,16 @@ const LmProviderUpdatePage = (props: Props) => {
         }
     }, [lmProviders, props]);
 
-    React.useEffect(() => {
-        if (!lmProviders) {
-            return;
-        }
-
-        for (const lmProvider of lmProviders) {
-            if (lmProvider.lmProviderId === props.lmProviderId) {
-                const _patchedProperties: Record<string, types.api.LmProviderProperty> = {};
-                for (const key of Object.keys(lmProvider.properties)) {
-                    const property = lmProvider.properties[key];
-                    _patchedProperties[key] = {
-                        ...property,
-                        value: property.isCredential ? null : property.value,
-                        // Use either hint, or the "value" as hint for credential properties, because the value will be "*****" for credentials
-                        hint: (property.isCredential && property.hint.length === 0 && property.value && property.value?.length > 0) ? property.value : property.hint,
-                    };
-                }
-
-                setProvider(lmProvider);
-                setProperties(_patchedProperties);
-                setWeight("" + lmProvider.weight);
-                setModels(lmProvider.models);
-            }
-        }
-    }, [lmProviders, props.lmProviderId]);
-
-
     const onSubmit = React.useCallback(() => {
-        const _properties: Record<string, string> = {};
-        for (const id of Object.keys(properties)) {
-            if (properties[id].value) {
-                _properties[id] = properties[id].value!;
-            }
-        }
         const _weight = parseInt(weight) ?? null;
-        const { selectedModels, embeddingModelIndexes, visionModelIndexes, toolsModelIndexes } = getSelectedModelData(models);
-
-        const message = createMessageApiUpdateLmProvider(
-            "api:updateLmProvider",
+        const message = createMessageApiUpdateLmProviderInfo(
+            "api:updateLmProviderInfo",
             props.lmProviderId,
-            _properties,
             _weight,
-            selectedModels,
-            embeddingModelIndexes,
-            visionModelIndexes,
-            toolsModelIndexes,
+            requestProperties,
         );
         props.onPostMessage(message);
-    }, [props, properties, weight, models]);
+    }, [props, weight, requestProperties]);
 
     const onCancel = React.useCallback(() => {
         const message: types.MessageSetPageContext = {
@@ -95,60 +74,109 @@ const LmProviderUpdatePage = (props: Props) => {
     }, []);
 
     const onChangeProperty = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        const newProperties = {
-            ...properties,
-            [event.target.id]: {
-                ...properties[event.target.id],
-                value: event.target.value,
-            }
-        };
-        setProperties(newProperties);
-    }, [properties]);
+        const newRequestProperties = { ...requestProperties, [event.target.id]: event.target.value };
+        setRequestProperties(newRequestProperties);
+    }, [requestProperties, setRequestProperties]);
 
     const onChangeWeight = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setWeight(event.target.value);
     }, [setWeight]);
 
-    const onChangeModels = React.useCallback((_selectedModels: types.api.LmProviderBaseModelInfo[]) => {
+    const onChangeModel = React.useCallback((modelUri: string, selected: boolean) => {
         if (consts.EXP_LM_PROVIDER_MODEL_SELECTION_INSTANT_UPDATE) {
-            const { selectedModels, embeddingModelIndexes, visionModelIndexes, toolsModelIndexes } = getSelectedModelData(_selectedModels);
-
-            const message = createMessageApiUpdateLmProvider(
-                "api:updateLmProvider:modelSelection",
+            const message = createMessageApiUpdateLmProviderModel(
+                "api:updateLmProviderModel",
                 props.lmProviderId,
-                null,
-                null,
-                selectedModels,
-                embeddingModelIndexes,
-                visionModelIndexes,
-                toolsModelIndexes,
+                modelUri,
+                selected,
             );
             props.onPostMessage(message);    
         }
 
-        setModels(_selectedModels);
-    }, [props, setModels]);
+        const newModels = models.map(model => {
+            if (model.uri === modelUri) {
+                return {
+                    ...model,
+                    selected,
+                };
+            } else {
+                return model;
+            }
+        });
+
+        setModels(newModels);
+    }, [props, setModels, models]);
 
     const onAddUserDefinedModel = React.useCallback((modelName: string, llmFeature: types.api.LlmFeature) => {
-        const newModel: types.api.LmProviderBaseModelInfo = {
-            id: modelName,
-            selected: true,
-            isUserDefined: true,
-            tags: [llmFeature],
-        };
-        setModels([...models, newModel]);
-    }, [models, setModels]);
+        if (consts.EXP_LM_PROVIDER_MODEL_SELECTION_INSTANT_UPDATE) {
+            const params = {
+                [consts.UpdateLmProviderBaseModelFeatureKey]: llmFeature,
+            }
+            const modelUri = AifUtils.createAifUri(props.lmProviderId, AifUtils.AifUriCategory.Models, modelName, params);
+            const selected = true;
+            const message = createMessageApiUpdateLmProviderModel(
+                "api:updateLmProviderModel",
+                props.lmProviderId,
+                modelUri,
+                selected,
+            );
+            props.onPostMessage(message);    
+        }
 
-    function renderRow(name: string, valueElement: React.ReactElement | string | number | undefined, descriptionElement: React.ReactElement | string) {
+        const existingModel = models.find(model => model.name === modelName);
+        if (existingModel) {
+            if (!existingModel.features.includes(llmFeature)) {
+                const newModel = {
+                    ...existingModel,
+                    types: [...existingModel.features, llmFeature],
+                };
+                setModels([...models.filter(model => model.name !== modelName), newModel]);
+            }
+            return;
+        } else {
+            const newModel: types.api.LmProviderBaseModelInfo = {
+                uri: AifUtils.createAifUri(props.lmProviderId, AifUtils.AifUriCategory.Models, modelName),
+                name: modelName,
+                providerId: props.lmProviderId,
+                features: [llmFeature],
+                selected: true,
+                isUserDefined: true,
+            };
+            setModels([...models, newModel]);    
+        }
+    }, [models, setModels, props]);
+
+    const onDownloadModel = React.useCallback((modelUri: string) => {
+        const message: types.MessageApiDownloadModel = {
+            aifMessageType: "api",
+            type: "api:download:model",
+            data: {
+                modelUri,
+            },
+        };
+        props.onPostMessage(message);
+    }, [props]);
+
+    const onDeleteModel = React.useCallback((modelUri: string) => {
+        const message: types.MessageApiDeleteModel = {
+            aifMessageType: "api",
+            type: "api:delete:model",
+            data: {
+                modelUri,
+            },
+        };
+        props.onPostMessage(message);
+    }, [props]);
+
+    function renderRow(name: string, valueElement: React.ReactElement | string | number | undefined) {
         return (<TableRow key={name}>
-            <TableCell>{name}</TableCell>
-            <TableCell>{valueElement}</TableCell>
-            <TableCell>{descriptionElement}</TableCell>
+            <TableCell style={{ width: "150px" }}>{name}</TableCell>
+            <TableCell style={{ width: "100%", maxWidth: "350px" }}>{valueElement}</TableCell>
         </TableRow>);
     }
 
     const inputStyle = { width: "100%" };
-    const showOllamaSetup = provider?.lmProviderId === consts.LOCAL_LM_PROVIDER_ID_OLLAMA && systemMenuItem?.status === "unavailable";
+    const showOllamaSetup = props.lmProviderId === consts.LOCAL_LM_PROVIDER_ID_OLLAMA && provider?.status === "unavailable";
     const tableBodyStyle = {
         width: "100%",
         ...(showOllamaSetup ? { height: "64px" } : {}),
@@ -158,26 +186,21 @@ const LmProviderUpdatePage = (props: Props) => {
         return null;
     } else {
         return (<>
+            <Label style={{ color: textColor, paddingLeft: "8px" }} size='large' weight='semibold'>{`Setup ${provider.name}`}</Label>
+            <Divider style={{ color: textColor, paddingTop: "8px" }} />
             <Table arial-label="lm-provider-setup-table">
-                <TableHeader>
-                    <TableRow>
-                        <TableHeaderCell key="lm-provider-setup-table-header" colSpan={3}>
-                            <Label style={{ color: textColor }} size='large'>{`Setup ${provider.name}`}</Label>
-                        </TableHeaderCell>
-                    </TableRow>
-                </TableHeader>
                 <TableBody style={tableBodyStyle}>
-                    {showOllamaSetup && <LmProviderUpdatePageOllama />}
+                    {showOllamaSetup && <SetupInstructionOllama onPostMessage={props.onPostMessage} />}
                     {!showOllamaSetup && <>
-                        {Object.keys(properties ?? {}).map((id) => {
-                            const property = properties[id];
-                            if (property.isCredential) {
-                                const placeholder = property.hint;
-                                return renderRow(id, <Input id={id} type="password" placeholder={placeholder} onChange={onChangeProperty} style={inputStyle} />, property.description);
-                            } else {
-                                const value = property.value ?? undefined;
-                                return renderRow(id, <Input id={id} value={value} onChange={onChangeProperty} style={inputStyle} />, property.description);
+                        {Object.keys(lmProvider?.properties ?? {}).map((id) => {
+                            const isSecret = lmProvider?.properties[id]?.isSecret ?? false;
+                            let value = requestProperties[id];
+                            if (!value) {
+                                const propertyValue = requestProperties[id] ?? lmProvider!.properties[id]?.valueUri;
+                                const valueInfo = AifUtils.extractAiUri(consts.AIF_PROTOCOL, propertyValue ?? "");
+                                value = valueInfo?.parts[1] ?? "";
                             }
+                            return renderRow(id, <Input id={id} type={isSecret ? "password" : undefined} value={value} onChange={onChangeProperty} style={inputStyle} />);
                         })}
                         {renderRow("Weight",
                             <Input
@@ -185,47 +208,59 @@ const LmProviderUpdatePage = (props: Props) => {
                                 value={"" + weight}
                                 onChange={onChangeWeight}
                                 style={inputStyle}
-                            />, "The sorting order for the language model provider")}
+                            />)}
                         {renderRow("Embedding Models",
                             <LmProviderUpdatePageExpandableInput
+                                lmProviderId={props.lmProviderId}
                                 inputId="embedding-models"
                                 models={models}
                                 supportUserDefinedModels={provider.supportUserDefinedModels}
                                 llmFeature='embedding'
-                                onChange={onChangeModels}
+                                onChange={onChangeModel}
                                 onAddUserDefinedModel={onAddUserDefinedModel}
+                                onDownloadModel={onDownloadModel}
+                                onDeleteModel={onDeleteModel}
                                 style={inputStyle}
-                            />, "The chosen embedding models")}
+                            />)}
                         {renderRow("Conversational Models",
                             <LmProviderUpdatePageExpandableInput
+                                lmProviderId={props.lmProviderId}
                                 inputId="conversational-models"
                                 models={models}
                                 supportUserDefinedModels={provider.supportUserDefinedModels}
                                 llmFeature='conversational'
-                                onChange={onChangeModels}
+                                onChange={onChangeModel}
                                 onAddUserDefinedModel={onAddUserDefinedModel}
+                                onDownloadModel={onDownloadModel}
+                                onDeleteModel={onDeleteModel}
                                 style={inputStyle}
-                            />, "The chosen conversational models")}
+                            />)}
                         {AifExperiments.ENABLE_VISION_MODELS && renderRow("Vision Models",
                             <LmProviderUpdatePageExpandableInput
+                                lmProviderId={props.lmProviderId}
                                 inputId="vision-models"
                                 models={models}
                                 supportUserDefinedModels={provider.supportUserDefinedModels}
                                 llmFeature='vision'
-                                onChange={onChangeModels}
+                                onChange={onChangeModel}
                                 onAddUserDefinedModel={onAddUserDefinedModel}
+                                onDownloadModel={onDownloadModel}
+                                onDeleteModel={onDeleteModel}
                                 style={inputStyle}
-                            />, "The chosen vision models")}
+                            />)}
                         {AifExperiments.ENABLE_TOOLS_MODELS && renderRow("Tools Models",
                             <LmProviderUpdatePageExpandableInput
+                                lmProviderId={props.lmProviderId}
                                 inputId="tools-models"
                                 models={models}
                                 supportUserDefinedModels={provider.supportUserDefinedModels}
                                 llmFeature='tools'
-                                onChange={onChangeModels}
+                                onChange={onChangeModel}
                                 onAddUserDefinedModel={onAddUserDefinedModel}
+                                onDownloadModel={onDownloadModel}
+                                onDeleteModel={onDeleteModel}
                                 style={inputStyle}
-                            />, "The chosen models for function calling")}
+                            />)}
                     </>}
                 </TableBody>
             </Table>
@@ -237,65 +272,5 @@ const LmProviderUpdatePage = (props: Props) => {
         </>);    
     }
 };
-
-function getSelectedModelData(models: types.api.LmProviderBaseModelInfo[]): {
-    selectedModels: string[],
-    embeddingModelIndexes: number[],
-    visionModelIndexes: number[],
-    toolsModelIndexes: number[],
-} {
-    const selectedModels = models.filter(model => model.selected);
-    const embeddingTag: types.api.LlmFeature = "embedding";
-    const visionTag: types.api.LlmFeature = "vision";
-    const toolsTag: types.api.LlmFeature = "tools";
-    const embeddingModelIndexes: number[] = [];
-    const visionModelIndexes: number[] = [];
-    const toolsModelIndexes: number[] = [];
-    for (const model of selectedModels) {
-        if (model.tags.includes(embeddingTag)) {
-            embeddingModelIndexes.push(selectedModels.indexOf(model));
-        }
-        if (model.tags.includes(visionTag)) {
-            visionModelIndexes.push(selectedModels.indexOf(model));
-        }
-        if (model.tags.includes(toolsTag)) {
-            toolsModelIndexes.push(selectedModels.indexOf(model));
-        }
-    }
-    return {
-        selectedModels: selectedModels.map(model => model.id),
-        embeddingModelIndexes,
-        visionModelIndexes,
-        toolsModelIndexes,
-    };    
-}
-
-function createMessageApiUpdateLmProvider(
-    messageApiType: "api:updateLmProvider" | "api:updateLmProvider:modelSelection",
-    lmProviderId: string,
-    properties: Record<string, string> | null,
-    weight: number | null,
-    selectedModels: string[],
-    embeddingModelIndexes: number[],
-    visionModelIndexes: number[],
-    toolsModelIndexes: number[]
-): types.MessageApiUpdateLmProvider {
-    const request: types.api.UpdateLmProviderRequest = {
-        lmProviderId,
-        properties,
-        weight,
-        selectedModels,
-        embeddingModelIndexes,
-        visionModelIndexes,
-        toolsModelIndexes,
-    };
-
-    const message: types.MessageApiUpdateLmProvider = {
-        aifMessageType: "api",
-        type: messageApiType,
-        data: request,
-    };
-    return message;
-}
 
 export default LmProviderUpdatePage;

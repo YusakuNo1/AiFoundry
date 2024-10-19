@@ -3,8 +3,8 @@ from bs4 import BeautifulSoup
 import requests
 
 
-url = "https://ollama.com/library"  # Replace with the target URL
-output_file = "ollama_models.json"  # Replace with the desired output file name
+url = "https://ollama.com/library?sort=featured"  # Sort by featured
+output_file = "ollama_models.json"
 
 
 # Get the HTML content
@@ -19,6 +19,14 @@ results = soup.find_all("li", class_="flex items-baseline border-b border-neutra
 
 # Create an empty list to store data
 data = []
+
+# Get first N models for chat (no embedding flag), Embedding, Tools, Vision and Code
+n = 5
+chatModels = []
+embeddingModels = []
+toolsModels = []
+visionModels = []
+codeModels = []
 
 # Extract the content of each element and store in a dictionary
 for result in results:
@@ -40,9 +48,31 @@ for result in results:
       "description": description,
       "tags": tags
   }
+
+  addToData = False
+  if "embedding" not in tags and len(chatModels) < n:
+    chatModels.append(title)
+    addToData = True
   
-  # Append the dictionary to the data list
-  data.append(item)
+  if "embedding" in tags and len(embeddingModels) < n:
+    embeddingModels.append(title)
+    addToData = True
+
+  if "tools" in tags and len(toolsModels) < n:
+    toolsModels.append(title)
+    addToData = True
+
+  if "vision" in tags and len(visionModels) < n:
+    visionModels.append(title)
+    addToData = True
+
+  if "code" in tags and len(codeModels) < n:
+    codeModels.append(title)
+    addToData = True
+
+  if addToData:
+    # Append the dictionary to the data list
+    data.append(item)
 
 # Modify data, for example, currently not all the model with Tags of Tools are working properly
 models_with_tools = ["mistral", "llama3.1"]
@@ -53,5 +83,11 @@ for item in data:
 # Write data to JSON file
 with open(output_file, "w") as outfile:
   json.dump(data, outfile, indent=4)
+
+print("Selected chat models:", chatModels)
+print("Selected embedding models:", embeddingModels)
+print("Selected tools models:", toolsModels)
+print("Selected vision models:", visionModels)
+print("Selected code models:", codeModels)
 
 print(f"Data successfully written to {output_file}.")

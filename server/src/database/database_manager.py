@@ -55,9 +55,9 @@ class DatabaseManager:
         with Session(self._engine) as session:
             return session.query(AgentMetadata).all()
 
-    def load_model(self, id: str) -> AgentMetadata | None:
-        with Session(self._engine) as session:
-            return session.get(AgentMetadata, id)
+    # def load_model(self, id: str) -> AgentMetadata | None:
+    #     with Session(self._engine) as session:
+    #         return session.get(AgentMetadata, id)
         
     def update_agent(self, id: str, request: UpdateAgentRequest) -> CreateOrUpdateAgentResponse:
         with Session(self._engine) as session:

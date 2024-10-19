@@ -7,10 +7,9 @@ import {
     LightbulbFilamentRegular as AiIcon,
   } from '@fluentui/react-icons';
 import { Text } from '@fluentui/react/lib/Text';
-import { Marked } from "marked";
-import { types, consts } from "aifoundry-vscode-shared";
+import { ChatHistoryMessageContentUtils, types, consts } from "aifoundry-vscode-shared";
 import { appendChatUserMessage } from "../store/chatInfoSlice";
-import { getTextColor, getBackgroundColor, getChatBgColorUser, getChatBgColorAi } from "../Theme";
+import { getTextColor, getBackgroundColor, getChatBgColorUser, getChatBgColorAi } from "../theme/themes";
 import { RootState, store } from "../store/store";
 import WebApiImageUtils from "../utils/WebApiImageUtils";
 
@@ -25,8 +24,8 @@ interface Props {
 const ICON_SIZE = 32;
 
 // Add converted content to the message, e.g. convert markdown to HTML
-type PageChatHistoryMessage = types.api.ChatHistoryMessage & {
-    convertedContent?: string;
+type PageChatHistoryMessage = types.database.ChatHistoryMessage & {
+    convertedContent: string;
 };
 
 const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
@@ -36,45 +35,21 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
     const chatBgColorUser = React.useMemo(() => getChatBgColorUser(), []);
     const chatBgColorAi = React.useMemo(() => getChatBgColorAi(), []);
     const chatHistoryMessages = useSelector((state: RootState) => state.chatInfo.messages);
-    const [pageChatHistoryMessages, setPageChatHistoryMessages] = React.useState<PageChatHistoryMessage[]>(chatHistoryMessages);
+    const [pageChatHistoryMessages, setPageChatHistoryMessages] = React.useState<PageChatHistoryMessage[]>([]);
     const aifSessionId = useSelector((state: RootState) => state.chatInfo.aifSessionId);
     const [inputText, setInputText] = React.useState('');
-    const [chatHistoryMessageFiles, setChatHistoryMessageFiles] = React.useState<types.api.ChatHistoryMessageFile[]>([]);
-
-    const marked = React.useMemo(() => {
-        return new Marked();
-    }, []);
+    const [chatHistoryMessageFiles, setChatHistoryMessageFiles] = React.useState<types.UploadFileInfo[]>([]);
 
     React.useEffect(() => {
-        setPageChatHistoryMessages(chatHistoryMessages);
-    }, [chatHistoryMessages]);
-
-    React.useEffect(() => {
-        async function convert() {
-            let found = false;
-            const _pageChatHistoryMessages: PageChatHistoryMessage[] = [];
-            for (const message of pageChatHistoryMessages) {
-                if (message.convertedContent) {
-                    _pageChatHistoryMessages.push({...message});
-                } else {
-                    found = true;
-                    if (message.contentTextFormat === "markdown") {
-                        const convertedContent = (await marked.parse(message.content)) ?? message.content;
-                        _pageChatHistoryMessages.push({...message, convertedContent});
-                    } else {
-                        const convertedContent = message.content;
-                        _pageChatHistoryMessages.push({...message, convertedContent});
-                    }
-                    // _pageChatHistoryMessages.push(message);
-                }
-            }
-
-            if (found) {
-                setPageChatHistoryMessages(_pageChatHistoryMessages);
-            }
+        async function run() {
+            const _pageChatHistoryMessages = await Promise.all(chatHistoryMessages.map(async (message) => {
+                const convertedContent = await ChatHistoryMessageContentUtils.getAndConvertMessageContentText(message.content, message.contentTextFormat as types.api.TextFormat) ?? "";
+                return {...message, convertedContent};
+            }));
+            setPageChatHistoryMessages(_pageChatHistoryMessages);
         }
-        convert();
-    }, [pageChatHistoryMessages, marked]);
+        run();
+    }, [chatHistoryMessages]);
 
     React.useEffect(() => {
         const inputField = document.getElementById("chat-input");
@@ -102,18 +77,10 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
         setChatHistoryMessageFiles([]);
 
         // Update Redux store for user chat message
-        const promises = chatHistoryMessageFiles.map((file) => {
-            return new Promise<types.api.ChatHistoryMessageFile>((resolve, reject) => {
-                WebApiImageUtils.resizeDataUrl(file.dataUri, { maxHeight: consts.THUMBNAIL_HEIGHT }).then((dataUri) => {
-                    resolve({ type: file.type, fileName: file.fileName, dataUri });
-                })
-            });
-        });
-        Promise.all(promises).then((thumbNailFiles) => {
+        WebApiImageUtils.batchResizeUploadFileInfo(chatHistoryMessageFiles, { maxHeight: consts.THUMBNAIL_HEIGHT }).then((thumbNailFiles) => {
             store.dispatch(appendChatUserMessage({
-                content: inputText,
+                content: ChatHistoryMessageContentUtils.createChatHistoryMessageContent(inputText, thumbNailFiles),
                 contentTextFormat: props.outputFormat,
-                files: thumbNailFiles,
             }));
         });
 
@@ -131,13 +98,14 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
         async function process() {
             const files = event?.target?.files ?? [];
             const imageOptions = { maxWidth: consts.UPLOAD_IMAGE_MAX_WIDTH, maxHeight: consts.UPLOAD_IMAGE_MAX_HEIGHT };
-            const _chatHistoryMessageFiles: types.api.ChatHistoryMessageFile[] = [];
+            const _chatHistoryMessageFiles: types.UploadFileInfo[] = [];
             for await (const file of files) {
-                const dataUrl = await WebApiImageUtils.readImageFileToDataUrl(file, imageOptions);
+                const response = await WebApiImageUtils.readImageFileToDataUrl(file, imageOptions);
                 _chatHistoryMessageFiles.push({
                     type: "image",
                     fileName: file.name,
-                    dataUri: dataUrl,
+                    data: response.data,
+                    dataUrlPrefix: response.dataUrlPrefix,
                 });
             }
             setChatHistoryMessageFiles(_chatHistoryMessageFiles);
@@ -155,15 +123,11 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
                 </Stack.Item>
                 <Stack.Item grow style={{ backgroundColor: isUser ? chatBgColorUser : chatBgColorAi }}>
                     <Text style={{ color: textColor, marginLeft: '8px', marginRight: '8px' }}>
-                        <div style={{ marginLeft: '8px', marginRight: '8px' }} dangerouslySetInnerHTML={{ __html: message.convertedContent ?? message.content }} />
+                        <div style={{ marginLeft: '8px', marginRight: '8px' }} dangerouslySetInnerHTML={{ __html: message.convertedContent }} />
                     </Text>
-                    {message.files && <>
-                        {message.files.map((file, index) => {
-                            return (
-                                <FluentUIImage key={`file-${index}`} src={file.dataUri} alt={file.fileName} style={{ padding: '2px', border: 2, borderColor: 'black' }} />
-                            );
-                        })}
-                    </>}
+                    {ChatHistoryMessageContentUtils.getMessageContentImageUrl(message.content).map((imageUrl, index) =>
+                        <FluentUIImage key={`file-${index}`} src={imageUrl} style={{ padding: '2px', border: 2, borderColor: 'black' }} />
+                    )}
                 </Stack.Item>
                 <Stack.Item styles={{ root: { width: ICON_SIZE } }}>
                     <AiIcon style={{ width: ICON_SIZE, height: ICON_SIZE, visibility: !isUser ? "visible" : "hidden" }} />

@@ -191,6 +191,7 @@ class AifPanel {
 
 		const aifConfigModeKey = `${consts.AifConfigKeyPrefix}${consts.AifConfig.mode}`;
 		const aifConfigHomeDirKey = `${consts.AifConfigKeyPrefix}${consts.AifConfig.homedir}`;
+		const aifConfigPlatformKey = `${consts.AifConfigKeyPrefix}${consts.AifConfig.platform}`;
 
 		const html = `<!DOCTYPE html>
 			<html lang="en">
@@ -200,7 +201,7 @@ class AifPanel {
 				<title>AI Foundry</title>
 			</head>
 			<body>
-				<div id="root" ${aifConfigModeKey}="vscodeext" ${aifConfigHomeDirKey}="${os.homedir()}"></div>
+				<div id="root" ${aifConfigModeKey}="vscodeext" ${aifConfigHomeDirKey}="${os.homedir()}" ${aifConfigPlatformKey}="${process.platform}"></div>
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
 			</html>`;

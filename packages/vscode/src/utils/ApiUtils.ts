@@ -8,6 +8,44 @@ namespace ApiUtils {
             });
         }
     }
+
+    export function handleApiErrorResponse(response: string | Error, showErrorMessage: any): void {
+        if (typeof response === "string") {
+            const error = JSON.parse(response);
+            showErrorMessage(error.error);
+        } else {
+            showErrorMessage(response.message ?? response);
+        }
+    }
+
+    export function apiPoller<T>(apiCall: () => Promise<T>, isSuccess: (res: T) => boolean, interval: number, maxAttempts: number): Promise<T> {
+        return new Promise((resolve, reject) => {
+            let attempts = 0;
+
+            function failureHandler(error: any) {
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    reject(error);
+                } else {
+                    setTimeout(poll, interval);
+                }
+            }
+
+            const poll = async () => {
+                try {
+                    const response = await apiCall();
+                    if (isSuccess(response)) {
+                        resolve(response);
+                    } else {
+                        failureHandler("Max attempts reached");
+                    }
+                } catch (error) {
+                    failureHandler(error);
+                }
+            };
+            poll();
+        });
+    }
 }
 
 export default ApiUtils;

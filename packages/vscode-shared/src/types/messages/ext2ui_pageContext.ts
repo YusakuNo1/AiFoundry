@@ -1,6 +1,6 @@
 import { FunctionMetadata } from '../api/functions';
-import { EmbeddingInfo } from '../api/embeddings';
-import { AgentInfo } from '../api/agents';
+import { EmbeddingMetadata } from '../database/EmbeddingMetadata';
+import { AgentMetadata } from '../database/AgentMetadata';
 import { TextFormat } from '../api/chat';
 import * as shared from "./shared";
 
@@ -10,8 +10,8 @@ export type IPageContext = {
 };
 
 export type PageContextHome = IPageContext;
-export type PageContextEmbeddings = IPageContext & { data: EmbeddingInfo };
-export type PageContextAgentDetails = IPageContext & { data: AgentInfo };
+export type PageContextEmbeddings = IPageContext & { data: EmbeddingMetadata };
+export type PageContextAgentDetails = IPageContext & { data: AgentMetadata };
 export type PageContextModelPlayground = IPageContext & { data: {
     aifAgentUri: string,
     outputFormat: TextFormat,

@@ -10,7 +10,6 @@ import {
     updateEmbeddings,
     updateFunctions,
     updateLmProviders,
-    updateSystemMenuItemMap,
 } from "./store/serverDataSlice";
 
 
@@ -51,11 +50,6 @@ namespace AppEventUtils {
                             contentTextFormat: data.contentTextFormat,
                         })
                     );
-                } else if (message.type === "updateSystemMenuItemMap") {
-                    const data = (
-                        message as types.MessageStoreUpdateSystemMenuItemMap
-                    ).data;
-                    store.dispatch(updateSystemMenuItemMap(data));
                 } else if (message.type === "updateLastChatAssistantMessage") {
                     const data = (message as types.MessageStoreAppendChatAssistantMessage).data;
                     store.dispatch(updateLastChatAssistantMessage(data));

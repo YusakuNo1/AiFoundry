@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useSelector } from "react-redux";
-import { types } from "aifoundry-vscode-shared";
+import { consts, types } from "aifoundry-vscode-shared";
 import { store } from "../store/store";
 import { pageInfoSlice } from "../store/pageInfoSlice";
 import BasePage, { RowSelectionItem } from "./BasePage";
@@ -9,12 +9,12 @@ import { RootState } from '../store/store';
 
 
 interface Props {
-    data: types.api.AgentInfo;
+    data: types.database.AgentMetadata;
     onPostMessage: (message: types.IMessage) => void;
 }
 
 const AgentDetailsPage: React.FC<Props> = (props: Props) => {
-    const [outputFormat, setOutputFormat] = React.useState<types.api.TextFormat>(types.api.defaultTextFormat);
+    const [outputFormatIndex, setOutputFormatIndex] = React.useState<number>(types.api.TextFormats.indexOf(types.api.defaultTextFormat));
     const embeddings = useSelector((state: RootState) => state.serverData.embeddings);
     const functions = useSelector((state: RootState) => state.serverData.functions);
 
@@ -26,16 +26,18 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
         };
         props.onPostMessage(messageApiGetEmbeddings);
 
-        const messageApiGetFunctions: types.MessageApiListFunctions = {
-            aifMessageType: "api",
-            type: "api:listFunctions",
-            data: {},
-        };
-        props.onPostMessage(messageApiGetFunctions);
+        if (consts.AppConfig.ENABLE_FUNCTIONS) {
+            const messageApiGetFunctions: types.MessageApiListFunctions = {
+                aifMessageType: "api",
+                type: "api:listFunctions",
+                data: {},
+            };
+            props.onPostMessage(messageApiGetFunctions);
+        }
     }, [props]);
 
     const embeddingMap = React.useMemo(() => {
-        const map: Record<string, types.api.EmbeddingInfo> = {};
+        const map: Record<string, types.database.EmbeddingMetadata> = {};
         embeddings.forEach(embedding => map[embedding.id] = embedding);
         return map;
     }, [embeddings]);
@@ -63,7 +65,7 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
                 aifMessageType,
                 type,
                 data: {
-                    system_prompt: props.data.system_prompt,
+                    systemPrompt: props.data.systemPrompt,
                     id: props.data.id,
                 },
             };
@@ -85,44 +87,35 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
         const pageContext: types.PageContextModelPlayground = {
             pageType: "modelPlayground",
             data: {
-                aifAgentUri: props.data.agent_uri,
-                outputFormat,
+                aifAgentUri: props.data.agentUri,
+                outputFormat: types.api.TextFormats[outputFormatIndex],
             }
         };
         store.dispatch(pageInfoSlice.actions.setPageContext(pageContext));
-    }, [props.data?.agent_uri, outputFormat]);
+    }, [props.data?.agentUri, outputFormatIndex]);
 
-    const outputFormatRow: RowSelectionItem = React.useMemo(() => {
-        const textFormatKeys = types.api.TextFormats;
-        const textFormatValues = types.api.TextFormats.map(key => types.api.TextFormatDisplayNames[key]);
-        let options: Record<string, string> = {};
-        for (let i=0; i<textFormatKeys.length; i++) {
-            options[textFormatValues[i]] = textFormatKeys[i];
-        }
+    const outputFormatOptions: string[] = React.useMemo(() => {
+        return types.api.TextFormats.map(key => key);
+    }, []);
 
-        return {
-            selectedIndex: 0,
-            options,
-            onChanged: (value: string) => {
-                const index = Math.max(0, textFormatValues.indexOf(value)); // Ensure index is valid
-                setOutputFormat(textFormatKeys[index]);
-            },
-        };
-    }, [setOutputFormat]);
+    const onChangeOutputFormat = React.useCallback((value: string) => {
+        const index = types.api.TextFormats.indexOf(value as types.api.TextFormat); // Ensure index is valid
+        setOutputFormatIndex(index);
+    }, [setOutputFormatIndex]);
 
     const ragAssetsItems = React.useMemo(() => {
-        return props.data?.rag_asset_ids?.map(id => {
+        return props.data?.ragAssetIds?.map(id => {
             const name = embeddingMap[id]?.name ? `${embeddingMap[id].name} (${id})` : id;
             return { name };
         }) ?? [];
-    }, [props.data?.rag_asset_ids, embeddingMap]);
+    }, [props.data?.ragAssetIds, embeddingMap]);
 
     const functionAssetsItems = React.useMemo(() => {
-        return props.data?.function_asset_ids?.map(id => {
+        return props.data?.functionAssetIds?.map(id => {
             const name = functionMap[id]?.name ? `${functionMap[id].name} (${id})` : id;
             return { name };
         }) ?? [];
-    }, [props.data?.function_asset_ids, functionMap]);
+    }, [props.data?.functionAssetIds, functionMap]);
 
     if (!props.data) {
         // With React router, the page might be rendered before switching to the correct page
@@ -138,14 +131,18 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
                 { width: "10%" },
             ]}
             rows={[
-                { type: "label", key: "id", label: "ID", item: { name: props.data?.id }},
+                // { type: "label", key: "id", label: "ID", item: { name: props.data?.id }},
                 { type: "label", key: "name", label: "Name", item: { name: props.data?.name, onClick: () => onPostMessage("agent:update:name") }},
-                { type: "label", key: "agent_uri", label: "URI", item: { name: props.data?.agent_uri }},
-                { type: "label", key: "base_model_uri", label: "Base Model URI", item: { name: props.data?.base_model_uri }},
-                { type: "label", key: "system_prompt", label: "System Prompt", item: { name: props.data?.system_prompt, onClick: () => onPostMessage("agent:update:systemPrompt") }},
-                { type: "collection", key: "rag_asset_ids", label: "RAG Assets", item: ragAssetsItems },
-                { type: "collection", key: "function_asset_ids", label: "Function Calling Assets", item: functionAssetsItems },
-                { type: "selection", key: "output_format", label: "Output Format", item: outputFormatRow},
+                { type: "label", key: "agentUri", label: "URI", item: { name: props.data?.agentUri }},
+                { type: "label", key: "basemodelUri", label: "Base Model", item: { name: props.data?.basemodelUri }},
+                { type: "label", key: "systemPrompt", label: "System Prompt", item: { name: props.data?.systemPrompt, onClick: () => onPostMessage("agent:update:systemPrompt") }},
+                { type: "collection", key: "ragAssetIds", label: "RAG Assets", item: ragAssetsItems },
+                // { type: "collection", key: "functionAssetIds", label: "Function Calling Assets", item: functionAssetsItems },
+                { type: "selection", key: "output_format", label: "Output Format", item: {
+                    selectedIndex: outputFormatIndex,
+                    options: outputFormatOptions,
+                    onChanged: onChangeOutputFormat,
+                }},
             ]} actionButtons={[
                 { key: "model-playground", label: "Playground", onClick: () => onShowModelPlayground() },
             ]}

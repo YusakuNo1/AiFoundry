@@ -5,7 +5,7 @@ namespace AifPanelTypes {
 		main: IViewProvider,
 		embeddings: IViewProvider,
 		agents: IViewProvider,
-		functions: IViewProvider,
+		functions: IViewProvider | null,
 	}
 }
 

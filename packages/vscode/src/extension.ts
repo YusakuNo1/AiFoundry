@@ -1,6 +1,7 @@
 'use strict';
 import * as vscode from 'vscode';
 import { consts } from 'aifoundry-vscode-shared';
+import { setupServer } from 'aifoundry-server-js';
 import { VIEW_PROVIDER_RETRY_COUNT } from './viewProviders/base';
 import { AifMainViewProvider } from './viewProviders/main';
 import { AifAgentsViewProvider } from './viewProviders/agents';
@@ -15,13 +16,17 @@ import DockerUtils from './utils/DockerUtils';
 import LaunchUtils from './utils/launchUtils';
 import AifPanelUtils from './panels/AifPanelUtils';
 
-const mode: "dev" | "prod" = "prod";
 
 export function activate(context: vscode.ExtensionContext) {
 	// This function is called when the extension is started
 	LaunchUtils.setupFolders();
-	if (mode === "dev") {
+
+	if (consts.AppConfig.MODE === "dev") {
 		LaunchUtils.installDevExtensions();
+	}
+
+	if ((process.env?.START_SERVER !== "false")) {
+		setupServer();
 	}
 
 	const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
@@ -83,9 +88,12 @@ export function activate(context: vscode.ExtensionContext) {
 	EmbeddingsCommands.setupCommands(context, embeddingsViewProvider);
 
 	// Functions View
-	const functionsViewProvider = new AifFunctionsViewProvider();
-	context.subscriptions.push(vscode.window.registerTreeDataProvider('aiFoundryFunctionsViewId', functionsViewProvider));
-	FunctionsCommands.setupCommands(context, functionsViewProvider);
+	let functionsViewProvider: AifFunctionsViewProvider | null = null;
+	if (consts.AppConfig.ENABLE_FUNCTIONS) {
+		functionsViewProvider = new AifFunctionsViewProvider();
+		context.subscriptions.push(vscode.window.registerTreeDataProvider('aiFoundryFunctionsViewId', functionsViewProvider));
+		FunctionsCommands.setupCommands(context, functionsViewProvider);
+	}
 
 	// Webview
 	const viewProviderMap: AifPanelTypes.ViewProviderMap = {
