@@ -2,7 +2,7 @@
 	"name": "aifoundry",
 	"displayName": "AI Foundry",
 	"description": "AI Foundry is your local LLM/SLM development environment",
-	"version": "0.4.0",
+	"version": "0.5.0",
 	"publisher": "aifoundry",
 	"keywords": [],
 	"author": "David Wu",

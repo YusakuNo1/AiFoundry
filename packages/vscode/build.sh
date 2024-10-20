@@ -1,3 +1,8 @@
+# Pre-release scripts
+cd ../vscode-ui
+npm run release
+cd ../vscode
+
 # Colors
 IRed='\033[0;91m'         # Red
 IYellow='\033[0;93m'      # Yellow

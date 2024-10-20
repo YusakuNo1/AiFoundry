@@ -159,7 +159,6 @@ class DatabaseManager {
     private _setupDataSource(databaseName: string) {
         const assetsPath = AssetUtils.getAssetsPath();
         this._databaseFolderPath = path.join(assetsPath, databaseName);
-        // this._databaseFolderPath = path.join(assetsPath, "db.sqlite3");     // TODO: only for testing
 
         // In solution for JSON based database, databaseName is the folder for all the json files
         if (!fs.existsSync(this._databaseFolderPath)) {

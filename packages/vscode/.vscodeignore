@@ -19,6 +19,8 @@ build.sh
 ../../**/CHANGELOG.md
 ../**/LICENSE
 ../../**/LICENSE
+../**/LICENSE.md
+../../**/LICENSE.md
 
 **/tsconfig.json
 ../**/tsconfig.json
