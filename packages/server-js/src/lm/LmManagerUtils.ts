@@ -10,7 +10,7 @@ import {
     RunnableMap,
     RunnablePassthrough,
 } from "@langchain/core/runnables";
-import { types } from "aifoundry-vscode-shared";
+import { api, type database, type misc } from "aifoundry-vscode-shared";
 import LmBaseProvider from './LmBaseProvider';
 import DatabaseManager from "../database/DatabaseManager";
 import { HttpException } from '../exceptions';
@@ -69,8 +69,8 @@ namespace LmManagerUtils {
         aifSessionId: string,
         agentId: string,
         input: string,
-        inputMessageContent: types.database.ChatHistoryMessageContent,
-        outputFormat: types.api.TextFormat,
+        inputMessageContent: database.ChatHistoryMessageContent,
+        outputFormat: api.TextFormat,
     ) {
         const agentMetadata = databaseManager.getAgent(agentId);
         if (!agentMetadata) {
@@ -86,7 +86,7 @@ namespace LmManagerUtils {
     async function _getRagContext(
         databaseManager: DatabaseManager,
         lmProviderMap: Record<string, LmBaseProvider>,
-        agentMetadata: types.database.AgentMetadata,
+        agentMetadata: database.AgentMetadata,
         input: string,
     ) {
         const docPromises = agentMetadata.ragAssetIds.map((assetId) => LmManagerUtils.loadDocFromVectorStore(databaseManager, lmProviderMap, input, assetId));
@@ -99,15 +99,15 @@ namespace LmManagerUtils {
         databaseManager: DatabaseManager,
         lmProviderMap: Record<string, LmBaseProvider>,
         aifSessionId: string,
-        agentMetadata: types.database.AgentMetadata,
+        agentMetadata: database.AgentMetadata,
         input: string,
-        inputMessageContent: types.database.ChatHistoryMessageContent,
-        outputFormat: types.api.TextFormat,
+        inputMessageContent: database.ChatHistoryMessageContent,
+        outputFormat: api.TextFormat,
     ) {
         const chatHistory = databaseManager.getChatHistory(aifSessionId);
         let _systemPromptString = `
 ${agentMetadata.systemPrompt}
-${types.api.TextFormatPrompts[outputFormat] ?? ""}`;
+${api.TextFormatPrompts[outputFormat] ?? ""}`;
 
         if (agentMetadata.ragAssetIds.length > 0) {
             const ragContext = await _getRagContext(databaseManager, lmProviderMap, agentMetadata, input);
@@ -117,10 +117,10 @@ ${types.api.TextFormatPrompts[outputFormat] ?? ""}`;
         const messages: BaseMessage[] = [];
         messages.push(new SystemMessage(_systemPromptString));
 
-        for (const chatMessage of ((chatHistory?.messages as types.database.ChatHistoryMessage[]) ?? [])) {
-            if (chatMessage.role === types.api.ChatRole.USER) {
+        for (const chatMessage of ((chatHistory?.messages as database.ChatHistoryMessage[]) ?? [])) {
+            if (chatMessage.role === api.ChatRole.USER) {
                 messages.push(new HumanMessage({ content: chatMessage.content }));
-            } else if (chatMessage.role === types.api.ChatRole.ASSISTANT) {
+            } else if (chatMessage.role === api.ChatRole.ASSISTANT) {
                 messages.push(new AIMessage({ content: chatMessage.content }));
             }
         }
@@ -130,8 +130,8 @@ ${types.api.TextFormatPrompts[outputFormat] ?? ""}`;
         return prompt;
     }
 
-    export function createMessageContent(input: string, files?: types.UploadFileInfo[]): types.database.ChatHistoryMessageContent {
-        const messageContent: types.database.ChatHistoryMessageContent = [{
+    export function createMessageContent(input: string, files?: misc.UploadFileInfo[]): database.ChatHistoryMessageContent {
+        const messageContent: database.ChatHistoryMessageContent = [{
             type: "text",
             text: input,
         }];

@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 // import type { RootState } from "./store";
-import type { types } from "aifoundry-vscode-shared";
+import type { messages } from "aifoundry-vscode-shared";
 
 interface PageInfoState {
-    pageContext: types.IPageContext;
+    pageContext: messages.IPageContext;
 }
 
 const initialState: PageInfoState = {
@@ -16,7 +16,7 @@ export const pageInfoSlice = createSlice({
     name: "pageInfo",
     initialState,
     reducers: {
-        setPageContext: (state, action: PayloadAction<types.IPageContext>) => {
+        setPageContext: (state, action: PayloadAction<messages.IPageContext>) => {
             state.pageContext = action.payload;
         },
     },

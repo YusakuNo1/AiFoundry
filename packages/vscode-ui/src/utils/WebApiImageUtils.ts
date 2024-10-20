@@ -2,17 +2,17 @@
  * Image processing with web APIs
  */
 
-import { types } from "aifoundry-vscode-shared";
+import { misc } from "aifoundry-vscode-shared";
 
 namespace WebApiImageUtils {
     export async function batchResizeUploadFileInfo(
-        uploadFileInfoList: types.UploadFileInfo[],
+        uploadFileInfoList: misc.UploadFileInfo[],
         options: { maxWidth?: number, maxHeight?: number },
-    ): Promise<types.UploadFileInfo[]> {
+    ): Promise<misc.UploadFileInfo[]> {
         const promises = uploadFileInfoList.map((file) => {
-            return new Promise<types.UploadFileInfo>((resolve, reject) => {
+            return new Promise<misc.UploadFileInfo>((resolve, reject) => {
                 _resizeDataUrl(file.dataUrlPrefix + file.data, options).then((dataUrl) => {
-                    const dataUrlInfo = types.convertToDataUrlInfo(dataUrl);
+                    const dataUrlInfo = misc.convertToDataUrlInfo(dataUrl);
                     resolve({ type: file.type, fileName: file.fileName, data: dataUrlInfo.data, dataUrlPrefix: dataUrlInfo.dataUrlPrefix });
                 })
             });
@@ -20,17 +20,17 @@ namespace WebApiImageUtils {
         return await Promise.all(promises);
     }
 
-    export async function readImageFileToDataUrl(file: File, options?: { maxWidth?: number, maxHeight?: number }): Promise<types.DataUrlInfo> {
-        return new Promise<types.DataUrlInfo>((resolve, reject) => {
+    export async function readImageFileToDataUrl(file: File, options?: { maxWidth?: number, maxHeight?: number }): Promise<misc.DataUrlInfo> {
+        return new Promise<misc.DataUrlInfo>((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 if (!options || (!options.maxWidth && !options.maxHeight)) {
                     const dataUrl = e.target?.result as string;
-                    resolve(types.convertToDataUrlInfo(dataUrl));
+                    resolve(misc.convertToDataUrlInfo(dataUrl));
                     return;
                 } else {
                     _resizeDataUrl(e.target?.result as string, options).then((dataUrl) => {
-                        resolve(types.convertToDataUrlInfo(dataUrl));
+                        resolve(misc.convertToDataUrlInfo(dataUrl));
                     });
                 }
             };

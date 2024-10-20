@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
+import { AifUtils, type api, consts, messages } from 'aifoundry-vscode-shared';
 import AifPanelTypes from './types';
 import ChatAPI from '../api/ChatAPI';
 import LanguageModelsAPI from '../api/LanguageModelsAPI';
@@ -14,13 +14,13 @@ import ApiUtils from '../utils/ApiUtils';
 
 
 namespace AifPanelEvenHandlers {
-    export function webviewHostMsgEventHandler(message: types.IMessage, postMessage: (message: types.IMessage) => void): void {
-        const _message = message as types.MessageHostMsg;
+    export function webviewHostMsgEventHandler(message: messages.IMessage, postMessage: (message: messages.IMessage) => void): void {
+        const _message = message as messages.MessageHostMsg;
         if (_message.type === 'executeCommand') {
-            const _message = message as types.MessageHostMsgExecuteCommand;
+            const _message = message as messages.MessageHostMsgExecuteCommand;
             vscode.commands.executeCommand(_message.data.command);
         } else if (_message.type === 'showMessage') {
-            const _message = message as types.MessageHostMsgShowMessage;
+            const _message = message as messages.MessageHostMsgShowMessage;
             if (_message.data.type === 'info') {
                 vscode.window.showInformationMessage(_message.data.message);
             } else if (_message.data.type === 'warning') {
@@ -31,45 +31,45 @@ namespace AifPanelEvenHandlers {
         }
     }
 
-    export function webviewEditInfoEventHandler(message: types.IMessage, viewProviderMap: AifPanelTypes.ViewProviderMap | undefined): void {
-        const _message = message as types.MessageEditInfo;
-        if (viewProviderMap?.embeddings && types.MessageEditInfoEmbeddingsTypes.includes(_message.type as types.MessageEditInfoEmbeddingsType)) {
+    export function webviewEditInfoEventHandler(message: messages.IMessage, viewProviderMap: AifPanelTypes.ViewProviderMap | undefined): void {
+        const _message = message as messages.MessageEditInfo;
+        if (viewProviderMap?.embeddings && messages.MessageEditInfoEmbeddingsTypes.includes(_message.type as messages.MessageEditInfoEmbeddingsType)) {
             if (_message.type === 'UpdateEmbeddingName') {
-                const messageEditInfo = message as types.MessageEditInfoEmbeddingName;
+                const messageEditInfo = message as messages.MessageEditInfoEmbeddingName;
                 EmbeddingsCommands.startUpdateEmbeddingNameFlow(viewProviderMap.embeddings, messageEditInfo.data.aifEmbeddingAssetId, messageEditInfo.data.name);
             } else if (_message.type === 'UpdateEmbeddingDoc') {
-                const messageEditInfo = message as types.MessageEditInfoEmbeddingUpdateDoc;
+                const messageEditInfo = message as messages.MessageEditInfoEmbeddingUpdateDoc;
                 EmbeddingsCommands.startUpdateEmbeddingDocumentFlow(viewProviderMap.embeddings, messageEditInfo.data.aifEmbeddingAssetId);
             } else if (_message.type === 'DeleteEmbedding') {
-                const messageEditInfo = message as types.MessageEditInfoDeleteEmbedding;
+                const messageEditInfo = message as messages.MessageEditInfoDeleteEmbedding;
                 EmbeddingsCommands.startDeleteEmbeddingFlow(viewProviderMap.embeddings, messageEditInfo.data.aifEmbeddingAssetId);
             }
-        } else if (viewProviderMap?.agents && types.MessageEditInfoAgentsTypes.includes(_message.type as types.MessageEditInfoAgentsType)) {
+        } else if (viewProviderMap?.agents && messages.MessageEditInfoAgentsTypes.includes(_message.type as messages.MessageEditInfoAgentsType)) {
             if (_message.type === 'agent:update:name') {
-                const messageEditInfo = message as types.MessageEditInfoAgentName;
+                const messageEditInfo = message as messages.MessageEditInfoAgentName;
                 AgentsCommands.startupdateAgentNameFlow(viewProviderMap.agents, messageEditInfo.data.id, messageEditInfo.data.name);
             } else if (_message.type === 'agent:update:systemPrompt') {
-                const messageEditInfo = message as types.MessageEditInfoAgentsystemPrompt;
+                const messageEditInfo = message as messages.MessageEditInfoAgentsystemPrompt;
                 AgentsCommands.startupdateAgentSystemPromptFlow(viewProviderMap.agents, messageEditInfo.data.id, messageEditInfo.data.systemPrompt);
             } else if (_message.type === 'agent:delete') {
-                const messageEditInfo = message as types.MessageEditInfodeleteAgent;
+                const messageEditInfo = message as messages.MessageEditInfodeleteAgent;
                 AgentsCommands.startdeleteAgentFlow(viewProviderMap.agents, messageEditInfo.data.id);
             }
-        } else if (viewProviderMap?.functions && types.MessageEditInfoFunctionsTypes.includes(_message.type as types.MessageEditInfoFunctionsType)) {
+        } else if (viewProviderMap?.functions && messages.MessageEditInfoFunctionsTypes.includes(_message.type as messages.MessageEditInfoFunctionsType)) {
             if (_message.type === 'function:update:name') {
-                const updateNameMessage = message as types.MessageEditInfoFunctionUpdateName;
+                const updateNameMessage = message as messages.MessageEditInfoFunctionUpdateName;
                 FunctionsCommands.startUpdateFunctionNameFlow(viewProviderMap.functions, updateNameMessage.data.id, updateNameMessage.data.name);
             } else if (_message.type === 'function:openfile') {
-                const openFileMessage = message as types.MessageEditInfoFunctionOpenFile;
+                const openFileMessage = message as messages.MessageEditInfoFunctionOpenFile;
                 vscode.window.showTextDocument(vscode.Uri.file(openFileMessage.data.uri));
             }
         }
     }
 
-    export function webviewApiEventHandler(message: types.IMessage, postMessage: (message: types.IMessage) => void): void {
-        const _message = message as types.MessageApi;
+    export function webviewApiEventHandler(message: messages.IMessage, postMessage: (message: messages.IMessage) => void): void {
+        const _message = message as messages.MessageApi;
         if (_message.type === 'chat:history:get') {
-            const chatHistoryApiMessage = _message as types.MessageApiGetChatHistory;
+            const chatHistoryApiMessage = _message as messages.MessageApiGetChatHistory;
             // ChatAPI.getChatHistory(chatHistoryApiMessage.data).then((response) => {
             // TODO: Implement ChatAPI.getChatHistory
         } else if (_message.type === 'chat:sendMessage') {
@@ -77,11 +77,11 @@ namespace AifPanelEvenHandlers {
         } else if (_message.type === "api:updateLmProviderInfo" || _message.type === "api:updateLmProviderModel") {
             let requestPromise: Promise<any>;
             if (_message.type === "api:updateLmProviderInfo") {
-                const message = _message as types.MessageApiUpdateLmProviderInfo;
-                requestPromise = LanguageModelsAPI.updateLmProviderInfo(message.data as types.api.UpdateLmProviderInfoRequest);
+                const message = _message as messages.MessageApiUpdateLmProviderInfo;
+                requestPromise = LanguageModelsAPI.updateLmProviderInfo(message.data as api.UpdateLmProviderInfoRequest);
             } else {
-                const message = _message as types.MessageApiUpdateLmProviderModel;
-                requestPromise = LanguageModelsAPI.updateLmProviderModel(message.data as types.api.UpdateLmProviderModelRequest);
+                const message = _message as messages.MessageApiUpdateLmProviderModel;
+                requestPromise = LanguageModelsAPI.updateLmProviderModel(message.data as api.UpdateLmProviderModelRequest);
             }
 
             const successMessage = _message.type === "api:updateLmProviderInfo" ? "Language model provider setup successfully" : undefined;
@@ -95,7 +95,7 @@ namespace AifPanelEvenHandlers {
         } else if (_message.type === "api:getEmbeddings") {
             EmbeddingsAPI.getEmbeddings()
                 .then(response => {
-                    const message: types.MessageStoreUpdateEmbeddings = {
+                    const message: messages.MessageStoreUpdateEmbeddings = {
                         aifMessageType: 'store:update',
                         type: 'updateEmbeddings',
                         data: {
@@ -110,7 +110,7 @@ namespace AifPanelEvenHandlers {
         } else if (_message.type === "api:listFunctions") {
             FunctionsAPI.listFunctions()
                 .then(response => {
-                    const message: types.MessageStoreUpdateFunctions = {
+                    const message: messages.MessageStoreUpdateFunctions = {
                         aifMessageType: 'store:update',
                         type: 'updateFunctions',
                         data: {
@@ -123,7 +123,7 @@ namespace AifPanelEvenHandlers {
                     vscode.window.showErrorMessage("Error listing functions: " + error);
                 });
         } else if (_message.type === "api:download:model") {
-            const message = _message as types.MessageApiDownloadModel;
+            const message = _message as messages.MessageApiDownloadModel;
             const uriInfo = AifUtils.extractAiUri(null, message.data.modelUri);
             if (uriInfo && uriInfo.parts.length === 1) {
                 const lmProviderId = uriInfo.protocol;
@@ -139,7 +139,7 @@ namespace AifPanelEvenHandlers {
                 });
             }
         } else if (_message.type === "api:delete:model") {
-            const message = _message as types.MessageApiDeleteModel;
+            const message = _message as messages.MessageApiDeleteModel;
             const uriInfo = AifUtils.extractAiUri(null, message.data.modelUri);
             if (uriInfo && uriInfo.parts.length === 1) {
                 const lmProviderId = uriInfo.protocol;
@@ -151,11 +151,11 @@ namespace AifPanelEvenHandlers {
                 });
             }
         } else if (_message.type === "api:setup:lmProvider") {
-            const message = _message as types.MessageApiSetupLmProvider;
+            const message = _message as messages.MessageApiSetupLmProvider;
             const sub = LanguageModelsAPI.setupLmProvider(message.data.id);
             sub.subscribe({
                 next: (message) => {
-                    const msgObj = JSON.parse(message) as types.api.ApiOutputMessage;
+                    const msgObj = JSON.parse(message) as api.ApiOutputMessage;
                     ApiOutputMessageUtils.show(msgObj);
                 },
                 complete: () => {
@@ -177,8 +177,8 @@ namespace AifPanelEvenHandlers {
         }
     }
 
-    export function postMessageUpdateLmProviders(providers: types.api.LmProviderInfoResponse[], postMessage: (message: types.IMessage) => void): void {
-        const message: types.MessageStoreUpdateLmProviders = {
+    export function postMessageUpdateLmProviders(providers: api.LmProviderInfoResponse[], postMessage: (message: messages.IMessage) => void): void {
+        const message: messages.MessageStoreUpdateLmProviders = {
             aifMessageType: 'store:update',
             type: 'updateLmProviders',
             data: {
@@ -188,7 +188,7 @@ namespace AifPanelEvenHandlers {
         postMessage(message);
     }
 
-    async function _updateLmProviders(successMessage: string | undefined, postMessage: (message: types.IMessage) => void) {
+    async function _updateLmProviders(successMessage: string | undefined, postMessage: (message: messages.IMessage) => void) {
         return LanguageModelsAPI.listLmProviders(true)
             .then(response => postMessageUpdateLmProviders(response.providers, postMessage))
             .then(() => vscode.commands.executeCommand('AiFoundry.refreshMainView', 1))
@@ -198,11 +198,11 @@ namespace AifPanelEvenHandlers {
             });
     }
     
-    async function _chatSendMessage(_message: types.IMessage, postMessage: (message: types.IMessage) => void) {
-        const chatSendApiMessage = _message as types.MessageApiChatSendMessage;
+    async function _chatSendMessage(_message: messages.IMessage, postMessage: (message: messages.IMessage) => void) {
+        const chatSendApiMessage = _message as messages.MessageApiChatSendMessage;
         const files: File[] = [];
 
-        // Convert types.api.ChatHistoryMessageFile to File
+        // Convert api.ChatHistoryMessageFile to File
         for (const chatHistoryMessageFile of chatSendApiMessage.data.files) {
             const file = await FileUtils.convertChatHistoryMessageFileToFile(chatHistoryMessageFile);
             files.push(file);
@@ -225,7 +225,7 @@ namespace AifPanelEvenHandlers {
                         aifSessionId = result.value;
                     }
                 } else {
-                    const messsage: types.MessageStoreAppendToLastChatAssistantMessage = {
+                    const messsage: messages.MessageStoreAppendToLastChatAssistantMessage = {
                         aifMessageType: 'store:update',
                         type: 'appendToLastChatAssistantMessage',
                         data: {

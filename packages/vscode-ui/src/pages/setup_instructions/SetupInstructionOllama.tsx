@@ -1,6 +1,6 @@
 import React from 'react';
 import { Divider, Text, Link, Button, Table, TableBody, TableRow, TableCell } from "@fluentui/react-components";
-import { consts, types } from 'aifoundry-vscode-shared';
+import { consts, messages } from 'aifoundry-vscode-shared';
 import ConfigUtils from '../../utils/ConfigUtils';
 
 const platforms = ["win32", "darwin", "linux"] as const;
@@ -28,11 +28,11 @@ const ollamaDownloadInstructions: Record<PlatformType, { name: string, url: stri
 }
 
 type Props = {
-    onPostMessage: (message: types.IMessage) => void;
+    onPostMessage: (message: messages.IMessage) => void;
 }
 const SetupInstructionOllama = (props: Props) => {
     const onPostMessage = React.useCallback(() => {
-        const message: types.MessageApiSetupLmProvider = {
+        const message: messages.MessageApiSetupLmProvider = {
             aifMessageType: "api",
             type: "api:setup:lmProvider",
             data: {

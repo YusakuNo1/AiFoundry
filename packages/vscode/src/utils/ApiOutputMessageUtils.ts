@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import type { types } from "aifoundry-vscode-shared";
+import type { api } from "aifoundry-vscode-shared";
 
 namespace ApiOutputMessageUtils {
-    export function show(message: types.api.ApiOutputMessage) {
+    export function show(message: api.ApiOutputMessage) {
         if (message.type === "info" || message.type === "success") {
             vscode.window.showInformationMessage(message.message);
         } else if (message.type === "warning") {

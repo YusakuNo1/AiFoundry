@@ -1,4 +1,4 @@
-import { types } from "aifoundry-vscode-shared";
+import { database } from "aifoundry-vscode-shared";
 import DatabaseManager from "../DatabaseManager";
 import { removeDatabaseFile } from "./testUtils";
 
@@ -56,7 +56,7 @@ describe('AgentMetadata', () => {
 });
 
 function createEmbeddingMetadata(id: string) {
-    return new types.database.EmbeddingMetadata(
+    return new database.EmbeddingMetadata(
         id,
         `embedding-${id}`,
         `vs_provider-${id}`,

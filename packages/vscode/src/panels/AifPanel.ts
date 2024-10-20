@@ -1,7 +1,7 @@
 'use strict';
 import * as os from 'os';
 import * as vscode from 'vscode';
-import { types } from 'aifoundry-vscode-shared';
+import { type messages } from 'aifoundry-vscode-shared';
 import { consts } from 'aifoundry-vscode-shared';
 import AifPanelTypes from './types';
 import EmbeddingsCommands from '../commands/embeddings';
@@ -21,13 +21,13 @@ class AifPanel {
 	// public static readonly command = 'AiFoundry.showPanel';
 
 	private static _webappReady = false;
-	private static _pendingMessages: types.IMessage[] = [];
+	private static _pendingMessages: messages.IMessage[] = [];
 
 	private readonly _panel: vscode.WebviewPanel;
 	private readonly _extensionUri: vscode.Uri;
 	private _disposables: vscode.Disposable[] = [];
 
-	public static createOrShow(viewProviderMap: AifPanelTypes.ViewProviderMap, extensionUri: vscode.Uri, arg?: types.MessageSetPageContext) {
+	public static createOrShow(viewProviderMap: AifPanelTypes.ViewProviderMap, extensionUri: vscode.Uri, arg?: messages.MessageSetPageContext) {
 		AifPanel._viewProviderMap = viewProviderMap;
 
 		const column = vscode.window.activeTextEditor
@@ -72,7 +72,7 @@ class AifPanel {
 		};
 	}
 
-	public static postMessage(message: types.IMessage) {
+	public static postMessage(message: messages.IMessage) {
 		if (!AifPanel._webappReady) {
 			AifPanel._pendingMessages.push(message);
 		} else {
@@ -105,7 +105,7 @@ class AifPanel {
 		// Handle messages from the webview
 		this._panel.webview.onDidReceiveMessage(
 			message => {
-				const msg = message as types.IMessage;
+				const msg = message as messages.IMessage;
 				switch (msg.aifMessageType) {
 					case "webapp:ready": {
 						AifPanel._webappReady = true;
@@ -116,17 +116,17 @@ class AifPanel {
 					}
 
 					case "hostMsg": {
-						AifPanelEvenHandlers.webviewHostMsgEventHandler(msg as types.MessageHostMsg, AifPanel.postMessage);
+						AifPanelEvenHandlers.webviewHostMsgEventHandler(msg as messages.MessageHostMsg, AifPanel.postMessage);
 						break;
 					}
 
 					case "editInfo": {
-						AifPanelEvenHandlers.webviewEditInfoEventHandler(msg as types.MessageEditInfo, AifPanel._viewProviderMap);
+						AifPanelEvenHandlers.webviewEditInfoEventHandler(msg as messages.MessageEditInfo, AifPanel._viewProviderMap);
 						break;
 					}
 
 					case "api": {
-						AifPanelEvenHandlers.webviewApiEventHandler(msg as types.MessageApi, AifPanel.postMessage);
+						AifPanelEvenHandlers.webviewApiEventHandler(msg as messages.MessageApi, AifPanel.postMessage);
 						break;
 					}
 				}

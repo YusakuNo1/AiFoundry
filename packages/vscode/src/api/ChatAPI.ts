@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Observable } from 'rxjs';
-import { consts, types } from 'aifoundry-vscode-shared';
+import { type api, consts } from 'aifoundry-vscode-shared';
 import { APIConfig } from "./config";
 import CookiesUtils from "./CookiesUtils";
 
@@ -9,7 +9,7 @@ namespace ChatAPI {
     export function chat(
         input: string,
         files: File[],
-        outputFormat: types.api.TextFormat,
+        outputFormat: api.TextFormat,
         aifSessionId: string | null,
         aifAgentUri: string,
     ): Observable<string> {

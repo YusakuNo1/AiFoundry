@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Input, Label, Table, TableCell, TableHeader, TableRow, TableHeaderCell, TableBody, Divider } from '@fluentui/react-components';
 import { DefaultButton } from '@fluentui/react/lib/Button';
-import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
+import { AifUtils, type api, consts, type messages } from 'aifoundry-vscode-shared';
 import { RootState } from '../store/store';
 import { getTextColor } from '../theme/themes';
 import LmProviderUpdatePageExpandableInput from './LmProviderUpdatePageExpandableInput';
@@ -13,15 +13,15 @@ import { createMessageApiUpdateLmProviderInfo, createMessageApiUpdateLmProviderM
 
 type Props = {
     lmProviderId: string;
-    onPostMessage: (message: types.IMessage) => void;
+    onPostMessage: (message: messages.IMessage) => void;
 }
 const LmProviderUpdatePage = (props: Props) => {
     const textColor = React.useMemo(() => getTextColor(), []);
     const lmProviders = useSelector((state: RootState) => state.serverData.lmProviders);
-    const [provider, setProvider] = React.useState<types.api.LmProviderInfoResponse | null>(null);
+    const [provider, setProvider] = React.useState<api.LmProviderInfoResponse | null>(null);
     const [requestProperties, setRequestProperties] = React.useState<Record<string, string>>({});
     const [weight, setWeight] = React.useState<string>("");
-    const [models, setModels] = React.useState<types.api.LmProviderBaseModelInfo[]>([]);
+    const [models, setModels] = React.useState<api.LmProviderBaseModelInfo[]>([]);
 
     const lmProvider = React.useMemo(() => {
         for (const _lmProvider of (lmProviders ?? [])) {
@@ -45,7 +45,7 @@ const LmProviderUpdatePage = (props: Props) => {
 
     React.useEffect(() => {
         if (!lmProviders) {
-            const message: types.MessageApiListLmProviders = {
+            const message: messages.MessageApiListLmProviders = {
                 aifMessageType: "api",
                 type: "api:listLmProviders",
                 data: {},
@@ -66,7 +66,7 @@ const LmProviderUpdatePage = (props: Props) => {
     }, [props, weight, requestProperties]);
 
     const onCancel = React.useCallback(() => {
-        const message: types.MessageSetPageContext = {
+        const message: messages.MessageSetPageContext = {
             aifMessageType: "setPageType",
             pageType: "home",
         };
@@ -107,7 +107,7 @@ const LmProviderUpdatePage = (props: Props) => {
         setModels(newModels);
     }, [props, setModels, models]);
 
-    const onAddUserDefinedModel = React.useCallback((modelName: string, llmFeature: types.api.LlmFeature) => {
+    const onAddUserDefinedModel = React.useCallback((modelName: string, llmFeature: api.LlmFeature) => {
         if (consts.EXP_LM_PROVIDER_MODEL_SELECTION_INSTANT_UPDATE) {
             const params = {
                 [consts.UpdateLmProviderBaseModelFeatureKey]: llmFeature,
@@ -134,7 +134,7 @@ const LmProviderUpdatePage = (props: Props) => {
             }
             return;
         } else {
-            const newModel: types.api.LmProviderBaseModelInfo = {
+            const newModel: api.LmProviderBaseModelInfo = {
                 uri: AifUtils.createAifUri(props.lmProviderId, AifUtils.AifUriCategory.Models, modelName),
                 name: modelName,
                 providerId: props.lmProviderId,
@@ -147,7 +147,7 @@ const LmProviderUpdatePage = (props: Props) => {
     }, [models, setModels, props]);
 
     const onDownloadModel = React.useCallback((modelUri: string) => {
-        const message: types.MessageApiDownloadModel = {
+        const message: messages.MessageApiDownloadModel = {
             aifMessageType: "api",
             type: "api:download:model",
             data: {
@@ -158,7 +158,7 @@ const LmProviderUpdatePage = (props: Props) => {
     }, [props]);
 
     const onDeleteModel = React.useCallback((modelUri: string) => {
-        const message: types.MessageApiDeleteModel = {
+        const message: messages.MessageApiDeleteModel = {
             aifMessageType: "api",
             type: "api:delete:model",
             data: {

@@ -1,7 +1,6 @@
 'use strict';
 import * as vscode from 'vscode';
-import type { types } from 'aifoundry-vscode-shared';
-import { consts } from 'aifoundry-vscode-shared';
+import { type api, consts, type database } from 'aifoundry-vscode-shared';
 import EmbeddingsAPI from '../api/EmbeddingsAPI';
 import AgentsAPI from '../api/AgentsAPI';
 import LanguageModelsAPI from '../api/LanguageModelsAPI';
@@ -130,7 +129,7 @@ function _showChatLlmOptions(isCreate: boolean, agentsViewProvider: IViewProvide
 	});
 }
 
-function _showEmbeddingAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, model: types.api.LmProviderBaseModelInfo) {
+function _showEmbeddingAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, model: api.LmProviderBaseModelInfo) {
 	EmbeddingsAPI.getEmbeddings().then((response) => {
 		const options = Object.fromEntries(response.embeddings.map(embedding => [embedding.name, embedding]));
 
@@ -154,7 +153,7 @@ function _showEmbeddingAssetIds(isCreate: boolean, agentsViewProvider: IViewProv
 	});
 }
 
-function _showFunctionsAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, model: types.api.LmProviderBaseModelInfo, embeddings: types.database.EmbeddingMetadata[]) {
+function _showFunctionsAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, model: api.LmProviderBaseModelInfo, embeddings: database.EmbeddingMetadata[]) {
 	FunctionsAPI.listFunctions().then((response) => {
 		if (response.functions.length === 0) {
 			_createOrupdateAgent(isCreate, agentsViewProvider, name, model, embeddings);
@@ -177,7 +176,7 @@ function _showFunctionsAssetIds(isCreate: boolean, agentsViewProvider: IViewProv
 	});
 }
 
-function _createOrupdateAgent(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, modelInfo: types.api.LmProviderBaseModelInfo, embeddings: types.database.EmbeddingMetadata[], functions: types.api.FunctionMetadata[] = []) {
+function _createOrupdateAgent(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, modelInfo: api.LmProviderBaseModelInfo, embeddings: database.EmbeddingMetadata[], functions: api.FunctionMetadata[] = []) {
 	if (isCreate) {
 		const ragAssetIds = embeddings.map(embedding => embedding.id);
 		const functionAssetIds = functions.map(func => func.id);

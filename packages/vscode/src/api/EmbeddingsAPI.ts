@@ -1,5 +1,5 @@
 import { Uri } from "vscode";
-import type { types } from 'aifoundry-vscode-shared';
+import type { api } from 'aifoundry-vscode-shared';
 import { APIConfig } from "./config";
 import { consts } from 'aifoundry-vscode-shared';
 import ApiUtils from "../utils/ApiUtils";
@@ -9,7 +9,7 @@ import FileUtils from "../utils/FileUtils";
 let formData = new FormData();
 
 namespace EmbeddingsAPI {
-    export async function getEmbeddings(): Promise<types.api.ListEmbeddingsResponse> {
+    export async function getEmbeddings(): Promise<api.ListEmbeddingsResponse> {
         const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/embeddings`;
         return fetch(endpoint, {
             method: "GET",
@@ -17,14 +17,14 @@ namespace EmbeddingsAPI {
                 "Content-Type": "application/json",
             },
         })
-            .then(ApiUtils.processApiResponse<types.api.ListEmbeddingsResponse>);
+            .then(ApiUtils.processApiResponse<api.ListEmbeddingsResponse>);
     }
 
     export async function createEmbedding(
         aifBasemodelUri: string,
         fileUriList: Uri[],
         name?: string,
-    ): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
+    ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
         return _createOrUpdateEmbedding(true, aifBasemodelUri, fileUriList, name);
     }
 
@@ -32,7 +32,7 @@ namespace EmbeddingsAPI {
         aifEmbeddingAssetId: string,
         fileUriList: Uri[],
         name?: string,
-    ): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
+    ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
         return _createOrUpdateEmbedding(false, aifEmbeddingAssetId, fileUriList, name);
     }
 
@@ -52,7 +52,7 @@ namespace EmbeddingsAPI {
         aifBasemodelUriOrAifEmbeddingAssetId: string,
         fileUriList: Uri[],
         name?: string,
-    ): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
+    ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
         const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/embeddings/`;
 
         formData = new FormData();
@@ -78,7 +78,7 @@ namespace EmbeddingsAPI {
             headers: headers,
             body: formData,
         })
-            .then(ApiUtils.processApiResponse<types.api.CreateOrUpdateEmbeddingsResponse>);
+            .then(ApiUtils.processApiResponse<api.CreateOrUpdateEmbeddingsResponse>);
     }
 }
 

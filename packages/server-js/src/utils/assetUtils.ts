@@ -6,7 +6,7 @@ import { Document } from '@langchain/core/documents';
 import { Embeddings } from '@langchain/core/embeddings';
 import { SaveableVectorStore } from '@langchain/core/vectorstores';
 import { FaissStore } from "@langchain/community/vectorstores/faiss";
-import { types } from 'aifoundry-vscode-shared';
+import { api, database, type misc } from 'aifoundry-vscode-shared';
 import DatabaseManager from "../database/DatabaseManager";
 import Config from '../config';
 import ServerConfig from '../config/ServerConfig';
@@ -32,16 +32,16 @@ namespace AssetUtils {
         databaseManager: DatabaseManager,
         llm: Embeddings,
         baseModelUri: string,
-        files: types.UploadFileInfo[],
+        files: misc.UploadFileInfo[],
         name: string | undefined,
-    ): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
+    ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
         const assetId = uuid();
         const assetsPath = getEmbeddingsAssetPath();
         const storePath = path.join(assetsPath, assetId);
         const aifVsProvider = Config.VECTOR_STORE_PROVIDER;
 
         name = name ?? files.map(f => f.fileName).join("-");
-        const metadata = new types.database.EmbeddingMetadata(
+        const metadata = new database.EmbeddingMetadata(
             assetId,
             name,
             aifVsProvider,
@@ -65,10 +65,10 @@ namespace AssetUtils {
     export async function updateEmbeddings(
         databaseManager: DatabaseManager,
         llm: Embeddings,
-        embeddingMetadata: types.database.EmbeddingMetadata,
-        files: types.UploadFileInfo[] | undefined,
+        embeddingMetadata: database.EmbeddingMetadata,
+        files: misc.UploadFileInfo[] | undefined,
         name: string | undefined,
-    ): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
+    ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
         const assetsPath = getEmbeddingsAssetPath();
         const storePath = path.join(assetsPath, embeddingMetadata.id);
         const documents = files ? files.map(FileUtils.convertToDocument).filter(d => d !== null) as Document[] : null;
@@ -99,11 +99,11 @@ namespace AssetUtils {
     export async function deleteEmbedding(
         databaseManager: DatabaseManager,
         id: string,
-    ): Promise<types.api.DeleteEmbeddingResponse> {
+    ): Promise<api.DeleteEmbeddingResponse> {
         const assetsPath = getEmbeddingsAssetPath();
         const storePath = path.join(assetsPath, id);
         fs.rmSync(storePath, { recursive: true });
-        databaseManager.deleteDbEntity(types.database.EmbeddingMetadata.name, id);
+        databaseManager.deleteDbEntity(database.EmbeddingMetadata.name, id);
         return { id };
     }
 }

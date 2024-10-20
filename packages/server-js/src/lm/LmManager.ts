@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { v4 as uuid } from "uuid";
-import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
+import { AifUtils, api, consts, database, type misc } from 'aifoundry-vscode-shared';
 import LmBaseProvider from './LmBaseProvider';
 import ILmManager from './ILmManager';
 import DatabaseManager from '../database/DatabaseManager';
@@ -46,9 +46,9 @@ class LmManager implements ILmManager {
     public async chat(
         aifSessionId: string,
         aifAgentUri: string,
-        outputFormat: types.api.TextFormat,
+        outputFormat: api.TextFormat,
         input: string,
-        files: types.UploadFileInfo[],
+        files: misc.UploadFileInfo[],
     ): Promise<Observable<string>> {
         const agentId = AifUtils.getAgentId(aifAgentUri);
         if (!agentId) {
@@ -64,9 +64,9 @@ class LmManager implements ILmManager {
                 subscriber.next(response);
                 subscriber.complete();
 
-                databaseManager.addChatMessage(aifSessionId, aifAgentUri, types.api.ChatRole.USER, inputMessageContent, outputFormat);
+                databaseManager.addChatMessage(aifSessionId, aifAgentUri, api.ChatRole.USER, inputMessageContent, outputFormat);
                 const responseMessageContent = LmManagerUtils.createMessageContent(response);
-                databaseManager.addChatMessage(aifSessionId, aifAgentUri, types.api.ChatRole.ASSISTANT, responseMessageContent, types.api.defaultTextFormat);
+                databaseManager.addChatMessage(aifSessionId, aifAgentUri, api.ChatRole.ASSISTANT, responseMessageContent, api.defaultTextFormat);
             }
 
             run().catch((ex) => {
@@ -77,15 +77,15 @@ class LmManager implements ILmManager {
         });
     }
 
-    public listAgents(): types.api.ListAgentsResponse {
+    public listAgents(): api.ListAgentsResponse {
         const agents = this.databaseManager.listAgents();
         return { agents };
     }
 
-    public createAgent(request: types.api.CreateAgentRequest): types.api.CreateOrUpdateAgentResponse {
+    public createAgent(request: api.CreateAgentRequest): api.CreateOrUpdateAgentResponse {
         const uuidValue = uuid();
         const agentUri = AifUtils.createAifUri(consts.AIF_PROTOCOL, AifUtils.AifUriCategory.Agents, uuidValue);
-        const agent = new types.database.AgentMetadata(
+        const agent = new database.AgentMetadata(
             uuidValue,
             agentUri,
             request.name || uuidValue,
@@ -98,7 +98,7 @@ class LmManager implements ILmManager {
         return { id: agent.id, uri: agent.agentUri };
     }
 
-    public updateAgent(id: string, request: types.api.UpdateAgentRequest): types.api.CreateOrUpdateAgentResponse {
+    public updateAgent(id: string, request: api.UpdateAgentRequest): api.CreateOrUpdateAgentResponse {
         if (!id) {
             throw new HttpException(400, "Agent id is required");
         }
@@ -106,7 +106,7 @@ class LmManager implements ILmManager {
         return { id: agent.id, uri: agent.agentUri };
     }
 
-    public deleteAgent(id: string): types.api.DeleteAgentResponse {
+    public deleteAgent(id: string): api.DeleteAgentResponse {
         if (this.databaseManager.deleteAgent(id)) {
             return { id };
         } else {
@@ -114,16 +114,16 @@ class LmManager implements ILmManager {
         }
     }
 
-    public listEmbeddings(): types.api.ListEmbeddingsResponse {
+    public listEmbeddings(): api.ListEmbeddingsResponse {
         const embeddings = this.databaseManager.listEmbeddingsMetadata();
         return { embeddings };
     }
 
     public async createEmbedding(
         afBaseModelUri: string | undefined,
-        files: types.UploadFileInfo[] | undefined,
+        files: misc.UploadFileInfo[] | undefined,
         name: string | undefined,
-    ): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
+    ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
         if (!afBaseModelUri || afBaseModelUri.length === 0 || !files || files.length === 0) {
             throw new HttpException(400, "afBaseModelUri and files are required");
         }
@@ -134,9 +134,9 @@ class LmManager implements ILmManager {
 
     public async updateEmbedding(
         aifEmbeddingAssetId: string | undefined,
-        files: types.UploadFileInfo[] | undefined,
+        files: misc.UploadFileInfo[] | undefined,
         name: string | undefined,
-    ): Promise<types.api.CreateOrUpdateEmbeddingsResponse> {
+    ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
         if (!aifEmbeddingAssetId || aifEmbeddingAssetId.length === 0) {
             throw new HttpException(400, "Embedding id is required");
         }
@@ -150,12 +150,12 @@ class LmManager implements ILmManager {
         return AssetUtils.updateEmbeddings(this.databaseManager, llm, embeddingMetadata, files, name);
     }
 
-    public async deleteEmbedding(id: string): Promise<types.api.DeleteEmbeddingResponse> {
+    public async deleteEmbedding(id: string): Promise<api.DeleteEmbeddingResponse> {
         return AssetUtils.deleteEmbedding(this.databaseManager, id);
     }
 
-    public listLanguageModels(llmFeature: types.api.LlmFeature): types.api.ListLanguageModelsResponse {
-        const basemodels: types.api.LmProviderBaseModelInfo[] = [];
+    public listLanguageModels(llmFeature: api.LlmFeature): api.ListLanguageModelsResponse {
+        const basemodels: api.LmProviderBaseModelInfo[] = [];
         for (const provider of Object.values(this._lmProviderMap)) {
             if (!provider.isHealthy) {
                 continue;
@@ -179,7 +179,7 @@ class LmManager implements ILmManager {
         }
     }
 
-    public async deleteLanguageModel(lmProviderId: string, id: string): Promise<types.api.DeleteLanguageModelResponse> {
+    public async deleteLanguageModel(lmProviderId: string, id: string): Promise<api.DeleteLanguageModelResponse> {
         if (lmProviderId === LmProviderOllama.ID) {
             try {
                 await OllamaUtils.deleteModel(id);
@@ -193,8 +193,8 @@ class LmManager implements ILmManager {
         }
     }
 
-    // public async setupLmProvider(request: types.api.SetupLmProviderRequest, res: ApiOutput): Promise<types.api.SetupLmProviderResponse> {
-    public setupLmProvider(request: types.api.SetupLmProviderRequest, out: ApiOutputCtrl): void {
+    // public async setupLmProvider(request: api.SetupLmProviderRequest, res: ApiOutput): Promise<api.SetupLmProviderResponse> {
+    public setupLmProvider(request: api.SetupLmProviderRequest, out: ApiOutputCtrl): void {
         if (!request) {
             throw new HttpException(400, "Invalid request to setup language model provider")
         }
@@ -210,8 +210,8 @@ class LmManager implements ILmManager {
         throw new HttpException(404, `Language model provider ${request.id} not found`);
     }
 
-    public async listLmProviders(force: boolean): Promise<types.api.ListLmProvidersResponse> {
-        let providers: types.api.LmProviderInfoResponse[] = [];
+    public async listLmProviders(force: boolean): Promise<api.ListLmProvidersResponse> {
+        let providers: api.LmProviderInfoResponse[] = [];
         for (const provider of Object.values(this._lmProviderMap)) {
             const providerInfo = await provider.getLmProviderInfo(force);
             providers.push(providerInfo);
@@ -221,7 +221,7 @@ class LmManager implements ILmManager {
         return { providers };
     }
 
-    public async getLmProvider(id: string, force: boolean): Promise<types.api.LmProviderInfoResponse> {
+    public async getLmProvider(id: string, force: boolean): Promise<api.LmProviderInfoResponse> {
         const provider = this._lmProviderMap[id];
         if (!provider) {
             throw new HttpException(404, "Language model provider not found");
@@ -229,7 +229,7 @@ class LmManager implements ILmManager {
         return provider.getLmProviderInfo(force);
     }
 
-    public updateLmProviderInfo(request: types.api.UpdateLmProviderInfoRequest): types.api.UpdateLmProviderResponse {
+    public updateLmProviderInfo(request: api.UpdateLmProviderInfoRequest): api.UpdateLmProviderResponse {
         if (!request) {
             throw new HttpException(400, "Invalid request to update language model provider")
         }
@@ -243,7 +243,7 @@ class LmManager implements ILmManager {
         throw new HttpException(404, "Language model not found");
     }
 
-    public updateLmProviderModel(request: types.api.UpdateLmProviderModelRequest): types.api.UpdateLmProviderResponse {
+    public updateLmProviderModel(request: api.UpdateLmProviderModelRequest): api.UpdateLmProviderResponse {
         if (!request) {
             throw new HttpException(400, "Invalid request to update language model provider model")
         }
@@ -251,7 +251,7 @@ class LmManager implements ILmManager {
         return this._updateLmProviderModel(request.id, request.modelUri, request.selected);
     }
 
-    private _updateLmProviderModel(lmProviderId: string, modelUri: string, selected: boolean): types.api.UpdateLmProviderResponse {
+    private _updateLmProviderModel(lmProviderId: string, modelUri: string, selected: boolean): api.UpdateLmProviderResponse {
         for (const provider of Object.values(this._lmProviderMap)) {
             if (provider.id === lmProviderId) {
                 return provider.updateLmProviderModel(this.databaseManager, modelUri, selected);

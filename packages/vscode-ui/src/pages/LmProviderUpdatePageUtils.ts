@@ -1,18 +1,18 @@
-import { types } from "aifoundry-vscode-shared";
+import { type api, type messages } from "aifoundry-vscode-shared";
 
 export function createMessageApiUpdateLmProviderInfo(
     messageApiType: "api:updateLmProviderInfo",
     lmProviderId: string,
     weight: number | null,
     properties: Record<string, string>,
-): types.MessageApiUpdateLmProviderInfo {
-    const request: types.api.UpdateLmProviderInfoRequest = {
+): messages.MessageApiUpdateLmProviderInfo {
+    const request: api.UpdateLmProviderInfoRequest = {
         id: lmProviderId,
         weight: weight ?? undefined,
         properties,
     };
 
-    const message: types.MessageApiUpdateLmProviderInfo = {
+    const message: messages.MessageApiUpdateLmProviderInfo = {
         aifMessageType: "api",
         type: messageApiType,
         data: request,
@@ -25,14 +25,14 @@ export function createMessageApiUpdateLmProviderModel(
     lmProviderId: string,
     modelUri: string,
     selected: boolean,
-): types.MessageApiUpdateLmProviderModel {
-    const request: types.api.UpdateLmProviderModelRequest = {
+): messages.MessageApiUpdateLmProviderModel {
+    const request: api.UpdateLmProviderModelRequest = {
         id: lmProviderId,
         modelUri,
         selected,
     };
 
-    const message: types.MessageApiUpdateLmProviderModel = {
+    const message: messages.MessageApiUpdateLmProviderModel = {
         aifMessageType: "api",
         type: messageApiType,
         data: request,

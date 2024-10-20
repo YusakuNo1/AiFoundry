@@ -1,7 +1,7 @@
 import { Embeddings } from '@langchain/core/embeddings';
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { ChatOllama, OllamaEmbeddings } from "@langchain/ollama";
-import { AifUtils, types } from 'aifoundry-vscode-shared';
+import { AifUtils, api, type database } from 'aifoundry-vscode-shared';
 import LmBaseProvider, { GetInitInfoResponse } from './LmBaseProvider';
 import { HttpException } from '../exceptions';
 import OllamaUtils from "../utils/OllamaUtils";
@@ -13,10 +13,10 @@ class LmProviderOllama extends LmBaseProvider {
     public static readonly ID = "ollama";
 
     protected async _getInitInfo(): Promise<GetInitInfoResponse> {
-        const modelMap: Record<string, types.api.LmProviderBaseModelInfo> = {};
+        const modelMap: Record<string, api.LmProviderBaseModelInfo> = {};
         const models = (OllamaModels as ModelDef).models;
         for (const model of models) {
-            const modelInfo: types.api.LmProviderBaseModelInfoOllama = {
+            const modelInfo: api.LmProviderBaseModelInfoOllama = {
                 uri: AifUtils.createAifUri(LmProviderOllama.ID, AifUtils.AifUriCategory.Models, model.title),
                 name: model.title,
                 providerId: LmProviderOllama.ID,
@@ -39,13 +39,13 @@ class LmProviderOllama extends LmBaseProvider {
         }
     }
 
-    protected async _updateLmProviderRuntimeInfo(lmProviderInfo: types.database.LmProviderInfo): Promise<void> {
+    protected async _updateLmProviderRuntimeInfo(lmProviderInfo: database.LmProviderInfo): Promise<void> {
         try {
             const listModels = await OllamaUtils.listDownloadedModels();
             const listModelNames = listModels.map((model) => model.split(":")[0]);   // format is "model:version"
     
             for (const modelName of Object.keys(lmProviderInfo.modelMap)) {
-                (lmProviderInfo.modelMap[modelName] as types.database.LmProviderBaseModelInfoOllama).isDownloaded = listModelNames.includes(modelName);
+                (lmProviderInfo.modelMap[modelName] as database.LmProviderBaseModelInfoOllama).isDownloaded = listModelNames.includes(modelName);
             }    
         } catch (error) {
             console.error(`Failed to update Ollama models: ${error}`);
@@ -56,9 +56,9 @@ class LmProviderOllama extends LmBaseProvider {
         return OllamaUtils.isHealthy();
     }
 
-    public listLanguageModels(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[] {
-        return Object.values(this._info.modelMap).filter((_model: types.database.LmProviderBaseModelInfo) => {
-            const model = _model as types.database.LmProviderBaseModelInfoOllama;
+    public listLanguageModels(feature: api.LlmFeature): api.LmProviderBaseModelInfo[] {
+        return Object.values(this._info.modelMap).filter((_model: database.LmProviderBaseModelInfo) => {
+            const model = _model as database.LmProviderBaseModelInfoOllama;
             return model.selected && model.isDownloaded && (feature === "all" || model.features.includes(feature));
         });
     }

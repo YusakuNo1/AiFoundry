@@ -1,6 +1,5 @@
 import * as fs from "fs";
 import * as path from "path";
-import { types } from "aifoundry-vscode-shared";
 import AssetUtils from "../../utils/assetUtils";
 
 export function removeDatabaseFile(databaseName: string) {

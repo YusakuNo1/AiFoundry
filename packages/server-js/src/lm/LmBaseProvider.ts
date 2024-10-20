@@ -1,14 +1,14 @@
 import * as _ from 'lodash';
 import { Embeddings } from '@langchain/core/embeddings';
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { AifUtils, consts, types } from 'aifoundry-vscode-shared';
+import { AifUtils, api, consts, database } from 'aifoundry-vscode-shared';
 import DatabaseManager from '../database/DatabaseManager';
 
 
-export type GetInitInfoResponse = Omit<types.database.LmProviderInfo, "version" | "entityName">;
+export type GetInitInfoResponse = Omit<database.LmProviderInfo, "version" | "entityName">;
 
 abstract class LmBaseProvider {
-    protected _info: types.database.LmProviderInfo;
+    protected _info: database.LmProviderInfo;
     protected _databaseManager: DatabaseManager;
 
     public constructor(databaseManager: DatabaseManager) {
@@ -34,7 +34,7 @@ abstract class LmBaseProvider {
 
         let lmProviderInfo = databaseManager.getLmProviderInfo(initInfo.id);
         if (!lmProviderInfo) {
-            lmProviderInfo = new types.database.LmProviderInfo(
+            lmProviderInfo = new database.LmProviderInfo(
                 initInfo.id,
                 initInfo.name,
                 initInfo.description,
@@ -52,11 +52,11 @@ abstract class LmBaseProvider {
         this._info = lmProviderInfo;
     }
     protected abstract _getInitInfo(): Promise<GetInitInfoResponse>;
-    protected async _updateLmProviderRuntimeInfo(lmProviderInfo: types.database.LmProviderInfo): Promise<void> {
+    protected async _updateLmProviderRuntimeInfo(lmProviderInfo: database.LmProviderInfo): Promise<void> {
         // Do nothing by default
     }
 
-    public listLanguageModels(feature: types.api.LlmFeature): types.api.LmProviderBaseModelInfo[] {
+    public listLanguageModels(feature: api.LlmFeature): api.LmProviderBaseModelInfo[] {
         return Object.values(this._info.modelMap).filter((model) => model.selected && (feature === "all" || model.features.includes(feature)));
     }
 
@@ -64,7 +64,7 @@ abstract class LmBaseProvider {
 
     public abstract getBaseLanguageModel(aifUri: string): Promise<BaseChatModel>;
 
-    public async getLmProviderInfo(force: boolean): Promise<types.api.LmProviderInfoResponse> {
+    public async getLmProviderInfo(force: boolean): Promise<api.LmProviderInfoResponse> {
         if (force) {
             await this._updateLmProviderRuntimeInfo(this._info);
             this._databaseManager.saveDbEntity(this._info);
@@ -83,7 +83,7 @@ abstract class LmBaseProvider {
         };
     }
 
-    public updateLmProviderInfo(databaseManager: DatabaseManager, request: types.api.UpdateLmProviderInfoRequest): types.api.UpdateLmProviderResponse {
+    public updateLmProviderInfo(databaseManager: DatabaseManager, request: api.UpdateLmProviderInfoRequest): api.UpdateLmProviderResponse {
         this._info.name = request.name ?? this._info.name;
         this._info.weight = request.weight ?? this._info.weight;
 
@@ -108,7 +108,7 @@ abstract class LmBaseProvider {
 
         databaseManager.saveDbEntity(this._info);
 
-        const response: types.api.UpdateLmProviderResponse = {
+        const response: api.UpdateLmProviderResponse = {
             id: this._info.id,
             name: this._info.name,
             description: this._info.description,
@@ -120,10 +120,10 @@ abstract class LmBaseProvider {
         return response;
     }
 
-    public updateLmProviderModel(databaseManager: DatabaseManager, _modelUri: string, selected: boolean): types.api.UpdateLmProviderResponse {
+    public updateLmProviderModel(databaseManager: DatabaseManager, _modelUri: string, selected: boolean): api.UpdateLmProviderResponse {
         const modelUriInfo = AifUtils.extractAiUri(this._info.id, _modelUri);
         const name = modelUriInfo?.parts[0] ?? undefined;
-        const feature = modelUriInfo?.parameters[consts.UpdateLmProviderBaseModelFeatureKey] as types.api.LlmFeature ?? undefined;
+        const feature = modelUriInfo?.parameters[consts.UpdateLmProviderBaseModelFeatureKey] as api.LlmFeature ?? undefined;
         const modelUri = name ? AifUtils.createAifUri(this._info.id, AifUtils.AifUriCategory.Models, name) : undefined;
 
         // Find the model in the model map and update the selected field
@@ -144,7 +144,7 @@ abstract class LmBaseProvider {
 
         // Add the new model to the model map
         if (!foundModel && this._info.supportUserDefinedModels && selected && modelUri && name && feature) {
-            const modelInfo: types.api.LmProviderBaseModelInfo = {
+            const modelInfo: api.LmProviderBaseModelInfo = {
                 uri: modelUri,
                 name,
                 providerId: this._info.id,
@@ -157,7 +157,7 @@ abstract class LmBaseProvider {
 
         databaseManager.saveDbEntity(this._info);
 
-        const response: types.api.UpdateLmProviderResponse = {
+        const response: api.UpdateLmProviderResponse = {
             id: this._info.id,
             name: this._info.name,
             description: this._info.description,

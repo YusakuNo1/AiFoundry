@@ -1,4 +1,4 @@
-import type { types } from "aifoundry-vscode-shared";
+import { type messages } from "aifoundry-vscode-shared";
 import { store } from "./store/store";
 import { pageInfoSlice } from "./store/pageInfoSlice";
 import {
@@ -24,13 +24,13 @@ namespace AppEventUtils {
         isRegistered = true;
         window.addEventListener("message", (event) => {
             if (event.data?.aifMessageType === "setPageType") {
-                const message: types.MessageSetPageContext = event.data;
+                const message: messages.MessageSetPageContext = event.data;
                 store.dispatch(pageInfoSlice.actions.setPageContext(message));
             } else if (event.data?.aifMessageType === "store:update") {
-                const message: types.IStoreUpdate = event.data;
+                const message: messages.IStoreUpdate = event.data;
                 if (message.type === "appendChatAssistantMessage") {
                     const data = (
-                        message as types.MessageStoreAppendChatAssistantMessage
+                        message as messages.MessageStoreAppendChatAssistantMessage
                     ).data;
                     store.dispatch(
                         appendChatAssistantMessage({
@@ -41,7 +41,7 @@ namespace AppEventUtils {
                     );
                 } else if (message.type === "appendToLastChatAssistantMessage") {
                     const data = (
-                        message as types.MessageStoreAppendToLastChatAssistantMessage
+                        message as messages.MessageStoreAppendToLastChatAssistantMessage
                     ).data;
                     store.dispatch(
                         appendToLastChatAssistantMessage({
@@ -51,16 +51,16 @@ namespace AppEventUtils {
                         })
                     );
                 } else if (message.type === "updateLastChatAssistantMessage") {
-                    const data = (message as types.MessageStoreAppendChatAssistantMessage).data;
+                    const data = (message as messages.MessageStoreAppendChatAssistantMessage).data;
                     store.dispatch(updateLastChatAssistantMessage(data));
                 } else if (message.type === "updateLmProviders") {
-                    const data = (message as types.MessageStoreUpdateLmProviders).data;
+                    const data = (message as messages.MessageStoreUpdateLmProviders).data;
                     store.dispatch(updateLmProviders(data.lmProviders));
                 } else if (message.type === "updateEmbeddings") {
-                    const data = (message as types.MessageStoreUpdateEmbeddings).data;
+                    const data = (message as messages.MessageStoreUpdateEmbeddings).data;
                     store.dispatch(updateEmbeddings(data.embeddings));
                 } else if (message.type === "updateFunctions") {
-                    const data = (message as types.MessageStoreUpdateFunctions).data;
+                    const data = (message as messages.MessageStoreUpdateFunctions).data;
                     store.dispatch(updateFunctions(data.functions));
                 }
             }

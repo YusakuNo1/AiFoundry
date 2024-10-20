@@ -5,7 +5,7 @@ import { Label, Table, TableBody, TableRow, TableCell, Button } from '@fluentui/
 import { Stack } from '@fluentui/react';
 import { IconButton } from '@fluentui/react/lib/Button';
 import { initializeIcons } from '@fluentui/react/lib/Icons';
-import type { types } from 'aifoundry-vscode-shared';
+import { type messages, type misc } from 'aifoundry-vscode-shared';
 import { consts } from 'aifoundry-vscode-shared';
 import { getTextColor } from '../theme/themes';
 import type { VSCodeInterface } from '../types';
@@ -17,14 +17,14 @@ initializeIcons();
 
 type DockerStatusRowProps = {
     vscode: VSCodeInterface;
-    menuItem: types.DockerSystemMenuItem;
+    menuItem: misc.DockerSystemMenuItem;
 };
 export function DockerStatusRow(props: DockerStatusRowProps) {
     const textColor = React.useMemo(() => getTextColor(), []);
     const showStartServerButton = props.menuItem.appStatus === "available" && props.menuItem.serverStatus === "unavailable";
 
     const onClickDownload = React.useCallback(() => {
-        const message: types.MessageHostMsgExecuteCommand = {
+        const message: messages.MessageHostMsgExecuteCommand = {
             aifMessageType: 'hostMsg',
             type: 'executeCommand',
             data: {
@@ -36,7 +36,7 @@ export function DockerStatusRow(props: DockerStatusRowProps) {
     }, [props]);
 
     const onClickRunDockerApp = React.useCallback(() => {
-        const message: types.MessageHostMsgExecuteCommand = {
+        const message: messages.MessageHostMsgExecuteCommand = {
             aifMessageType: 'hostMsg',
             type: 'executeCommand',
             data: {
@@ -48,7 +48,7 @@ export function DockerStatusRow(props: DockerStatusRowProps) {
     }, [props]);
 
     const onClickRefreshMainView = React.useCallback(() => {
-        const messageMain: types.MessageHostMsgExecuteCommand = {
+        const messageMain: messages.MessageHostMsgExecuteCommand = {
             aifMessageType: 'hostMsg',
             type: 'executeCommand',
             data: { command: 'AiFoundry.refreshAllViews', args: [] }
@@ -58,7 +58,7 @@ export function DockerStatusRow(props: DockerStatusRowProps) {
 
     const onClickStartDevContainer = React.useCallback((startServer: boolean) => {
         const command = startServer ? 'AiFoundry.startDockerServer' : 'AiFoundry.startDockerDevContainer';
-        const message: types.MessageHostMsgExecuteCommand = {
+        const message: messages.MessageHostMsgExecuteCommand = {
             aifMessageType: 'hostMsg',
             type: 'executeCommand',
             data: { command, args: [] },
@@ -105,7 +105,7 @@ export function DockerStatusRow(props: DockerStatusRowProps) {
                     </TableRow>
                     <TableRow>
                         <TableCell>Server Status</TableCell>
-                        <TableCell>{(props.menuItem as types.DockerSystemMenuItem).serverStatus}</TableCell>
+                        <TableCell>{(props.menuItem as misc.DockerSystemMenuItem).serverStatus}</TableCell>
                         {showStartServerButton && (<>
                             <TableCell><Button onClick={() => onClickStartDevContainer(true)} disabled={props.menuItem.status !== "available"}>Start Server</Button></TableCell>
                             <TableCell><Button onClick={() => onClickStartDevContainer(false)} disabled={props.menuItem.status !== "available"}>Start Dev Container</Button></TableCell>
@@ -121,14 +121,14 @@ export function DockerStatusRow(props: DockerStatusRowProps) {
 }
 
 type LmStatusRowProps = {
-    menuItem: types.SystemMenuItem;
+    menuItem: misc.SystemMenuItem;
     serverStatus: string;
 };
 export function LmStatusRow(props: LmStatusRowProps) {
     const textColor = React.useMemo(() => getTextColor(), []);
 
     const onClickSetup = React.useCallback((lmProviderId: string) => {
-        const message: types.MessageSetPageContextUpdateLmProvider = {
+        const message: messages.MessageSetPageContextUpdateLmProvider = {
             aifMessageType: 'setPageType',
             pageType: 'page:updateLmProvider',
             data: {

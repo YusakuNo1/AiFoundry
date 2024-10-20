@@ -1,7 +1,7 @@
 import { Embeddings } from '@langchain/core/embeddings';
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { AzureChatOpenAI, AzureOpenAIEmbeddings } from '@langchain/openai';
-import { AifUtils, LmProviderPropertyUtils, types } from 'aifoundry-vscode-shared';
+import { AifUtils, api, LmProviderPropertyUtils } from 'aifoundry-vscode-shared';
 import LmBaseProvider, { GetInitInfoResponse } from './LmBaseProvider';
 import { HttpException } from '../exceptions';
 
@@ -16,7 +16,7 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
     public static readonly ID = "azureopenai";
 
     protected async _getInitInfo(): Promise<GetInitInfoResponse> {
-        const properties: Record<string, types.api.LmProviderProperty> = {
+        const properties: Record<string, api.LmProviderProperty> = {
             [CredPropKey.ApiBase]: {
                 description: "Azure OpenAI API base path",
                 hint: "",

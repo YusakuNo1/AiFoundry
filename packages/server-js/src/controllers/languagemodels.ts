@@ -1,5 +1,5 @@
 import * as express from "express";
-import { consts, types, StreamingUtils } from 'aifoundry-vscode-shared';
+import { api, consts, StreamingUtils } from 'aifoundry-vscode-shared';
 import ILmManager from "../lm/ILmManager";
 import ResponseUtils from "../utils/ResponseUtils";
 import RouterUtils from "../utils/RouterUtils";
@@ -14,7 +14,7 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
         RouterUtils.middlewares.jsonParser,
         (req, res) => {
             try {
-                const request: types.api.SetupLmProviderRequest = req.body;
+                const request: api.SetupLmProviderRequest = req.body;
                 lmManager.setupLmProvider(request, new ApiOutputCtrl(res));    
             } catch (err) {
                 ResponseUtils.handleException(res, err);
@@ -23,9 +23,9 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
 
     // Get language model by feature filter, e.g. "embedding", "conversational"
     router.get(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/filter/:filter`, (req, res) => {
-        ResponseUtils.handler<types.api.ListLanguageModelsResponse>(res, async () => {
-            const filter = req.params.filter as types.api.LlmFeature;
-            if (types.api.LlmFeatures.indexOf(filter) === -1) {
+        ResponseUtils.handler<api.ListLanguageModelsResponse>(res, async () => {
+            const filter = req.params.filter as api.LlmFeature;
+            if (api.LlmFeatures.indexOf(filter) === -1) {
                 throw new HttpException(400, "Invalid filter");
             } else {
                 return lmManager.listLanguageModels(filter);
@@ -47,7 +47,7 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
 
     // Delete language model
     router.delete(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/crud/:lmproviderid/:id`, (req, res) => {
-        ResponseUtils.handler<types.api.DeleteLanguageModelResponse>(
+        ResponseUtils.handler<api.DeleteLanguageModelResponse>(
             res,
             async () => lmManager.deleteLanguageModel(req.params.lmproviderid, req.params.id),
         );
@@ -56,7 +56,7 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
     // List language model provider
     router.get(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`, (req, res) => {
         const force = req.query[consts.QUERY_PARAM_FORCE] === "true";
-        ResponseUtils.handler<types.api.ListLmProvidersResponse>(
+        ResponseUtils.handler<api.ListLmProvidersResponse>(
             res,
             async () => lmManager.listLmProviders(force),
             ResponseUtils.maskListLmProvidersResponse,
@@ -66,7 +66,7 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
     // Get language model provider by id
     router.get(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers/:id`, (req, res) => {
         const force = req.query[consts.QUERY_PARAM_FORCE] === "true";
-        ResponseUtils.handler<types.api.LmProviderInfoResponse>(
+        ResponseUtils.handler<api.LmProviderInfoResponse>(
             res,
             async () => lmManager.getLmProvider(req.params.id, force),
             ResponseUtils.maskGetLmProviderInfoResponse,
@@ -78,9 +78,9 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
         `${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`,
         RouterUtils.middlewares.jsonParser,
         (req, res) => {
-            ResponseUtils.handler<types.api.UpdateLmProviderResponse>(
+            ResponseUtils.handler<api.UpdateLmProviderResponse>(
                 res,
-                async () => lmManager.updateLmProviderInfo(req.body as types.api.UpdateLmProviderInfoRequest),
+                async () => lmManager.updateLmProviderInfo(req.body as api.UpdateLmProviderInfoRequest),
                 ResponseUtils.maskUpdateLmProviderResponse,
             );
         }
@@ -91,9 +91,9 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
         `${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers/models`,
         RouterUtils.middlewares.jsonParser,
         (req, res) => {
-            ResponseUtils.handler<types.api.UpdateLmProviderResponse>(
+            ResponseUtils.handler<api.UpdateLmProviderResponse>(
                 res,
-                async () => lmManager.updateLmProviderModel(req.body as types.api.UpdateLmProviderModelRequest),
+                async () => lmManager.updateLmProviderModel(req.body as api.UpdateLmProviderModelRequest),
                 ResponseUtils.maskUpdateLmProviderResponse,
             );
         }

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { types } from 'aifoundry-vscode-shared';
+import type { api } from 'aifoundry-vscode-shared';
 import { consts } from 'aifoundry-vscode-shared';
 import FunctionsAPI from '../api/FunctionsAPI';
 import AifPanel from '../panels/AifPanel';
@@ -14,7 +14,7 @@ export class AifFunctionsViewProvider implements IViewProvider {
 	private _onDidChangeTreeData: vscode.EventEmitter<AifTreeItem | undefined | void> = new vscode.EventEmitter<AifTreeItem | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<AifTreeItem | undefined | void> = this._onDidChangeTreeData.event;
 
-	private _functions: types.api.FunctionMetadata[] | undefined = undefined;
+	private _functions: api.FunctionMetadata[] | undefined = undefined;
 
 	constructor() {
 		this._refreshCallback = this._refreshCallback.bind(this);

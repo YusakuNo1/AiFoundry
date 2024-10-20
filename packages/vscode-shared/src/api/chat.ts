@@ -1,5 +1,3 @@
-import { UploadFileInfo } from "../common";
-
 export const TextFormats = ["plain", "markdown", "latex"] as const;
 export const TextFormatDisplayNames = {
     plain: "Plain Text",

@@ -1,5 +1,5 @@
 import { TextFormat } from '../api/chat';
-import { UploadFileInfo } from '../common';
+import { UploadFileInfo } from '../misc/common';
 import { UpdateLmProviderInfoRequest, UpdateLmProviderModelRequest } from '../api/languageModels';
 import * as shared from "./shared";
 

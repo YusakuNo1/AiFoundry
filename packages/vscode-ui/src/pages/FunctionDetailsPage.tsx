@@ -1,13 +1,13 @@
 import * as React from "react";
-import { types } from "aifoundry-vscode-shared";
+import { type api, type messages } from "aifoundry-vscode-shared";
 import { consts } from "aifoundry-vscode-shared";
 import BasePage from "./BasePage";
 import ConfigUtils from "../utils/ConfigUtils";
 
 
 interface Props {
-    data: types.api.FunctionMetadata;
-    onPostMessage: (message: types.IMessage) => void;
+    data: api.FunctionMetadata;
+    onPostMessage: (message: messages.IMessage) => void;
 }
 
 const FunctionDetailsPage: React.FC<Props> = (props: Props) => {
@@ -19,10 +19,10 @@ const FunctionDetailsPage: React.FC<Props> = (props: Props) => {
         return `${homeDir}/${consts.AIFOUNDRY_LOCAL_SERVER_FOLDER_NAME}/${consts.ASSETS_FOLDER_NAME}/${consts.FUNCTIONS_FOLDER_NAME}/${props.data?.functions_path}/${props.data?.functions_name}.py`;
     }, [props.data, homeDir]);
 
-    const onPostMessage = React.useCallback((type: types.MessageEditInfoFunctionsType) => {
+    const onPostMessage = React.useCallback((type: messages.MessageEditInfoFunctionsType) => {
         const aifMessageType = "editInfo";
         if (type === "function:update:name") {
-            const message: types.MessageEditInfoFunctionUpdateName = {
+            const message: messages.MessageEditInfoFunctionUpdateName = {
                 aifMessageType,
                 type,
                 data: {
@@ -32,7 +32,7 @@ const FunctionDetailsPage: React.FC<Props> = (props: Props) => {
             };
             props.onPostMessage(message);    
         } else if (type === "function:openfile") {
-            const message: types.MessageEditInfoFunctionOpenFile = {
+            const message: messages.MessageEditInfoFunctionOpenFile = {
                 aifMessageType,
                 type,
                 data: { uri: linkUri },

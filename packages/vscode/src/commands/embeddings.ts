@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { types } from 'aifoundry-vscode-shared';
+import { type api, misc } from 'aifoundry-vscode-shared';
 import EmbeddingsAPI from '../api/EmbeddingsAPI';
 import LanguageModelsAPI from '../api/LanguageModelsAPI';
 import CommandUtils from './utils';
@@ -105,7 +105,7 @@ function _createOrUpdateEmbedding(isCreate: boolean, embeddingsViewProvider: IVi
 		openLabel: 'Select files',
 		canSelectFiles: true,
 		canSelectFolders: false,
-		filters: types.expandAcceptedFileInfoTypeToFileExtensionMap(types.AcceptedFileInfoEmbedding),
+		filters: misc.expandAcceptedFileInfoTypeToFileExtensionMap(misc.AcceptedFileInfoEmbedding),
 	};
 
 	vscode.window
@@ -116,7 +116,7 @@ function _createOrUpdateEmbedding(isCreate: boolean, embeddingsViewProvider: IVi
 					? EmbeddingsAPI.createEmbedding(aifBasemodelUriOrAifEmbeddingAssetId, fileUriList, name)
 					: EmbeddingsAPI.updateEmbedding(aifBasemodelUriOrAifEmbeddingAssetId, fileUriList, name);
 				promise
-					.then((response: types.api.CreateOrUpdateEmbeddingsResponse) => {
+					.then((response: api.CreateOrUpdateEmbeddingsResponse) => {
 						return Promise.resolve();
 					})
 					.then(() => {						

@@ -1,12 +1,12 @@
 'use strict';
 import * as vscode from 'vscode';
-import type { types } from 'aifoundry-vscode-shared';
+import { type api, type database, type messages } from 'aifoundry-vscode-shared';
 
 
 namespace AifPanelUtils {
 	export const AifPanelCommand = 'AiFoundry.showPanel';
 
-	export function createMessageSetPageHome(): types.MessageSetPageContextHome {
+	export function createMessageSetPageHome(): messages.MessageSetPageContextHome {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "home",
@@ -18,7 +18,7 @@ namespace AifPanelUtils {
 		return createCommandShowAifPanel(message);
 	}
 
-	export function createMessageSetPageEmbeddings(embeddingInfo: types.database.EmbeddingMetadata): types.MessageSetPageContextEmbeddings {
+	export function createMessageSetPageEmbeddings(embeddingInfo: database.EmbeddingMetadata): messages.MessageSetPageContextEmbeddings {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "embeddings",
@@ -26,12 +26,12 @@ namespace AifPanelUtils {
 		};
 	}
 
-	export function createCommandShowAifPanelEmbeddings(embeddingInfo: types.database.EmbeddingMetadata): vscode.Command {
+	export function createCommandShowAifPanelEmbeddings(embeddingInfo: database.EmbeddingMetadata): vscode.Command {
 		const message = createMessageSetPageEmbeddings(embeddingInfo);
 		return createCommandShowAifPanel(message);
 	}
 
-	export function createMessageSetPageAgents(agentInfo: types.database.AgentMetadata): types.MessageSetPageContextAgentDetails {
+	export function createMessageSetPageAgents(agentInfo: database.AgentMetadata): messages.MessageSetPageContextAgentDetails {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "agents",
@@ -39,12 +39,12 @@ namespace AifPanelUtils {
 		};
 	}
 
-	export function createCommandShowAifPanelAgents(agentInfo: types.database.AgentMetadata): vscode.Command {
+	export function createCommandShowAifPanelAgents(agentInfo: database.AgentMetadata): vscode.Command {
 		const message = createMessageSetPageAgents(agentInfo);
 		return createCommandShowAifPanel(message);
 	}
 
-	export function createMessageSetPageFunctions(functionMetadata: types.api.FunctionMetadata): types.MessageSetPageContextFunctions {
+	export function createMessageSetPageFunctions(functionMetadata: api.FunctionMetadata): messages.MessageSetPageContextFunctions {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "functions",
@@ -52,12 +52,12 @@ namespace AifPanelUtils {
 		};
 	}
 
-	export function createCommandShowAifPanelFunctions(functionMetadata: types.api.FunctionMetadata): vscode.Command {
+	export function createCommandShowAifPanelFunctions(functionMetadata: api.FunctionMetadata): vscode.Command {
 		const message = createMessageSetPageFunctions(functionMetadata);
 		return createCommandShowAifPanel(message);
 	}
 
-	export function createCommandShowAifPanel(message: types.MessageSetPageContext): vscode.Command {
+	export function createCommandShowAifPanel(message: messages.MessageSetPageContext): vscode.Command {
 		return {
 			title: 'Show AI Foundry Page',
 			command: AifPanelCommand,
@@ -67,7 +67,7 @@ namespace AifPanelUtils {
 
 
 
-	export function createMessageSetPageContextUpdateLmProvider(lmProviderId: string): types.MessageSetPageContextUpdateLmProvider {
+	export function createMessageSetPageContextUpdateLmProvider(lmProviderId: string): messages.MessageSetPageContextUpdateLmProvider {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "page:updateLmProvider",

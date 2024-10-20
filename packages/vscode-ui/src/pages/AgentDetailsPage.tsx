@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useSelector } from "react-redux";
-import { consts, types } from "aifoundry-vscode-shared";
+import { api, consts, type database, type messages } from "aifoundry-vscode-shared";
 import { store } from "../store/store";
 import { pageInfoSlice } from "../store/pageInfoSlice";
 import BasePage, { RowSelectionItem } from "./BasePage";
@@ -9,17 +9,17 @@ import { RootState } from '../store/store';
 
 
 interface Props {
-    data: types.database.AgentMetadata;
-    onPostMessage: (message: types.IMessage) => void;
+    data: database.AgentMetadata;
+    onPostMessage: (message: messages.IMessage) => void;
 }
 
 const AgentDetailsPage: React.FC<Props> = (props: Props) => {
-    const [outputFormatIndex, setOutputFormatIndex] = React.useState<number>(types.api.TextFormats.indexOf(types.api.defaultTextFormat));
+    const [outputFormatIndex, setOutputFormatIndex] = React.useState<number>(api.TextFormats.indexOf(api.defaultTextFormat));
     const embeddings = useSelector((state: RootState) => state.serverData.embeddings);
     const functions = useSelector((state: RootState) => state.serverData.functions);
 
     React.useEffect(() => {
-        const messageApiGetEmbeddings: types.MessageApiGetEmbeddings = {
+        const messageApiGetEmbeddings: messages.MessageApiGetEmbeddings = {
             aifMessageType: "api",
             type: "api:getEmbeddings",
             data: {},
@@ -27,7 +27,7 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
         props.onPostMessage(messageApiGetEmbeddings);
 
         if (consts.AppConfig.ENABLE_FUNCTIONS) {
-            const messageApiGetFunctions: types.MessageApiListFunctions = {
+            const messageApiGetFunctions: messages.MessageApiListFunctions = {
                 aifMessageType: "api",
                 type: "api:listFunctions",
                 data: {},
@@ -37,21 +37,21 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
     }, [props]);
 
     const embeddingMap = React.useMemo(() => {
-        const map: Record<string, types.database.EmbeddingMetadata> = {};
+        const map: Record<string, database.EmbeddingMetadata> = {};
         embeddings.forEach(embedding => map[embedding.id] = embedding);
         return map;
     }, [embeddings]);
 
     const functionMap = React.useMemo(() => {
-        const map: Record<string, types.api.FunctionMetadata> = {};
+        const map: Record<string, api.FunctionMetadata> = {};
         functions.forEach(func => map[func.id] = func);
         return map;
     }, [functions]);
 
-    const onPostMessage = React.useCallback((type: types.MessageEditInfoAgentsType) => {
+    const onPostMessage = React.useCallback((type: messages.MessageEditInfoAgentsType) => {
         const aifMessageType = "editInfo";
         if (type === "agent:update:name") {
-            const message: types.MessageEditInfoAgentName = {
+            const message: messages.MessageEditInfoAgentName = {
                 aifMessageType,
                 type,
                 data: {
@@ -61,7 +61,7 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
             };
             props.onPostMessage(message);
         } else if (type === "agent:update:systemPrompt") {
-            const message: types.MessageEditInfoAgentsystemPrompt = {
+            const message: messages.MessageEditInfoAgentsystemPrompt = {
                 aifMessageType,
                 type,
                 data: {
@@ -71,7 +71,7 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
             };
             props.onPostMessage(message);
         } else if (type === "agent:delete") {
-            const message: types.MessageEditInfodeleteAgent = {
+            const message: messages.MessageEditInfodeleteAgent = {
                 aifMessageType,
                 type,
                 data: {
@@ -84,22 +84,22 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
 
     const onShowModelPlayground = React.useCallback(() => {
         store.dispatch(chatInfoSlice.actions.reset());
-        const pageContext: types.PageContextModelPlayground = {
+        const pageContext: messages.PageContextModelPlayground = {
             pageType: "modelPlayground",
             data: {
                 aifAgentUri: props.data.agentUri,
-                outputFormat: types.api.TextFormats[outputFormatIndex],
+                outputFormat: api.TextFormats[outputFormatIndex],
             }
         };
         store.dispatch(pageInfoSlice.actions.setPageContext(pageContext));
     }, [props.data?.agentUri, outputFormatIndex]);
 
     const outputFormatOptions: string[] = React.useMemo(() => {
-        return types.api.TextFormats.map(key => key);
+        return api.TextFormats.map(key => key);
     }, []);
 
     const onChangeOutputFormat = React.useCallback((value: string) => {
-        const index = types.api.TextFormats.indexOf(value as types.api.TextFormat); // Ensure index is valid
+        const index = api.TextFormats.indexOf(value as api.TextFormat); // Ensure index is valid
         setOutputFormatIndex(index);
     }, [setOutputFormatIndex]);
 

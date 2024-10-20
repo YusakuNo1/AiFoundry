@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { types } from 'aifoundry-vscode-shared';
+import type { api } from 'aifoundry-vscode-shared';
 import MiscUtils from '../utils/MiscUtils';
 import { IViewProvider, VIEW_PROVIDER_RETRY_INTERVAL } from './base';
 import AifPanel from '../panels/AifPanel';
@@ -25,7 +25,7 @@ export class AifMainViewProvider implements IViewProvider {
 	private _onDidChangeTreeData: vscode.EventEmitter<AifTreeItem | undefined | void> = new vscode.EventEmitter<AifTreeItem | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<AifTreeItem | undefined | void> = this._onDidChangeTreeData.event;
 
-	private _lmProviders: types.api.LmProviderInfoResponse[] = [];
+	private _lmProviders: api.LmProviderInfoResponse[] = [];
 
 	constructor() {
 		this._refreshCallback = this._refreshCallback.bind(this);
@@ -84,7 +84,7 @@ export class AifMainViewProvider implements IViewProvider {
 	private async _refreshLmProviders(): Promise<boolean> {
 		// Update the status of LM components
 		try {
-			const lmProviders: types.api.ListLmProvidersResponse = await LanguageModelsAPI.listLmProviders(true);
+			const lmProviders: api.ListLmProvidersResponse = await LanguageModelsAPI.listLmProviders(true);
 			this._lmProviders = lmProviders.providers;
 			AifPanelEvenHandlers.postMessageUpdateLmProviders(this._lmProviders, AifPanel.postMessage);
 			this._onDidChangeTreeData.fire();

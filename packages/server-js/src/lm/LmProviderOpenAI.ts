@@ -1,7 +1,7 @@
 import { Embeddings } from '@langchain/core/embeddings';
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
-import { AifUtils, LmProviderPropertyUtils, types } from 'aifoundry-vscode-shared';
+import { AifUtils, api, LmProviderPropertyUtils } from 'aifoundry-vscode-shared';
 import LmBaseProvider, { GetInitInfoResponse } from './LmBaseProvider';
 import { HttpException } from '../exceptions';
 import OpenAIModels from "../config/model_info/openai_models";
@@ -16,7 +16,7 @@ class LmProviderOpenAI extends LmBaseProvider {
     public static readonly ID = "openai";
 
     protected async _getInitInfo(): Promise<GetInitInfoResponse> {
-        const properties: Record<string, types.api.LmProviderProperty> = {
+        const properties: Record<string, api.LmProviderProperty> = {
             [CredPropKey.ApiKey]: {
                 description: "OpenAI API key",
                 hint: "",

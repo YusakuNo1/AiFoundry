@@ -1,17 +1,17 @@
 import * as React from "react";
-import { types } from "aifoundry-vscode-shared";
+import { type database, type messages } from "aifoundry-vscode-shared";
 import BasePage from "./BasePage";
 
 interface Props {
-    data: types.database.EmbeddingMetadata;
-    onPostMessage: (message: types.IMessage) => void;
+    data: database.EmbeddingMetadata;
+    onPostMessage: (message: messages.IMessage) => void;
 }
 
 const EmbeddingDetailsPage: React.FC<Props> = (props: Props) => {
-    const onPostMessage = React.useCallback((type: types.MessageEditInfoEmbeddingsType) => {
+    const onPostMessage = React.useCallback((type: messages.MessageEditInfoEmbeddingsType) => {
         const aifMessageType = "editInfo";
         if (type === "UpdateEmbeddingName") {
-            const message: types.MessageEditInfoEmbeddingName = {
+            const message: messages.MessageEditInfoEmbeddingName = {
                 aifMessageType,
                 type,
                 data: {
@@ -21,7 +21,7 @@ const EmbeddingDetailsPage: React.FC<Props> = (props: Props) => {
             };
             props.onPostMessage(message);    
         } else if (type === "UpdateEmbeddingDoc") {
-            const message: types.MessageEditInfoEmbeddingUpdateDoc = {
+            const message: messages.MessageEditInfoEmbeddingUpdateDoc = {
                 aifMessageType,
                 type,
                 data: {
@@ -30,7 +30,7 @@ const EmbeddingDetailsPage: React.FC<Props> = (props: Props) => {
             };
             props.onPostMessage(message);
         } else if (type === "DeleteEmbedding") {
-            const message: types.MessageEditInfoDeleteEmbedding = {
+            const message: messages.MessageEditInfoDeleteEmbedding = {
                 aifMessageType,
                 type,
                 data: {

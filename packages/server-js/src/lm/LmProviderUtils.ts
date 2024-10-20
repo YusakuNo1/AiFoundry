@@ -1,13 +1,13 @@
-import type { types } from "aifoundry-vscode-shared";
+import type { api } from "aifoundry-vscode-shared";
 import { AifUtils } from "aifoundry-vscode-shared";
 import { ModelDef } from '../config/model_info/types';
 
 namespace LmProviderUtils {
-    export function createModelMap(modelDef: ModelDef, lmProviderId: string): Record<string, types.api.LmProviderBaseModelInfo> {
-        const modelMap: Record<string, types.api.LmProviderBaseModelInfo> = {};
+    export function createModelMap(modelDef: ModelDef, lmProviderId: string): Record<string, api.LmProviderBaseModelInfo> {
+        const modelMap: Record<string, api.LmProviderBaseModelInfo> = {};
         const models = modelDef.models;
         for (const model of models) {
-            const modelInfo: types.api.LmProviderBaseModelInfo = {
+            const modelInfo: api.LmProviderBaseModelInfo = {
                 uri: AifUtils.createAifUri(lmProviderId, AifUtils.AifUriCategory.Models, model.title),
                 name: model.title,
                 providerId: lmProviderId,
@@ -21,8 +21,8 @@ namespace LmProviderUtils {
         return modelMap;
     }
 
-    export function convertTagToLmFeature(tags: string[]): types.api.LlmFeature[] {
-        const features: types.api.LlmFeature[] = []
+    export function convertTagToLmFeature(tags: string[]): api.LlmFeature[] {
+        const features: api.LlmFeature[] = []
 
         if (tags.includes("embedding")) {
             features.push("embedding");

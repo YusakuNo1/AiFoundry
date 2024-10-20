@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { types } from "aifoundry-vscode-shared";
+import type { api, database } from "aifoundry-vscode-shared";
 
 
 interface ServerDataState {
-    lmProviders: types.api.LmProviderInfoResponse[] | null;
-    embeddings: types.database.EmbeddingMetadata[];
-	functions: types.api.FunctionMetadata[];
+    lmProviders: api.LmProviderInfoResponse[] | null;
+    embeddings: database.EmbeddingMetadata[];
+	functions: api.FunctionMetadata[];
 }
 
 const initialState: ServerDataState = {
@@ -18,13 +18,13 @@ export const serverDataSlice = createSlice({
     name: "serverData",
     initialState,
     reducers: {
-        updateLmProviders: (state, action: PayloadAction<types.api.LmProviderInfoResponse[]>) => {
+        updateLmProviders: (state, action: PayloadAction<api.LmProviderInfoResponse[]>) => {
             state.lmProviders = action.payload;
         },
-        updateEmbeddings: (state, action: PayloadAction<types.database.EmbeddingMetadata[]>) => {
+        updateEmbeddings: (state, action: PayloadAction<database.EmbeddingMetadata[]>) => {
             state.embeddings = action.payload;
         },
-        updateFunctions: (state, action: PayloadAction<types.api.FunctionMetadata[]>) => {
+        updateFunctions: (state, action: PayloadAction<api.FunctionMetadata[]>) => {
             state.functions = action.payload;
         },
     },

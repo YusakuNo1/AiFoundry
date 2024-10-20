@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { ApiOutputMessage } from '../types/api';
+import { ApiOutputMessage } from '../api';
 
 namespace StreamingUtils {
     export function createErrorObservable(message: string | ApiOutputMessage) {

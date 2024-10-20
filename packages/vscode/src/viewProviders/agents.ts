@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { types } from 'aifoundry-vscode-shared';
+import type { database } from 'aifoundry-vscode-shared';
 import { consts } from 'aifoundry-vscode-shared';
 import AgentsAPI from '../api/AgentsAPI';
 import AifPanel from '../panels/AifPanel';
@@ -15,7 +15,7 @@ export class AifAgentsViewProvider implements IViewProvider {
 	private _onDidChangeTreeData: vscode.EventEmitter<AifTreeItem | undefined | void> = new vscode.EventEmitter<AifTreeItem | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<AifTreeItem | undefined | void> = this._onDidChangeTreeData.event;
 
-	private _agents: types.database.AgentMetadata[] | undefined = undefined;
+	private _agents: database.AgentMetadata[] | undefined = undefined;
 
 	constructor() {
 		this._refreshCallback = this._refreshCallback.bind(this);

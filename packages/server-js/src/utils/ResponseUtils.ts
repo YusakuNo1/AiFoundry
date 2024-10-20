@@ -1,6 +1,6 @@
 import * as express from "express";
 import { Observable } from 'rxjs';
-import { AifUtils, consts, type types } from 'aifoundry-vscode-shared';
+import { AifUtils, api, consts } from 'aifoundry-vscode-shared';
 import { HttpException } from "../exceptions";
 
 namespace ResponseUtils {
@@ -65,24 +65,24 @@ namespace ResponseUtils {
         });
     }
 
-    export function maskListLmProvidersResponse(response: types.api.ListLmProvidersResponse): types.api.ListLmProvidersResponse {
+    export function maskListLmProvidersResponse(response: api.ListLmProvidersResponse): api.ListLmProvidersResponse {
         response.providers.forEach((provider) => {
             Object.values(provider.properties).forEach(_maskLmProviderProperty);
         });
         return response;
     }
 
-    export function maskGetLmProviderInfoResponse(response: types.api.LmProviderInfoResponse): types.api.LmProviderInfoResponse {
+    export function maskGetLmProviderInfoResponse(response: api.LmProviderInfoResponse): api.LmProviderInfoResponse {
         Object.values(response.properties).forEach(_maskLmProviderProperty);
         return response;
     }
 
-    export function maskUpdateLmProviderResponse(response: types.api.UpdateLmProviderResponse): types.api.UpdateLmProviderResponse {
+    export function maskUpdateLmProviderResponse(response: api.UpdateLmProviderResponse): api.UpdateLmProviderResponse {
         Object.values(response.properties).forEach(_maskLmProviderProperty);
         return response;
     }
 
-    function _maskLmProviderProperty(property: types.api.LmProviderProperty): types.api.LmProviderProperty {
+    function _maskLmProviderProperty(property: api.LmProviderProperty): api.LmProviderProperty {
         const uriInfo = AifUtils.extractAiUri(null, property.valueUri ?? "");
         if (property.isSecret && uriInfo && uriInfo.parts.length === 2) {
             uriInfo.parts[1] = consts.LM_PROVIDER_PROP_VALUE_MASK.repeat(uriInfo.parts[1].length);

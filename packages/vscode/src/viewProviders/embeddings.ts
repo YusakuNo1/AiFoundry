@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import type { types } from 'aifoundry-vscode-shared';
+import type { database } from 'aifoundry-vscode-shared';
 import { consts } from 'aifoundry-vscode-shared';
 import EmbeddingsAPI from '../api/EmbeddingsAPI';
 import AifPanel from '../panels/AifPanel';
@@ -16,7 +16,7 @@ export class AifEmbeddingsViewProvider implements IViewProvider {
 	private _onDidChangeTreeData: vscode.EventEmitter<AifTreeItem | undefined | void> = new vscode.EventEmitter<AifTreeItem | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<AifTreeItem | undefined | void> = this._onDidChangeTreeData.event;
 
-	private _embeddings: types.database.EmbeddingMetadata[] | undefined = undefined;
+	private _embeddings: database.EmbeddingMetadata[] | undefined = undefined;
 
 	constructor() {
 		this._refreshCallback = this._refreshCallback.bind(this);

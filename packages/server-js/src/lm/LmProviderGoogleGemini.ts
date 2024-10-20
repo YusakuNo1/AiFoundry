@@ -1,7 +1,7 @@
 import { Embeddings } from '@langchain/core/embeddings';
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
-import { AifUtils, LmProviderPropertyUtils, types } from 'aifoundry-vscode-shared';
+import { AifUtils, api, LmProviderPropertyUtils } from 'aifoundry-vscode-shared';
 import LmBaseProvider, { GetInitInfoResponse } from './LmBaseProvider';
 import { HttpException } from '../exceptions';
 import GoogleGeminiModels from "../config/model_info/googlegemini_models";
@@ -16,7 +16,7 @@ class LmProviderGoogleGemini extends LmBaseProvider {
     public static readonly ID = "googlegemini";
 
     protected async _getInitInfo(): Promise<GetInitInfoResponse> {
-        const properties: Record<string, types.api.LmProviderProperty> = {
+        const properties: Record<string, api.LmProviderProperty> = {
             [CredPropKey.ApiKey]: {
                 description: "Google Gemini API key",
                 hint: "",

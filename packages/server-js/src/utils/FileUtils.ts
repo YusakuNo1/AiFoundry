@@ -1,8 +1,8 @@
 import { Document } from "@langchain/core/documents";
-import { types } from "aifoundry-vscode-shared";
+import { type misc } from "aifoundry-vscode-shared";
 
 namespace FileUtils {
-    export function convertToDocument(file: types.UploadFileInfo): Document | null {
+    export function convertToDocument(file: misc.UploadFileInfo): Document | null {
         if (file.type !== "txt") {
             // TODO: only support text type for now
             return null;

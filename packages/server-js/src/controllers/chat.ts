@@ -1,6 +1,6 @@
 import * as express from "express";
 import { v4 as uuid } from "uuid";
-import { consts, types } from "aifoundry-vscode-shared";
+import { api, consts, type misc } from "aifoundry-vscode-shared";
 import ILmManager from "../lm/ILmManager";
 import RouterUtils from "../utils/RouterUtils";
 import ResponseUtils from "../utils/ResponseUtils";
@@ -39,9 +39,9 @@ export function registerRoutes(router: express.Router, llmManager: ILmManager) {
         const sub = await llmManager.chat(
             aif_session_id,
             aif_agent_uri,
-            req.query.outputFormat as types.api.TextFormat ?? "plain",
+            req.query.outputFormat as api.TextFormat ?? "plain",
             req.body.input,
-            req.files as types.UploadFileInfo[],
+            req.files as misc.UploadFileInfo[],
         )
 
         res.cookie(consts.COOKIE_AIF_SESSION_ID, aif_session_id);

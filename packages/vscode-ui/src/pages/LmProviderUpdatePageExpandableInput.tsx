@@ -1,7 +1,7 @@
 import React from 'react';
 import { List, Stack } from '@fluentui/react';
 import { Button, Checkbox, Input } from '@fluentui/react-components';
-import { consts, types } from 'aifoundry-vscode-shared';
+import { type api, consts } from 'aifoundry-vscode-shared';
 import { themeName } from '../theme/themes';
 import { AifIcons } from '../theme/icons';
 
@@ -10,21 +10,21 @@ type Props = {
     lmProviderId: string;
     inputId: string;
     style: React.CSSProperties;
-    models: types.api.LmProviderBaseModelInfo[];
+    models: api.LmProviderBaseModelInfo[];
     supportUserDefinedModels: boolean;
-    llmFeature: types.api.LlmFeature;
+    llmFeature: api.LlmFeature;
     onChange: (modelUri: string, selected: boolean) => void;
-    onAddUserDefinedModel: (modelName: string, llmFeature: types.api.LlmFeature) => void;
+    onAddUserDefinedModel: (modelName: string, llmFeature: api.LlmFeature) => void;
     onDownloadModel: (modelUri: string) => void;
     onDeleteModel: (modelUri: string) => void;
 }
 const LmProviderUpdatePageExpandableInput = (props: Props) => {
     const [modelName, setModelName] = React.useState<string>("");
-    const [modelMap, setModelMap] = React.useState<Record<string, types.api.LmProviderBaseModelInfo>>({});
+    const [modelMap, setModelMap] = React.useState<Record<string, api.LmProviderBaseModelInfo>>({});
     const isLocalLmProvider = React.useMemo(() => consts.LOCAL_LM_PROVIDERS.includes(props.lmProviderId), [props.lmProviderId]);
 
     React.useEffect(() => {
-        const map: Record<string, types.api.LmProviderBaseModelInfo> = {};
+        const map: Record<string, api.LmProviderBaseModelInfo> = {};
         for (const model of props.models) {
             if (props.llmFeature === "all" || model.features.includes(props.llmFeature)) {
                 map[model.name] = model;
@@ -60,7 +60,7 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
 
     const inputStyle = { width: "100%" };
 
-    const renderLabel = (model: types.api.LmProviderBaseModelInfo | null, isDownloaded: boolean) => {
+    const renderLabel = (model: api.LmProviderBaseModelInfo | null, isDownloaded: boolean) => {
         if (!model) {
             return null;
         } else if (!isLocalLmProvider) {
@@ -80,7 +80,7 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
     return (<>
         <List items={items} onRenderCell={(item, index) => {
             // Ollama is the only local provider for now
-            const isDownloaded = !isLocalLmProvider || ((item?.model as types.api.LmProviderBaseModelInfoOllama)?.isDownloaded ?? false);
+            const isDownloaded = !isLocalLmProvider || ((item?.model as api.LmProviderBaseModelInfoOllama)?.isDownloaded ?? false);
             return (<Checkbox
                 disabled={!isDownloaded}
                 key={item?.key ?? `checkbox-${index}`}

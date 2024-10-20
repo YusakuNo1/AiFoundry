@@ -1,4 +1,3 @@
-import { UploadFileInfo } from "../common";
 import { BaseEntity } from "./BaseEntity"
 
 export type ChatHistoryMessageTextContentItem = {

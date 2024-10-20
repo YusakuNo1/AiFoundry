@@ -1,4 +1,4 @@
-import { types } from "aifoundry-vscode-shared";
+import { api, database } from "aifoundry-vscode-shared";
 import DatabaseManager from "../DatabaseManager";
 import { removeDatabaseFile } from "./testUtils";
 
@@ -34,7 +34,7 @@ describe('AgentMetadata', () => {
 
         const stringFieldsToUpdate: string[] = ['name', 'basemodelUri', 'systemPrompt'];
         for (const field of stringFieldsToUpdate) {
-            const updatedAgentMetadata: types.api.UpdateAgentRequest = {
+            const updatedAgentMetadata: api.UpdateAgentRequest = {
                 agentUri: `mock_agent_${agentId}_uri`,
                 [field]: `New ${field}`,
             }
@@ -52,7 +52,7 @@ describe('AgentMetadata', () => {
 
         const arrayFieldsToUpdate: string[] = ['ragAssetIds', 'functionAssetIds'];
         for (const field of arrayFieldsToUpdate) {
-            const updatedAgentMetadata: types.api.UpdateAgentRequest = {
+            const updatedAgentMetadata: api.UpdateAgentRequest = {
                 agentUri: `mock_agent_${agentId}_uri`,
                 [field]: ['Item1', 'Item2'],
             }
@@ -75,7 +75,7 @@ describe('AgentMetadata', () => {
 });
 
 function createAgentMetadata(id: string) {
-    return new types.database.AgentMetadata(
+    return new database.AgentMetadata(
         id,
         `Mock agent name ${id}`,
         `mock_agent_${id}_uri`,

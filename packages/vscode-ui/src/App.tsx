@@ -8,7 +8,7 @@ import {
     Link,
 } from "@fluentui/react-components";
 import "./App.css";
-import type { types } from "aifoundry-vscode-shared";
+import type { messages } from "aifoundry-vscode-shared";
 import HomePage from "./pages/HomePage";
 import EmbeddingDetailsPage from "./pages/EmbeddingDetailsPage";
 import AgentDetailsPage from "./pages/AgentDetailsPage";
@@ -34,7 +34,7 @@ function App(props: Props) {
         // and the ready message to be sent twice. The solution is to check it within registerEvents function.
         const result = AppEventUtils.registerEvents();
         if (result) {
-            const readyMessage: types.IMessage = { aifMessageType: "webapp:ready" };
+            const readyMessage: messages.IMessage = { aifMessageType: "webapp:ready" };
             props.vscode.postMessage(readyMessage);
         }
     }, [props.vscode]);
@@ -58,27 +58,27 @@ function App(props: Props) {
         }
     }
 
-    const routeMap: Record<types.IPageContextPageType, React.ReactNode> = {
+    const routeMap: Record<messages.IPageContextPageType, React.ReactNode> = {
         "home": <HomePage vscode={props.vscode} />,
         "embeddings": <EmbeddingDetailsPage
-            data={(pageContext as types.PageContextEmbeddings).data}
+            data={(pageContext as messages.PageContextEmbeddings).data}
             onPostMessage={props.vscode.postMessage}
         />,
         "agents": <AgentDetailsPage
-            data={(pageContext as types.PageContextAgentDetails).data}
+            data={(pageContext as messages.PageContextAgentDetails).data}
             onPostMessage={props.vscode.postMessage}
         />,
         "modelPlayground": <ModelPlaygroundPage
-            aifAgentUri={(pageContext as types.PageContextModelPlayground).data?.aifAgentUri}
-            outputFormat={(pageContext as types.PageContextModelPlayground).data?.outputFormat}
+            aifAgentUri={(pageContext as messages.PageContextModelPlayground).data?.aifAgentUri}
+            outputFormat={(pageContext as messages.PageContextModelPlayground).data?.outputFormat}
             onPostMessage={props.vscode.postMessage}
         />,
         "functions": <FunctionDetailsPage
-            data={(pageContext as types.PageContextFunctions).data}
+            data={(pageContext as messages.PageContextFunctions).data}
             onPostMessage={props.vscode.postMessage}
         />,
         "page:updateLmProvider": <LmProviderUpdatePage
-            lmProviderId={(pageContext as types.PageContextUpdateLmProvider).data?.lmProviderId}
+            lmProviderId={(pageContext as messages.PageContextUpdateLmProvider).data?.lmProviderId}
             onPostMessage={props.vscode.postMessage}
         />,
     };
@@ -95,7 +95,7 @@ function App(props: Props) {
                     <Route index element={routeMap["home"]} />
                     <Route path="/index.html" element={routeMap["home"]} />
                     {Object.keys(routeMap).filter(key => key !== "home").map(key => (
-                        <Route key={key} path={`/${key}`} element={routeMap[key as types.IPageContextPageType]} />
+                        <Route key={key} path={`/${key}`} element={routeMap[key as messages.IPageContextPageType]} />
                     ))}
                     <Route path="*" element={routeMap["home"]} />
                 </Route>

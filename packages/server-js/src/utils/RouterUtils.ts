@@ -1,6 +1,6 @@
 import * as bodyParser from "body-parser";
 import * as multer from "multer";
-import { types } from "aifoundry-vscode-shared";
+import { misc } from "aifoundry-vscode-shared";
 
 namespace RouterUtils {
     const jsonParser = bodyParser.json()
@@ -12,15 +12,15 @@ namespace RouterUtils {
         formWithFiles: upload.array('files'),
     }
 
-    export const fileConvertMiddleware = (acceptedTypes: types.AcceptedFileInfoType[]) => (req, res, next) => {
+    export const fileConvertMiddleware = (acceptedTypes: misc.AcceptedFileInfoType[]) => (req, res, next) => {
         const files = req.files
             .map((file: any) => {
                 const ext = file.originalname.split('.').pop();
                 for (const type of acceptedTypes) {
-                    if (types.AcceptedFileInfo[type].extensions.includes(ext)) {
-                        const dataUrlInfo: types.DataUrlInfo = types.AcceptedFileInfo[type].convert(ext, file.buffer);
+                    if (misc.AcceptedFileInfo[type].extensions.includes(ext)) {
+                        const dataUrlInfo: misc.DataUrlInfo = misc.AcceptedFileInfo[type].convert(ext, file.buffer);
                         return {
-                            type: type as types.AcceptedFileInfoType,
+                            type: type as misc.AcceptedFileInfoType,
                             fileName: file.originalname,
                             data: dataUrlInfo.data,
                             dataUrlPrefix: dataUrlInfo.dataUrlPrefix,

@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { types } from 'aifoundry-vscode-shared';
+import { api, type misc } from 'aifoundry-vscode-shared';
 import { ApiOutputCtrl } from '../types/ApiOutput';
 
 interface ILmManager {
@@ -8,30 +8,30 @@ interface ILmManager {
     chat(
         aif_session_id: string,
         aif_agent_uri: string,
-        outputFormat: types.api.TextFormat,
+        outputFormat: api.TextFormat,
         input: string,
-        requestFileInfoList: types.UploadFileInfo[],
+        requestFileInfoList: misc.UploadFileInfo[],
     ): Promise<Observable<string>>;
 
-    listAgents(): types.api.ListAgentsResponse;
-    createAgent(agent: types.api.CreateAgentRequest): types.api.CreateOrUpdateAgentResponse;
-    updateAgent(id: string, request: types.api.UpdateAgentRequest): types.api.CreateOrUpdateAgentResponse;
-    deleteAgent(id: string): types.api.DeleteAgentResponse;
+    listAgents(): api.ListAgentsResponse;
+    createAgent(agent: api.CreateAgentRequest): api.CreateOrUpdateAgentResponse;
+    updateAgent(id: string, request: api.UpdateAgentRequest): api.CreateOrUpdateAgentResponse;
+    deleteAgent(id: string): api.DeleteAgentResponse;
 
-    listEmbeddings(): types.api.ListEmbeddingsResponse;
-    createEmbedding(afBaseModelUri: string | undefined, files: types.UploadFileInfo[] | undefined, name: string | undefined): Promise<types.api.CreateOrUpdateEmbeddingsResponse>;
-    updateEmbedding(id: string | undefined, files: types.UploadFileInfo[] | undefined, name: string | undefined): Promise<types.api.CreateOrUpdateEmbeddingsResponse>;
-    deleteEmbedding(id: string): Promise<types.api.DeleteEmbeddingResponse>;
+    listEmbeddings(): api.ListEmbeddingsResponse;
+    createEmbedding(afBaseModelUri: string | undefined, files: misc.UploadFileInfo[] | undefined, name: string | undefined): Promise<api.CreateOrUpdateEmbeddingsResponse>;
+    updateEmbedding(id: string | undefined, files: misc.UploadFileInfo[] | undefined, name: string | undefined): Promise<api.CreateOrUpdateEmbeddingsResponse>;
+    deleteEmbedding(id: string): Promise<api.DeleteEmbeddingResponse>;
 
-    listLanguageModels(llmFeature: types.api.LlmFeature): types.api.ListLanguageModelsResponse;
+    listLanguageModels(llmFeature: api.LlmFeature): api.ListLanguageModelsResponse;
     downloadLanguageModel(lmProviderId: string, id: string): Promise<ReadableStream>;
-    deleteLanguageModel(lmProviderId: string, id: string): Promise<types.api.DeleteLanguageModelResponse>;
+    deleteLanguageModel(lmProviderId: string, id: string): Promise<api.DeleteLanguageModelResponse>;
 
-    setupLmProvider(request: types.api.SetupLmProviderRequest, out: ApiOutputCtrl): void;
-    listLmProviders(force: boolean): Promise<types.api.ListLmProvidersResponse>;
-    getLmProvider(id: string, force: boolean): Promise<types.api.LmProviderInfoResponse>;
-    updateLmProviderInfo(request: types.api.UpdateLmProviderInfoRequest): types.api.UpdateLmProviderResponse;
-    updateLmProviderModel(request: types.api.UpdateLmProviderModelRequest): types.api.UpdateLmProviderResponse;
+    setupLmProvider(request: api.SetupLmProviderRequest, out: ApiOutputCtrl): void;
+    listLmProviders(force: boolean): Promise<api.ListLmProvidersResponse>;
+    getLmProvider(id: string, force: boolean): Promise<api.LmProviderInfoResponse>;
+    updateLmProviderInfo(request: api.UpdateLmProviderInfoRequest): api.UpdateLmProviderResponse;
+    updateLmProviderModel(request: api.UpdateLmProviderModelRequest): api.UpdateLmProviderResponse;
 }
 
 export default ILmManager;

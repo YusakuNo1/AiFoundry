@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { v4 as uuidv4 } from "uuid";
-import type { types } from 'aifoundry-vscode-shared';
+import { type misc, type store } from 'aifoundry-vscode-shared';
 
 namespace FileUtils {
 	export function convertTextToFunctionName(text: string): string {
@@ -17,7 +17,7 @@ namespace FileUtils {
 		return new File([documentBlob], fileName);
 	}
 
-	export async function convertChatHistoryMessageFileToFile(file: types.UploadFileInfo): Promise<File> {
+	export async function convertChatHistoryMessageFileToFile(file: misc.UploadFileInfo): Promise<File> {
 		const data = Buffer.from(file.data, "base64");
 		const documentBlob = new Blob([data], {
 			type: "application/octet-stream",
@@ -25,12 +25,12 @@ namespace FileUtils {
 		return new File([documentBlob], file.fileName);
 	}
 
-	export type LocalFileInfo = types.FileInfo & {
+	export type LocalFileInfo = store.FileInfo & {
 		uri: vscode.Uri
 	}
-	export type LocalFileSelection = types.FileSelection<LocalFileInfo>;
+	export type LocalFileSelection = store.FileSelection<LocalFileInfo>;
 	let _localFileSelection: LocalFileSelection | null = null;
-	export function chooseFiles(): Promise<types.FileSelection<types.FileInfo>> {
+	export function chooseFiles(): Promise<store.FileSelection<store.FileInfo>> {
 		return new Promise((resolve) => {
 			_localFileSelection = null;
 
@@ -52,7 +52,7 @@ namespace FileUtils {
 					files: localFiles,
 				};
 
-				const fileSelection: types.FileSelection<types.FileInfo> = {
+				const fileSelection: store.FileSelection<store.FileInfo> = {
 					id: _localFileSelection.id,
 					files: localFiles.map(file => ({
 						fileName: file.fileName,

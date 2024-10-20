@@ -1,4 +1,3 @@
-import { types } from 'aifoundry-vscode-shared';
 import ServerConfig from "../config/ServerConfig";
 import { ApiOutputCtrl } from "../types/ApiOutput";
 
