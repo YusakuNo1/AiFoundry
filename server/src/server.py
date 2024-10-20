@@ -43,6 +43,6 @@ if __name__ == "__main__":
 
     if args.hotreload:
         # Debug only: set reload=Treu and "server:app" for hot reload, "server" is the file name for "app"
-        uvicorn.run("server:app", host=host, port=8000, reload=True)
+        uvicorn.run("server:app", host=host, port=30303, reload=True)
     else:
-        uvicorn.run(app, host=host, port=8000)
+        uvicorn.run(app, host=host, port=30303)

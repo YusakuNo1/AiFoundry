@@ -19,7 +19,7 @@ namespace DockerUtils {
 		const containerAssetsPath = `${consts.CONTAINER_HOME_DIR}/${consts.ASSETS_FOLDER_NAME}`;
 		const dockerGatewayMappingParameter = "--add-host=host.docker.internal:host-gateway";
 		const startServerCommand = "/bin/sh -c \"./start_server.dev.sh\"";
-		const commandStartContainer = `run -i -p 8000:8000 --name ${consts.DOCKER_CONTAINER_NAME} -v ${localAssetsPath}:${containerAssetsPath} ${dockerGatewayMappingParameter} ${consts.DOCKER_HUB_IMAGE_ID} ${startServer ? startServerCommand : ""}`;
+		const commandStartContainer = `run -i -p 30303:30303 --name ${consts.DOCKER_CONTAINER_NAME} -v ${localAssetsPath}:${containerAssetsPath} ${dockerGatewayMappingParameter} ${consts.DOCKER_HUB_IMAGE_ID} ${startServer ? startServerCommand : ""}`;
 
 		try {
 			await _runDockerCommand(`rm ${consts.DOCKER_CONTAINER_NAME}`);

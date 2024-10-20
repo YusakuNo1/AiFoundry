@@ -7,7 +7,7 @@ services:
     volumes:
       - ~/.aifoundry/assets:/home/vscode/assets/
     ports:
-      - "8000:8000"
+      - "30303:30303"
     extra_hosts:
       - "host.docker.internal:host-gateway" # for accessing host machine for Ollama
     restart: always
@@ -20,6 +20,6 @@ services:
     volumes:
       - ~/.aifoundry/assets:/home/vscode/assets/
     ports:
-      - "8000:8000"
+      - "30303:30303"
     extra_hosts:
       - "host.docker.internal:host-gateway" # for accessing host machine for Ollama

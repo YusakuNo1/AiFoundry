@@ -1,5 +1,5 @@
 namespace Config {
-    export const SERVER_PORT = 8000;
+    export const SERVER_PORT = 30303;
     export const VECTOR_STORE_PROVIDER = "faiss";
     export const SQLITE_FOLDER_NAME = "aifdb";
 
