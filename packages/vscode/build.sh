@@ -1,5 +1,6 @@
 # Pre-release scripts
 cd ../vscode-ui
+npm i
 npm run release
 cd ../vscode
 

@@ -5,6 +5,10 @@ src/**
 .gitignore
 tsconfig.json
 
+# Experimental excluded files, e.g. tiktoken is the largest library in the build, while LangChain is only using js-tiktoken/lite
+../../node_modules/js-tiktoken/dist/index.*
+../../node_modules/js-tiktoken/dist/ranks
+
 # Ignore the following files to make the build smaller
 build.sh
 ../server-js/node_modules/typescript/**

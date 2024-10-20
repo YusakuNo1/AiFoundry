@@ -44,22 +44,25 @@ class LmProviderGoogleGemini extends LmBaseProvider {
     }
 
     public async getBaseEmbeddingsModel(aifUri: string): Promise<Embeddings> {
-        const { apiKey } = await this._getCredentials(aifUri);
+        const { apiKey, modelName } = await this._getCredentials(aifUri);
         return new GoogleGenerativeAIEmbeddings({
             apiKey,
+            model: modelName,
             maxRetries: 1,
         });
     }
 
     public async getBaseLanguageModel(aifUri: string): Promise<BaseChatModel> {
-        const { apiKey } = await this._getCredentials(aifUri);
+        const { apiKey, modelName } = await this._getCredentials(aifUri);
         return new ChatGoogleGenerativeAI({
             apiKey,
+            model: modelName,
         });
     }
 
     private async _getCredentials(aifUri: string): Promise<{
         apiKey: string,
+        modelName: string,
     }> {
         const lmInfo = AifUtils.getModelNameAndVersion(this._info.id, aifUri);
         if (!lmInfo) {
@@ -74,6 +77,7 @@ class LmProviderGoogleGemini extends LmBaseProvider {
 
         return {
             apiKey,
+            modelName: lmInfo.modelName,
         };
     }
 }
