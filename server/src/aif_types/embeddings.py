@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 
 
-class EmbeddingMetadata(SQLModel, table=True):
+class EmbeddingEntity(SQLModel, table=True):
     id: str = Field(primary_key=True)
     name: str
     vs_provider: str
@@ -18,7 +18,7 @@ class CreateOrUpdateEmbeddingsResponse(BaseModel):
     name: str
 
 class ListEmbeddingsResponse(BaseModel):
-    embeddings: List[EmbeddingMetadata]
+    embeddings: List[EmbeddingEntity]
 
 class UpdateEmbeddingMetadataRequest(BaseModel):
     name: str

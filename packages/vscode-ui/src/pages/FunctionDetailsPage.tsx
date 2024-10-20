@@ -6,7 +6,7 @@ import ConfigUtils from "../utils/ConfigUtils";
 
 
 interface Props {
-    data: api.FunctionMetadata;
+    data: api.FunctionEntity;
     onPostMessage: (message: messages.IMessage) => void;
 }
 

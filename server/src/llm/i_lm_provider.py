@@ -3,7 +3,7 @@ from typing import List, Callable
 from abc import ABCMeta, abstractmethod
 from langchain_core.language_models.base import BaseLanguageModel
 from langchain_core.embeddings.embeddings import Embeddings
-from aif_types.languagemodels import LanguageModelInfo, LmProviderInfo, UpdateLmProviderRequest
+from aif_types.languagemodels import LanguageModelInfo, LmProviderEntity, UpdateLmProviderRequest
 from aif_types.llm import LlmFeature
 
 
@@ -58,7 +58,7 @@ class ILmProvider(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def getLanguageProviderInfo(self) -> LmProviderInfo:
+    def getLanguageProviderInfo(self) -> LmProviderEntity:
         """
         Get the language provider info
         """

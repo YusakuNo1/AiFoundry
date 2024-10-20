@@ -18,7 +18,7 @@ namespace AifPanelUtils {
 		return createCommandShowAifPanel(message);
 	}
 
-	export function createMessageSetPageEmbeddings(embeddingInfo: database.EmbeddingMetadata): messages.MessageSetPageContextEmbeddings {
+	export function createMessageSetPageEmbeddings(embeddingInfo: database.EmbeddingEntity): messages.MessageSetPageContextEmbeddings {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "embeddings",
@@ -26,12 +26,12 @@ namespace AifPanelUtils {
 		};
 	}
 
-	export function createCommandShowAifPanelEmbeddings(embeddingInfo: database.EmbeddingMetadata): vscode.Command {
+	export function createCommandShowAifPanelEmbeddings(embeddingInfo: database.EmbeddingEntity): vscode.Command {
 		const message = createMessageSetPageEmbeddings(embeddingInfo);
 		return createCommandShowAifPanel(message);
 	}
 
-	export function createMessageSetPageAgents(agentInfo: database.AgentMetadata): messages.MessageSetPageContextAgentDetails {
+	export function createMessageSetPageAgents(agentInfo: database.AgentEntity): messages.MessageSetPageContextAgentDetails {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "agents",
@@ -39,12 +39,12 @@ namespace AifPanelUtils {
 		};
 	}
 
-	export function createCommandShowAifPanelAgents(agentInfo: database.AgentMetadata): vscode.Command {
+	export function createCommandShowAifPanelAgents(agentInfo: database.AgentEntity): vscode.Command {
 		const message = createMessageSetPageAgents(agentInfo);
 		return createCommandShowAifPanel(message);
 	}
 
-	export function createMessageSetPageFunctions(functionMetadata: api.FunctionMetadata): messages.MessageSetPageContextFunctions {
+	export function createMessageSetPageFunctions(functionMetadata: api.FunctionEntity): messages.MessageSetPageContextFunctions {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "functions",
@@ -52,7 +52,7 @@ namespace AifPanelUtils {
 		};
 	}
 
-	export function createCommandShowAifPanelFunctions(functionMetadata: api.FunctionMetadata): vscode.Command {
+	export function createCommandShowAifPanelFunctions(functionMetadata: api.FunctionEntity): vscode.Command {
 		const message = createMessageSetPageFunctions(functionMetadata);
 		return createCommandShowAifPanel(message);
 	}

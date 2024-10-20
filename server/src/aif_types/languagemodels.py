@@ -31,7 +31,7 @@ class LmProviderProperty(BaseModel):
     isCredential: bool
 
 
-class LmProviderInfo(BaseModel):
+class LmProviderEntity(BaseModel):
     lmProviderId: str
     name: str
     properties: dict[str, LmProviderProperty]
@@ -42,7 +42,7 @@ class LmProviderInfo(BaseModel):
 
 
 class ListLmProvidersResponse(BaseModel):
-    providers: List[LmProviderInfo]
+    providers: List[LmProviderEntity]
 
 
 class UpdateLmProviderRequest(BaseModel):

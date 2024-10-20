@@ -8,10 +8,10 @@ from sqlalchemy.orm import Session
 
 from utils.assets_utils import get_assets_path
 from aif_types.common import RequestFileInfo
-from aif_types.embeddings import EmbeddingMetadata
-from aif_types.agents import AgentMetadata, UpdateAgentRequest, CreateOrUpdateAgentResponse
-from aif_types.functions import FunctionMetadata, UpdateFunctionRequest, CreateOrUpdateFunctionResponse, DeleteFunctionResponse
-from aif_types.chat import ChatHistory, ChatHistoryMessage, ChatRole
+from aif_types.embeddings import EmbeddingEntity
+from aif_types.agents import AgentEntity, UpdateAgentRequest, CreateOrUpdateAgentResponse
+from aif_types.functions import FunctionEntity, UpdateFunctionRequest, CreateOrUpdateFunctionResponse, DeleteFunctionResponse
+from aif_types.chat import ChatHistoryEntity, ChatHistoryMessage, ChatRole
 
 
 class DatabaseManager:
@@ -31,37 +31,37 @@ class DatabaseManager:
 
     def update_embeddings_name(self, asset_id: str, name: str):
         with Session(self._engine) as session:
-            embedding = session.get(EmbeddingMetadata, asset_id)
+            embedding = session.get(EmbeddingEntity, asset_id)
             if embedding is None:
                 raise Exception(f"Embedding with id {id} not found")
             embedding.name = name
             session.commit()
 
-    def load_embeddings_metadata(self, asset_id: str) -> EmbeddingMetadata | None:
+    def load_embeddings_metadata(self, asset_id: str) -> EmbeddingEntity | None:
         with Session(self._engine) as session:
-            return session.get(EmbeddingMetadata, asset_id)
+            return session.get(EmbeddingEntity, asset_id)
 
-    def list_embeddings_metadata(self) -> List[EmbeddingMetadata]:
+    def list_embeddings_metadata(self) -> List[EmbeddingEntity]:
         with Session(self._engine) as session:
-            return session.query(EmbeddingMetadata).all()
+            return session.query(EmbeddingEntity).all()
 
     def delete_embeddings_metadata(self, asset_id: str):
         with Session(self._engine) as session:
-            embedding_metadata = session.get(EmbeddingMetadata, asset_id)
+            embedding_metadata = session.get(EmbeddingEntity, asset_id)
             session.delete(embedding_metadata)
             session.commit()
 
-    def list_agents(self) -> List[AgentMetadata]:
+    def list_agents(self) -> List[AgentEntity]:
         with Session(self._engine) as session:
-            return session.query(AgentMetadata).all()
+            return session.query(AgentEntity).all()
 
-    # def load_model(self, id: str) -> AgentMetadata | None:
+    # def load_model(self, id: str) -> AgentEntity | None:
     #     with Session(self._engine) as session:
-    #         return session.get(AgentMetadata, id)
+    #         return session.get(AgentEntity, id)
         
     def update_agent(self, id: str, request: UpdateAgentRequest) -> CreateOrUpdateAgentResponse:
         with Session(self._engine) as session:
-            agent = session.get(AgentMetadata, id)
+            agent = session.get(AgentEntity, id)
             if agent is None:
                 raise Exception(f"Agent with id {id} not found")
 
@@ -77,7 +77,7 @@ class DatabaseManager:
 
     def delete_agent(self, id: str):
         with Session(self._engine) as session:
-            agent_metadata = session.get(AgentMetadata, id)
+            agent_metadata = session.get(AgentEntity, id)
             if agent_metadata is None:
                 raise Exception(f"Agent with id {id} not found")
             session.delete(agent_metadata)
@@ -86,9 +86,9 @@ class DatabaseManager:
 
     def add_chat_message(self, aif_agent_uri: str, id: str, role: ChatRole, content: str, files: List[RequestFileInfo] = []):
         with Session(self._engine) as session:
-            chat_history = session.get(ChatHistory, id)
+            chat_history = session.get(ChatHistoryEntity, id)
             if chat_history is None:
-                chat_history = ChatHistory(id=id, aif_agent_uri=aif_agent_uri, messages="[]")
+                chat_history = ChatHistoryEntity(id=id, aif_agent_uri=aif_agent_uri, messages="[]")
                 session.add(chat_history)
 
             chatHistoryMessage = ChatHistoryMessage(role=role.name, content=content, files=files)
@@ -100,12 +100,12 @@ class DatabaseManager:
 
     def get_chat_history(self, id: str) -> List[ChatHistoryMessage] | None:
         with Session(self._engine) as session:
-            return session.get(ChatHistory, id)
+            return session.get(ChatHistoryEntity, id)
 
 
     def get_chat_history_messages(self, id: str) -> List[ChatHistoryMessage] | None:
         with Session(self._engine) as session:
-            chat_history = session.get(ChatHistory, id)
+            chat_history = session.get(ChatHistoryEntity, id)
             if chat_history is None:
                 return None
 
@@ -121,25 +121,25 @@ class DatabaseManager:
 
     def delete_chat_history(self, id: str):
         with Session(self._engine) as session:
-            chat_history = session.get(ChatHistory, id)
+            chat_history = session.get(ChatHistoryEntity, id)
             if chat_history is not None:
                 session.delete(chat_history)
                 session.commit()
 
 
-    def list_functions(self) -> List[FunctionMetadata]:
+    def list_functions(self) -> List[FunctionEntity]:
         with Session(self._engine) as session:
-            return session.query(FunctionMetadata).all()
+            return session.query(FunctionEntity).all()
 
 
-    def get_function(self, id: str) -> FunctionMetadata | None:
+    def get_function(self, id: str) -> FunctionEntity | None:
         with Session(self._engine) as session:
-            return session.get(FunctionMetadata, id)
+            return session.get(FunctionEntity, id)
 
 
     def update_function(self, request: UpdateFunctionRequest) -> CreateOrUpdateFunctionResponse:
         with Session(self._engine) as session:
-            function = session.get(FunctionMetadata, request.id)
+            function = session.get(FunctionEntity, request.id)
             if function is None:
                 raise HTTPException(status_code=404, detail=f"Function with id {request.id} not found")
 
@@ -156,7 +156,7 @@ class DatabaseManager:
 
     def delete_function(self, id: str):
         with Session(self._engine) as session:
-            function = session.get(FunctionMetadata, id)
+            function = session.get(FunctionEntity, id)
             if function is None:
                 raise HTTPException(status_code=404, detail=f"Function with id {id} not found")
 

@@ -4,8 +4,8 @@ import type { api, database } from "aifoundry-vscode-shared";
 
 interface ServerDataState {
     lmProviders: api.LmProviderInfoResponse[] | null;
-    embeddings: database.EmbeddingMetadata[];
-	functions: api.FunctionMetadata[];
+    embeddings: database.EmbeddingEntity[];
+	functions: api.FunctionEntity[];
 }
 
 const initialState: ServerDataState = {
@@ -21,10 +21,10 @@ export const serverDataSlice = createSlice({
         updateLmProviders: (state, action: PayloadAction<api.LmProviderInfoResponse[]>) => {
             state.lmProviders = action.payload;
         },
-        updateEmbeddings: (state, action: PayloadAction<database.EmbeddingMetadata[]>) => {
+        updateEmbeddings: (state, action: PayloadAction<database.EmbeddingEntity[]>) => {
             state.embeddings = action.payload;
         },
-        updateFunctions: (state, action: PayloadAction<api.FunctionMetadata[]>) => {
+        updateFunctions: (state, action: PayloadAction<api.FunctionEntity[]>) => {
             state.functions = action.payload;
         },
     },

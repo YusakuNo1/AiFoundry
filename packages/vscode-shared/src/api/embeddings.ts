@@ -1,7 +1,7 @@
-import type { EmbeddingMetadata } from "../database/EmbeddingMetadata";
+import type { EmbeddingEntity } from "../database/EmbeddingEntity";
 
 export type ListEmbeddingsResponse = {
-	embeddings: EmbeddingMetadata[];
+	embeddings: EmbeddingEntity[];
 };
 
 export type CreateOrUpdateEmbeddingsResponse = {

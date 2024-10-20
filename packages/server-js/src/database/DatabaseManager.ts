@@ -76,43 +76,43 @@ class DatabaseManager {
 
     // LmProvider --------------------------------------------------------------
 
-    public listLmProviderInfo(): database.LmProviderInfo[] {
-        return this.listDbEntities(database.LmProviderInfo.ENTITY_NAME) as database.LmProviderInfo[];
+    public listLmProviderInfo(): database.LmProviderEntity[] {
+        return this.listDbEntities(database.LmProviderEntity.ENTITY_NAME) as database.LmProviderEntity[];
     }
 
-    public getLmProviderInfo(providerId: string): database.LmProviderInfo | null {
-        return this.getDbEntity(database.LmProviderInfo.ENTITY_NAME, providerId) as database.LmProviderInfo;
+    public getLmProviderInfo(providerId: string): database.LmProviderEntity | null {
+        return this.getDbEntity(database.LmProviderEntity.ENTITY_NAME, providerId) as database.LmProviderEntity;
     }
 
     // Embeddings --------------------------------------------------------------
 
-    public saveEmbeddingsMetadata(embeddingMetadata: database.EmbeddingMetadata) {
+    public saveEmbeddingsMetadata(embeddingMetadata: database.EmbeddingEntity) {
         this.saveDbEntity(embeddingMetadata);
     }
 
     public listEmbeddingsMetadata() {
-        return this.listDbEntities(database.EmbeddingMetadata.name) as database.EmbeddingMetadata[];
+        return this.listDbEntities(database.EmbeddingEntity.name) as database.EmbeddingEntity[];
     }
 
-    public getEmbeddingsMetadata(assetId: string): database.EmbeddingMetadata | null {
-        return this.getDbEntity(database.EmbeddingMetadata.name, assetId) as database.EmbeddingMetadata;
+    public getEmbeddingsMetadata(assetId: string): database.EmbeddingEntity | null {
+        return this.getDbEntity(database.EmbeddingEntity.name, assetId) as database.EmbeddingEntity;
     }
 
     public deleteEmbeddingsMetadata(assetId: string) {
-        return this.deleteDbEntity(database.EmbeddingMetadata.name, assetId);
+        return this.deleteDbEntity(database.EmbeddingEntity.name, assetId);
     }
 
     // Agents ------------------------------------------------------------------
 
     public listAgents() {
-        return this.listDbEntities(database.AgentMetadata.name) as database.AgentMetadata[];
+        return this.listDbEntities(database.AgentEntity.name) as database.AgentEntity[];
     }
 
-    public getAgent(agentId: string): database.AgentMetadata | null {
-        return this.getDbEntity(database.AgentMetadata.name, agentId) as database.AgentMetadata;
+    public getAgent(agentId: string): database.AgentEntity | null {
+        return this.getDbEntity(database.AgentEntity.name, agentId) as database.AgentEntity;
     }
 
-    public updateAgent(agentId: string, request: api.UpdateAgentRequest): database.AgentMetadata {
+    public updateAgent(agentId: string, request: api.UpdateAgentRequest): database.AgentEntity {
         const agent = this.getAgent(agentId);
         if (!agent) {
             throw new HttpException(404, `Agent not found`);
@@ -123,17 +123,17 @@ class DatabaseManager {
         agent.systemPrompt = request.systemPrompt || agent.systemPrompt;
         agent.ragAssetIds = request.ragAssetIds || agent.ragAssetIds;
         agent.functionAssetIds = request.functionAssetIds || agent.functionAssetIds;
-        return this.saveDbEntity(agent) as database.AgentMetadata;
+        return this.saveDbEntity(agent) as database.AgentEntity;
     }
 
     public deleteAgent(id: string) {
-        return this.deleteDbEntity(database.AgentMetadata.name, id);
+        return this.deleteDbEntity(database.AgentEntity.name, id);
     }
 
     // Chat --------------------------------------------------------------------
 
-    public getChatHistory(sessionId: string): database.ChatHistory | null {
-        return this.getDbEntity(database.ChatHistory.name, sessionId) as database.ChatHistory;
+    public getChatHistory(sessionId: string): database.ChatHistoryEntity | null {
+        return this.getDbEntity(database.ChatHistoryEntity.name, sessionId) as database.ChatHistoryEntity;
     }
 
     public addChatMessage(
@@ -145,7 +145,7 @@ class DatabaseManager {
     ) {
         let chatHistory = this.getChatHistory(sessionId);
         if (!chatHistory) {
-            chatHistory = new database.ChatHistory(sessionId, aifAgentUri, []);
+            chatHistory = new database.ChatHistoryEntity(sessionId, aifAgentUri, []);
         }
 
         const chatHistoryMessage: database.ChatHistoryMessage = { role, content, contentTextFormat };

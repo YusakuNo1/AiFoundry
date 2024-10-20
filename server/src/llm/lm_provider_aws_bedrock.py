@@ -3,7 +3,7 @@ from typing import Dict
 from langchain_core.language_models.base import BaseLanguageModel
 from langchain_core.embeddings.embeddings import Embeddings
 from langchain_aws import ChatBedrock, BedrockEmbeddings
-from aif_types.languagemodels import LmProviderInfo, LmProviderProperty, UpdateLmProviderRequest
+from aif_types.languagemodels import LmProviderEntity, LmProviderProperty, UpdateLmProviderRequest
 from aif_types.llm import LlmProvider
 from llm.lm_base_provider import LmBaseProvider, LmBaseProviderProps
 
@@ -30,7 +30,7 @@ class LmProviderAwsBedrock(LmBaseProvider):
         return os.path.exists(os.path.expanduser(AWS_CREDENTIALS_FILE))
 
 
-    def getLanguageProviderInfo(self) -> LmProviderInfo:
+    def getLanguageProviderInfo(self) -> LmProviderEntity:
         region = ""
         if os.path.exists(os.path.expanduser(AWS_CONFIG_FILE)):
             with open(os.path.expanduser(AWS_CONFIG_FILE), "r") as f:
@@ -69,7 +69,7 @@ class LmProviderAwsBedrock(LmBaseProvider):
 
         models = self._getModelsFromIndexes()
 
-        return LmProviderInfo(
+        return LmProviderEntity(
             lmProviderId=self.getId(),
             name=self.getName(),
             properties=properties,

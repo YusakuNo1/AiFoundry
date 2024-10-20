@@ -2,7 +2,7 @@ import io, uuid
 from typing import List, Optional
 from fastapi import APIRouter, Header, Cookie, Query, UploadFile, HTTPException
 from fastapi.responses import StreamingResponse
-# from aif_types.chat import ChatHistory
+# from aif_types.chat import ChatHistoryEntity
 from llm.llm_manager import LlmManager
 from consts import HEADER_AIF_AGENT_URI, COOKIE_AIF_SESSION_ID
 from aif_types.common import RequestFileInfo
@@ -22,7 +22,7 @@ def create_routers(llm_manager: LlmManager):
     # @router.get("/chat/history/{aif_session_id}", tags=["chat"])
     # async def get_chat_history(
     #     aif_session_id: str,
-    # ) -> ChatHistory:
+    # ) -> ChatHistoryEntity:
     #     return llm_manager.get_chat_history(aif_session_id)
 
     @router.post("/chat/", tags=["chat"])

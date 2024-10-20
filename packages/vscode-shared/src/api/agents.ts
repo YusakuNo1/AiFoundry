@@ -1,12 +1,12 @@
-import type { AgentMetadata } from "../database/AgentMetadata";
+import type { AgentEntity } from "../database/AgentEntity";
 
 export type ListAgentsResponse = {
-	agents: AgentMetadata[];
+	agents: AgentEntity[];
 };
 
-export type CreateAgentRequest = Partial<Omit<AgentMetadata, 'id' | 'agentUri'>> & Pick<AgentMetadata, 'basemodelUri'>;
+export type CreateAgentRequest = Partial<Omit<AgentEntity, 'id' | 'agentUri'>> & Pick<AgentEntity, 'basemodelUri'>;
 
-export type UpdateAgentRequest = Partial<Omit<AgentMetadata, "id">> & Pick<AgentMetadata, "agentUri">;
+export type UpdateAgentRequest = Partial<Omit<AgentEntity, "id">> & Pick<AgentEntity, "agentUri">;
 
 export type CreateOrUpdateAgentResponse = {
     id: string,

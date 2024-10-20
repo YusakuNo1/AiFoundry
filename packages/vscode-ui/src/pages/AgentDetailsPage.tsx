@@ -9,7 +9,7 @@ import { RootState } from '../store/store';
 
 
 interface Props {
-    data: database.AgentMetadata;
+    data: database.AgentEntity;
     onPostMessage: (message: messages.IMessage) => void;
 }
 
@@ -37,13 +37,13 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
     }, [props]);
 
     const embeddingMap = React.useMemo(() => {
-        const map: Record<string, database.EmbeddingMetadata> = {};
+        const map: Record<string, database.EmbeddingEntity> = {};
         embeddings.forEach(embedding => map[embedding.id] = embedding);
         return map;
     }, [embeddings]);
 
     const functionMap = React.useMemo(() => {
-        const map: Record<string, api.FunctionMetadata> = {};
+        const map: Record<string, api.FunctionEntity> = {};
         functions.forEach(func => map[func.id] = func);
         return map;
     }, [functions]);

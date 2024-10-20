@@ -20,7 +20,7 @@ export const chatInfoSlice = createSlice({
             state.aifSessionId = null;
             state.messages = [];
         },
-        setChatHistory: (state, action: PayloadAction<database.ChatHistory>) => {
+        setChatHistory: (state, action: PayloadAction<database.ChatHistoryEntity>) => {
             state.aifSessionId = action.payload.id;
             state.messages = action.payload.messages;
         },

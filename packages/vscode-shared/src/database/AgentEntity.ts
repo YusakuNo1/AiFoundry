@@ -1,7 +1,7 @@
 import { BaseEntity } from "./BaseEntity"
 
-export class AgentMetadata extends BaseEntity {
-    public static readonly ENTITY_NAME = "AgentMetadata";
+export class AgentEntity extends BaseEntity {
+    public static readonly ENTITY_NAME = "AgentEntity";
 
     public get version(): number { return 1 };
 

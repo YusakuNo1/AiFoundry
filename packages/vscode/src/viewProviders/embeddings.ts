@@ -16,7 +16,7 @@ export class AifEmbeddingsViewProvider implements IViewProvider {
 	private _onDidChangeTreeData: vscode.EventEmitter<AifTreeItem | undefined | void> = new vscode.EventEmitter<AifTreeItem | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<AifTreeItem | undefined | void> = this._onDidChangeTreeData.event;
 
-	private _embeddings: database.EmbeddingMetadata[] | undefined = undefined;
+	private _embeddings: database.EmbeddingEntity[] | undefined = undefined;
 
 	constructor() {
 		this._refreshCallback = this._refreshCallback.bind(this);

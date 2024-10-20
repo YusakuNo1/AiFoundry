@@ -5,7 +5,7 @@ import dotenv
 from pydantic import BaseModel
 from langchain_core.language_models.base import BaseLanguageModel
 from langchain_core.embeddings.embeddings import Embeddings
-from aif_types.languagemodels import LanguageModelInfo, LmProviderBaseModelInfo, LmProviderInfo, LmProviderProperty, UpdateLmProviderRequest
+from aif_types.languagemodels import LanguageModelInfo, LmProviderBaseModelInfo, LmProviderEntity, LmProviderProperty, UpdateLmProviderRequest
 from aif_types.llm import LlmFeature, LlmProvider
 from llm.i_lm_provider import ILmProvider
 from llm.llm_tools_utils import create_tool
@@ -151,7 +151,7 @@ class LmBaseProvider(ILmProvider):
         return "available" if self.isHealthy() else "unavailable"
 
 
-    def getLanguageProviderInfo(self) -> LmProviderInfo:
+    def getLanguageProviderInfo(self) -> LmProviderEntity:
         properties: dict[str, LmProviderProperty] = {
             self.props.keyPrefix + "API_KEY": {
                 "description": self.props.apiKeyDescription,
@@ -164,7 +164,7 @@ class LmBaseProvider(ILmProvider):
         models = self._getModelsFromFile() if self.props.jsonFileName else self._getModelsFromIndexes()
         weight = os.environ.get(self.props.keyPrefix + "MODELS_DEFAULT_WEIGHT")
 
-        return LmProviderInfo(
+        return LmProviderEntity(
             lmProviderId=self.getId(),
             name=self.getName(),
             properties=properties,
@@ -174,7 +174,7 @@ class LmBaseProvider(ILmProvider):
             status=self._getStatus(),
         )
 
-    def _getModelsFromFile(self) -> LmProviderInfo:
+    def _getModelsFromFile(self) -> LmProviderEntity:
         models: List[LmProviderBaseModelInfo] = []
         selectedModels = self._getModelNames(self.props.keyPrefix + "SELECTED_MODELS")
         modelCatalogItems = read_json_file(os.path.dirname(__file__), self.props.jsonFileName)
@@ -186,7 +186,7 @@ class LmBaseProvider(ILmProvider):
             ))
         return models
 
-    def _getModelsFromIndexes(self) -> LmProviderInfo:
+    def _getModelsFromIndexes(self) -> LmProviderEntity:
         modelNames = self._getModelNames(self.props.keyPrefix + "SELECTED_MODELS")
         modelIndexesForEmbeddingTag = self._getModelTagIndexes(self.props.keyPrefix + "EMBEDDING_MODEL_INDEXES")
         modelIndexesForVisionTag = self._getModelTagIndexes(self.props.keyPrefix + "VISION_MODEL_INDEXES")

@@ -33,7 +33,7 @@ class ChatHistoryMessage(BaseModel):
     content: str
     files: List[RequestFileInfo]
 
-class ChatHistory(SQLModel, table=True):
+class ChatHistoryEntity(SQLModel, table=True):
     id: str = Field(primary_key=True)
     aif_agent_uri: str
     messages: str

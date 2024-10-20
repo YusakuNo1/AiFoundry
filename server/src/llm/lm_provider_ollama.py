@@ -5,7 +5,7 @@ from langchain_core.embeddings.embeddings import Embeddings
 from langchain_community.chat_models import ChatOllama
 from langchain_community.embeddings import OllamaEmbeddings
 from lib.ollama_functions import OllamaFunctions
-from aif_types.languagemodels import LmProviderInfo, UpdateLmProviderRequest, LmProviderProperty, LmProviderBaseModelInfo
+from aif_types.languagemodels import LmProviderEntity, UpdateLmProviderRequest, LmProviderProperty, LmProviderBaseModelInfo
 from aif_types.llm import LlmProvider
 from llm.lm_base_provider import LmBaseProvider, LmBaseProviderProps
 from llm.llm_tools_utils import create_tool
@@ -46,7 +46,7 @@ class LmProviderOllama(LmBaseProvider):
             return llm.bind_tools(tools=tools)
 
 
-    def getLanguageProviderInfo(self) -> LmProviderInfo:
+    def getLanguageProviderInfo(self) -> LmProviderEntity:
         properties: dict[str, LmProviderProperty] = {
         }
 
@@ -60,7 +60,7 @@ class LmProviderOllama(LmBaseProvider):
                 tags=modelCatalogItem["tags"],
             ))
 
-        return LmProviderInfo(
+        return LmProviderEntity(
             lmProviderId=self.getId(),
             name=self.getName(),
             properties=properties,

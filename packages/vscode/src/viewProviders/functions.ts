@@ -14,7 +14,7 @@ export class AifFunctionsViewProvider implements IViewProvider {
 	private _onDidChangeTreeData: vscode.EventEmitter<AifTreeItem | undefined | void> = new vscode.EventEmitter<AifTreeItem | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<AifTreeItem | undefined | void> = this._onDidChangeTreeData.event;
 
-	private _functions: api.FunctionMetadata[] | undefined = undefined;
+	private _functions: api.FunctionEntity[] | undefined = undefined;
 
 	constructor() {
 		this._refreshCallback = this._refreshCallback.bind(this);

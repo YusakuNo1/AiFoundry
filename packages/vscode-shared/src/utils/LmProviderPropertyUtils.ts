@@ -1,4 +1,4 @@
-import { LmProviderProperty } from "../database/LmProviderInfo";
+import { LmProviderProperty } from "../database/LmProviderEntity";
 import AifUtils from "./AifUtils";
 
 namespace LmProviderPropertyUtils {

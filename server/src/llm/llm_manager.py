@@ -9,12 +9,12 @@ from langchain_core.runnables import RunnablePassthrough
 
 from llm.assets import create_or_update_embeddings, load_embeddings, delete_embedding
 from aif_types.llm import LlmProvider, LlmFeature
-from aif_types.chat import ChatHistory, ChatRole
-# from aif_types.chat import ChatRequest, ChatHistory, ChatRole
-from aif_types.agents import CreateAgentRequest, CreateOrUpdateAgentResponse, AgentMetadata, ListAgentsResponse, UpdateAgentRequest
-from aif_types.embeddings import CreateEmbeddingsRequest, CreateOrUpdateEmbeddingsResponse, EmbeddingMetadata, ListEmbeddingsResponse, UpdateEmbeddingMetadataRequest
+from aif_types.chat import ChatHistoryEntity, ChatRole
+# from aif_types.chat import ChatRequest, ChatHistoryEntity, ChatRole
+from aif_types.agents import CreateAgentRequest, CreateOrUpdateAgentResponse, AgentEntity, ListAgentsResponse, UpdateAgentRequest
+from aif_types.embeddings import CreateEmbeddingsRequest, CreateOrUpdateEmbeddingsResponse, EmbeddingEntity, ListEmbeddingsResponse, UpdateEmbeddingMetadataRequest
 from aif_types.languagemodels import ListLanguageModelsResponse, LanguageModelInfo, UpdateLmProviderRequest, ListLmProvidersResponse
-from aif_types.functions import AifFunctionType, ListFunctionsResponse, CreateFunctionRequest, UpdateFunctionRequest, CreateOrUpdateFunctionResponse, FunctionMetadata
+from aif_types.functions import AifFunctionType, ListFunctionsResponse, CreateFunctionRequest, UpdateFunctionRequest, CreateOrUpdateFunctionResponse, FunctionEntity
 from llm._llm_manager_prompt_utils import get_prompt_template
 from database.database_manager import DatabaseManager
 from utils.aif_utils import create_aif_agent_uri
@@ -129,7 +129,7 @@ class LlmManager:
 				yield "Sorry, something went wrong"
 
 
-	def get_chat_history(self, aif_session_id: str) -> ChatHistory:
+	def get_chat_history(self, aif_session_id: str) -> ChatHistoryEntity:
 		chat_history = self.database_manager.get_chat_history(aif_session_id)
 		if chat_history is None:
 			raise HTTPException(status_code=404, detail="Chat session not found")
@@ -209,7 +209,7 @@ class LlmManager:
 		)		
 
 
-	def update_embedding_metadata(self, request: UpdateEmbeddingMetadataRequest, aif_embedding_asset_id: str) -> EmbeddingMetadata:
+	def update_embedding_metadata(self, request: UpdateEmbeddingMetadataRequest, aif_embedding_asset_id: str) -> EmbeddingEntity:
 		embedding_metadata = self.database_manager.load_embeddings_metadata(asset_id=aif_embedding_asset_id)
 
 		if not embedding_metadata:
@@ -266,7 +266,7 @@ class LlmManager:
 	def create_agent(self, request: CreateAgentRequest) -> CreateOrUpdateAgentResponse:
 		uuid_value = str(uuid.uuid4())
 		agent_uri = create_aif_agent_uri(uuid_value)
-		model = AgentMetadata(
+		model = AgentEntity(
 			id=uuid_value,
 			agent_uri=agent_uri,
 			name=request.name if request.name else uuid_value,
@@ -299,7 +299,7 @@ class LlmManager:
 			id = str(uuid.uuid4())
 			create_func_file(request.functions_path, request.functions_name)
 			uri = build_local_function_uri(request.functions_path, request.functions_name)
-			function = FunctionMetadata(
+			function = FunctionEntity(
 				id=id,
 				uri=uri,
 				name=request.name,

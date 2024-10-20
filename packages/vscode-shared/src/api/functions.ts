@@ -3,7 +3,7 @@ export enum AifFunctionType {
 	AZURE_FUNCTION = 'azure_functions',
 }
 
-export type FunctionMetadata = {
+export type FunctionEntity = {
 	id: string,
 	uri: string,
 	name: string | undefined,
@@ -12,7 +12,7 @@ export type FunctionMetadata = {
 }
 
 export type ListFunctionsResponse = {
-	functions: FunctionMetadata[];
+	functions: FunctionEntity[];
 };
 
 export type CreateFunctionRequest = {
@@ -27,7 +27,7 @@ export type UpdateFunctionRequest = {
 	name: string | undefined,
 }
 
-export type CreateOrUpdateFunctionResponse = FunctionMetadata;
+export type CreateOrUpdateFunctionResponse = FunctionEntity;
 
 export type DeleteFunctionResponse = {
 	id: string,

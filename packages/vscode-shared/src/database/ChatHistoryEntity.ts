@@ -19,8 +19,8 @@ export type ChatHistoryMessage = {
     content: ChatHistoryMessageContent,
 }
 
-export class ChatHistory extends BaseEntity {
-    public static readonly ENTITY_NAME = "ChatHistory";
+export class ChatHistoryEntity extends BaseEntity {
+    public static readonly ENTITY_NAME = "ChatHistoryEntity";
 
     public get version(): number { return 1 };
 

@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlmodel import Field, SQLModel, JSON, Column
 
 
-class AgentMetadata(SQLModel, table=True):
+class AgentEntity(SQLModel, table=True):
     id: str = Field(primary_key=True)
     agent_uri: str
     name: str | None = None
@@ -31,4 +31,4 @@ class CreateOrUpdateAgentResponse(BaseModel):
     agent_uri: str
 
 class ListAgentsResponse(BaseModel):
-    agents: List[AgentMetadata]
+    agents: List[AgentEntity]

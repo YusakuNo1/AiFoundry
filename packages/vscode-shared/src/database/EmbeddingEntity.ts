@@ -1,8 +1,8 @@
 
 import { BaseEntity } from "./BaseEntity"
 
-export class EmbeddingMetadata extends BaseEntity {
-    public static readonly ENTITY_NAME = "EmbeddingMetadata";
+export class EmbeddingEntity extends BaseEntity {
+    public static readonly ENTITY_NAME = "EmbeddingEntity";
 
     public get version(): number { return 1 };
 

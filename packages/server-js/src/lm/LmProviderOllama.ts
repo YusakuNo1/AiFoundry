@@ -39,7 +39,7 @@ class LmProviderOllama extends LmBaseProvider {
         }
     }
 
-    protected async _updateLmProviderRuntimeInfo(lmProviderInfo: database.LmProviderInfo): Promise<void> {
+    protected async _updateLmProviderRuntimeInfo(lmProviderInfo: database.LmProviderEntity): Promise<void> {
         try {
             const listModels = await OllamaUtils.listDownloadedModels();
             const listModelNames = listModels.map((model) => model.split(":")[0]);   // format is "model:version"

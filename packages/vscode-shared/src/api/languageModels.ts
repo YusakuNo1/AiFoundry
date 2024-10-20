@@ -1,9 +1,9 @@
 import {
-	LmProviderInfo as DatabaseLmProviderInfo,
+	LmProviderEntity as DatabaseLmProviderInfo,
 	LmProviderBaseModelInfo as DatabaseLmProviderBaseModelInfo,
 	LmProviderBaseModelInfoOllamaExtras,
 	LmProviderProperty as DatabaseLmProviderProperty,
-} from "../database/LmProviderInfo";
+} from "../database/LmProviderEntity";
 
 export const LlmFeatures = ["all", "conversational", "vision", "embedding", "tools"] as const;
 export type LlmFeature = typeof LlmFeatures[number];

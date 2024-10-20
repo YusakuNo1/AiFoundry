@@ -1,6 +1,6 @@
-import { FunctionMetadata } from '../api/functions';
-import type { EmbeddingMetadata } from '../database/EmbeddingMetadata';
-import type { ChatHistoryMessageContent } from '../database/ChatHistory';
+import { FunctionEntity } from '../api/functions';
+import type { EmbeddingEntity } from '../database/EmbeddingEntity';
+import type { ChatHistoryMessageContent } from '../database/ChatHistoryEntity';
 import { TextFormat } from '../api/chat';
 import { LmProviderInfoResponse } from '../api/languageModels';
 import { FileInfo, FileSelection } from '../store/serverData';
@@ -52,13 +52,13 @@ export type MessageStoreUpdateLmProviders = shared.IMessage & IStoreUpdate & {
 export type MessageStoreUpdateEmbeddings = shared.IMessage & IStoreUpdate & {
     type: "updateEmbeddings",
     data: {
-        embeddings: EmbeddingMetadata[];
+        embeddings: EmbeddingEntity[];
     };
 }
 export type MessageStoreUpdateFunctions = shared.IMessage & IStoreUpdate & {
     type: "updateFunctions",
     data: {
-        functions: FunctionMetadata[];
+        functions: FunctionEntity[];
     };
 }
 export type MessageStoreUpdateFileSelection = shared.IMessage & IStoreUpdate & {

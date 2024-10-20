@@ -3,7 +3,7 @@ import { type database, type messages } from "aifoundry-vscode-shared";
 import BasePage from "./BasePage";
 
 interface Props {
-    data: database.EmbeddingMetadata;
+    data: database.EmbeddingEntity;
     onPostMessage: (message: messages.IMessage) => void;
 }
 

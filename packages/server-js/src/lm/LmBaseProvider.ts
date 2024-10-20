@@ -5,10 +5,10 @@ import { AifUtils, api, consts, database } from 'aifoundry-vscode-shared';
 import DatabaseManager from '../database/DatabaseManager';
 
 
-export type GetInitInfoResponse = Omit<database.LmProviderInfo, "version" | "entityName">;
+export type GetInitInfoResponse = Omit<database.LmProviderEntity, "version" | "entityName">;
 
 abstract class LmBaseProvider {
-    protected _info: database.LmProviderInfo;
+    protected _info: database.LmProviderEntity;
     protected _databaseManager: DatabaseManager;
 
     public constructor(databaseManager: DatabaseManager) {
@@ -34,7 +34,7 @@ abstract class LmBaseProvider {
 
         let lmProviderInfo = databaseManager.getLmProviderInfo(initInfo.id);
         if (!lmProviderInfo) {
-            lmProviderInfo = new database.LmProviderInfo(
+            lmProviderInfo = new database.LmProviderEntity(
                 initInfo.id,
                 initInfo.name,
                 initInfo.description,
@@ -52,7 +52,7 @@ abstract class LmBaseProvider {
         this._info = lmProviderInfo;
     }
     protected abstract _getInitInfo(): Promise<GetInitInfoResponse>;
-    protected async _updateLmProviderRuntimeInfo(lmProviderInfo: database.LmProviderInfo): Promise<void> {
+    protected async _updateLmProviderRuntimeInfo(lmProviderInfo: database.LmProviderEntity): Promise<void> {
         // Do nothing by default
     }
 

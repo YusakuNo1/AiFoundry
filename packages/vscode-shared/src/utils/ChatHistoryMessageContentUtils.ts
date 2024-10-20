@@ -1,7 +1,7 @@
 import { Marked } from "marked";
 import { TextFormat } from "../api/chat";
 import { UploadFileInfo } from "../misc/common";
-import { ChatHistoryMessageContent } from "../database/ChatHistory";
+import { ChatHistoryMessageContent } from "../database/ChatHistoryEntity";
 
 const marked = new Marked();
 

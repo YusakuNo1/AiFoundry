@@ -28,9 +28,9 @@ export type LmProviderBaseModelInfoOllamaExtras = {
 }
 export type LmProviderBaseModelInfoOllama = LmProviderBaseModelInfo & LmProviderBaseModelInfoOllamaExtras;
 
-// For LmProviderInfo, "id" is the provider id
-export class LmProviderInfo extends BaseEntity {
-    public static readonly ENTITY_NAME = "LmProviderInfo";
+// For LmProviderEntity, "id" is the provider id
+export class LmProviderEntity extends BaseEntity {
+    public static readonly ENTITY_NAME = "LmProviderEntity";
 
     public get version(): number { return 1 };
 

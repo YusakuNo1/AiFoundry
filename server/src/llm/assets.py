@@ -5,7 +5,7 @@ from langchain_community.vectorstores.faiss import FAISS
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
-from aif_types.embeddings import CreateOrUpdateEmbeddingsResponse, EmbeddingMetadata
+from aif_types.embeddings import CreateOrUpdateEmbeddingsResponse, EmbeddingEntity
 from utils.assets_utils import get_embeddings_asset_path
 from database.database_manager import DatabaseManager
 
@@ -20,7 +20,7 @@ def create_or_update_embeddings(asset_id: str | None, name: str, basemodel_uri: 
 
     assets_path = get_embeddings_asset_path()
     aif_vs_provider = os.environ.get("VECTOR_STORE_PROVIDER")
-    metadata = EmbeddingMetadata(name=name, vs_provider=aif_vs_provider, basemodel_uri=basemodel_uri, id=asset_id)
+    metadata = EmbeddingEntity(name=name, vs_provider=aif_vs_provider, basemodel_uri=basemodel_uri, id=asset_id)
 
     if documents is not None:
         if aif_vs_provider == "faiss":

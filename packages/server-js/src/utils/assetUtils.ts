@@ -41,7 +41,7 @@ namespace AssetUtils {
         const aifVsProvider = Config.VECTOR_STORE_PROVIDER;
 
         name = name ?? files.map(f => f.fileName).join("-");
-        const metadata = new database.EmbeddingMetadata(
+        const metadata = new database.EmbeddingEntity(
             assetId,
             name,
             aifVsProvider,
@@ -65,7 +65,7 @@ namespace AssetUtils {
     export async function updateEmbeddings(
         databaseManager: DatabaseManager,
         llm: Embeddings,
-        embeddingMetadata: database.EmbeddingMetadata,
+        embeddingMetadata: database.EmbeddingEntity,
         files: misc.UploadFileInfo[] | undefined,
         name: string | undefined,
     ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
@@ -103,7 +103,7 @@ namespace AssetUtils {
         const assetsPath = getEmbeddingsAssetPath();
         const storePath = path.join(assetsPath, id);
         fs.rmSync(storePath, { recursive: true });
-        databaseManager.deleteDbEntity(database.EmbeddingMetadata.name, id);
+        databaseManager.deleteDbEntity(database.EmbeddingEntity.name, id);
         return { id };
     }
 }

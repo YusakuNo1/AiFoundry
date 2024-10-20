@@ -4,7 +4,7 @@ import { removeDatabaseFile } from "./testUtils";
 
 const testDatabaseName = 'agents-test.db';
 
-describe('AgentMetadata', () => {
+describe('AgentEntity', () => {
     let databaseManager: DatabaseManager;
 
     beforeEach(() => {
@@ -75,7 +75,7 @@ describe('AgentMetadata', () => {
 });
 
 function createAgentMetadata(id: string) {
-    return new database.AgentMetadata(
+    return new database.AgentEntity(
         id,
         `Mock agent name ${id}`,
         `mock_agent_${id}_uri`,

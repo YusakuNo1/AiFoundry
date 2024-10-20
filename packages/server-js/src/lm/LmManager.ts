@@ -85,7 +85,7 @@ class LmManager implements ILmManager {
     public createAgent(request: api.CreateAgentRequest): api.CreateOrUpdateAgentResponse {
         const uuidValue = uuid();
         const agentUri = AifUtils.createAifUri(consts.AIF_PROTOCOL, AifUtils.AifUriCategory.Agents, uuidValue);
-        const agent = new database.AgentMetadata(
+        const agent = new database.AgentEntity(
             uuidValue,
             agentUri,
             request.name || uuidValue,

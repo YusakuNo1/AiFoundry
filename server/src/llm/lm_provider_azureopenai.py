@@ -4,7 +4,7 @@ from typing import List, Callable
 from langchain_core.language_models.base import BaseLanguageModel
 from langchain_core.embeddings.embeddings import Embeddings
 from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
-from aif_types.languagemodels import LanguageModelInfo, LmProviderInfo, LmProviderProperty, UpdateLmProviderRequest, LmProviderBaseModelInfo
+from aif_types.languagemodels import LanguageModelInfo, LmProviderEntity, LmProviderProperty, UpdateLmProviderRequest, LmProviderBaseModelInfo
 from aif_types.llm import LlmFeature, LlmProvider
 from llm.lm_base_provider import LmBaseProvider, LmBaseProviderProps
 from llm.llm_tools_utils import create_tool
@@ -55,7 +55,7 @@ class LmProviderAzureOpenAI(LmBaseProvider):
             return llm.bind(functions=tools)
 
 
-    def getLanguageProviderInfo(self) -> LmProviderInfo:
+    def getLanguageProviderInfo(self) -> LmProviderEntity:
         properties: dict[str, LmProviderProperty] = {
             self.props.keyPrefix + "API_KEY": {
                 "description": self.props.apiKeyDescription,
@@ -79,7 +79,7 @@ class LmProviderAzureOpenAI(LmBaseProvider):
 
         models = self._getModelsFromIndexes()
 
-        return LmProviderInfo(
+        return LmProviderEntity(
             lmProviderId=self.getId(),
             name=self.getName(),
             properties=properties,

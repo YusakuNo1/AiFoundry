@@ -4,7 +4,7 @@ import { removeDatabaseFile } from "./testUtils";
 
 const testDatabaseName = 'embeddings-test.db';
 
-describe('AgentMetadata', () => {
+describe('AgentEntity', () => {
     let databaseManager: DatabaseManager;
 
     beforeEach(() => {
@@ -56,7 +56,7 @@ describe('AgentMetadata', () => {
 });
 
 function createEmbeddingMetadata(id: string) {
-    return new database.EmbeddingMetadata(
+    return new database.EmbeddingEntity(
         id,
         `embedding-${id}`,
         `vs_provider-${id}`,

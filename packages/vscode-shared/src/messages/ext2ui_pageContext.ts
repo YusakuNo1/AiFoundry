@@ -1,6 +1,6 @@
-import { FunctionMetadata } from '../api/functions';
-import { EmbeddingMetadata } from '../database/EmbeddingMetadata';
-import { AgentMetadata } from '../database/AgentMetadata';
+import { FunctionEntity } from '../api/functions';
+import { EmbeddingEntity } from '../database/EmbeddingEntity';
+import { AgentEntity } from '../database/AgentEntity';
 import { TextFormat } from '../api/chat';
 import * as shared from "./shared";
 
@@ -10,13 +10,13 @@ export type IPageContext = {
 };
 
 export type PageContextHome = IPageContext;
-export type PageContextEmbeddings = IPageContext & { data: EmbeddingMetadata };
-export type PageContextAgentDetails = IPageContext & { data: AgentMetadata };
+export type PageContextEmbeddings = IPageContext & { data: EmbeddingEntity };
+export type PageContextAgentDetails = IPageContext & { data: AgentEntity };
 export type PageContextModelPlayground = IPageContext & { data: {
     aifAgentUri: string,
     outputFormat: TextFormat,
 } };
-export type PageContextFunctions = IPageContext & { data: FunctionMetadata };
+export type PageContextFunctions = IPageContext & { data: FunctionEntity };
 export type PageContextUpdateLmProvider = IPageContext & { data: { lmProviderId: string } };
 export type PageContext = PageContextEmbeddings | PageContextAgentDetails | PageContextModelPlayground;
 

@@ -9,7 +9,7 @@ class AifFunctionType(str, Enum):
     AZURE_FUNCTIONS = "azure_functions"
 
 
-class FunctionMetadata(SQLModel, table=True):
+class FunctionEntity(SQLModel, table=True):
     id: str = Field(primary_key=True)
     name: str | None = None
     uri: str                            # uri of the function, patterns:
@@ -31,7 +31,7 @@ class UpdateFunctionRequest(BaseModel):
     name: str | None = None
 
 
-class CreateOrUpdateFunctionResponse(FunctionMetadata):
+class CreateOrUpdateFunctionResponse(FunctionEntity):
     pass
 
 
@@ -40,4 +40,4 @@ class DeleteFunctionResponse(BaseModel):
 
 
 class ListFunctionsResponse(BaseModel):
-    functions: List[FunctionMetadata]
+    functions: List[FunctionEntity]

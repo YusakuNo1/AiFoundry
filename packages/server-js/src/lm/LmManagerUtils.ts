@@ -86,7 +86,7 @@ namespace LmManagerUtils {
     async function _getRagContext(
         databaseManager: DatabaseManager,
         lmProviderMap: Record<string, LmBaseProvider>,
-        agentMetadata: database.AgentMetadata,
+        agentMetadata: database.AgentEntity,
         input: string,
     ) {
         const docPromises = agentMetadata.ragAssetIds.map((assetId) => LmManagerUtils.loadDocFromVectorStore(databaseManager, lmProviderMap, input, assetId));
@@ -99,7 +99,7 @@ namespace LmManagerUtils {
         databaseManager: DatabaseManager,
         lmProviderMap: Record<string, LmBaseProvider>,
         aifSessionId: string,
-        agentMetadata: database.AgentMetadata,
+        agentMetadata: database.AgentEntity,
         input: string,
         inputMessageContent: database.ChatHistoryMessageContent,
         outputFormat: api.TextFormat,
