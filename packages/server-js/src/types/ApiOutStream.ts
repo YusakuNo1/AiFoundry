@@ -2,12 +2,12 @@ import type * as express from 'express';
 import type { api } from 'aifoundry-vscode-shared';
 import { HttpException } from '../exceptions';
 
-export class ApiOutputCtrl {
+export class ApiOutStream {
     constructor(private res: express.Response) {
     }
 
-    write(_message: string | api.ApiOutputMessage, type: api.ApiOutputMessageType = "info") {
-        const message: api.ApiOutputMessage = (typeof _message === "string") ? {
+    write(_message: string | api.ApiOutStreamMessage, type: api.ApiOutStreamMessageType = "info") {
+        const message: api.ApiOutStreamMessage = (typeof _message === "string") ? {
             type,
             message: _message,
         } : _message;

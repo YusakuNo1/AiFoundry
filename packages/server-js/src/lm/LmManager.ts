@@ -13,7 +13,7 @@ import LmProviderOpenAI from './LmProviderOpenAI';
 import LmProviderGoogleGemini from './LmProviderGoogleGemini';
 import LmProviderAwsBedrock from './LmProviderAwsBedrock';
 import OllamaUtils from '../utils/OllamaUtils';
-import { ApiOutputCtrl } from '../types/ApiOutput';
+import { ApiOutStream } from '../types/ApiOutStream';
 
 
 class LmManager implements ILmManager {
@@ -193,8 +193,7 @@ class LmManager implements ILmManager {
         }
     }
 
-    // public async setupLmProvider(request: api.SetupLmProviderRequest, res: ApiOutput): Promise<api.SetupLmProviderResponse> {
-    public setupLmProvider(request: api.SetupLmProviderRequest, out: ApiOutputCtrl): void {
+    public setupLmProvider(request: api.SetupLmProviderRequest, out: ApiOutStream): void {
         if (!request) {
             throw new HttpException(400, "Invalid request to setup language model provider")
         }

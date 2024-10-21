@@ -9,7 +9,7 @@ import EmbeddingsCommands from '../commands/embeddings';
 import AgentsCommands from '../commands/agents';
 import FunctionsCommands from '../commands/functions';
 import FileUtils from '../utils/FileUtils';
-import ApiOutputMessageUtils from "../utils/ApiOutputMessageUtils";
+import ApiOutStreamMessageUtils from "../utils/ApiOutStreamMessageUtils";
 import ApiUtils from '../utils/ApiUtils';
 
 
@@ -155,8 +155,8 @@ namespace AifPanelEvenHandlers {
             const sub = LanguageModelsAPI.setupLmProvider(message.data.id);
             sub.subscribe({
                 next: (message) => {
-                    const msgObj = JSON.parse(message) as api.ApiOutputMessage;
-                    ApiOutputMessageUtils.show(msgObj);
+                    const msgObj = JSON.parse(message) as api.ApiOutStreamMessage;
+                    ApiOutStreamMessageUtils.show(msgObj);
                 },
                 complete: () => {
                     ApiUtils.apiPoller(

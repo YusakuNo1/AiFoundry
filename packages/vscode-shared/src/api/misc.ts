@@ -1,6 +1,6 @@
-const ApiOutputMessageTypes = ["info", "warning", "error", "success"] as const;
-export type ApiOutputMessageType = typeof ApiOutputMessageTypes[number];
-export type ApiOutputMessage = {
-    type: ApiOutputMessageType;
+const ApiOutStreamMessageTypes = ["info", "warning", "error", "success"] as const;
+export type ApiOutStreamMessageType = typeof ApiOutStreamMessageTypes[number];
+export type ApiOutStreamMessage = {
+    type: ApiOutStreamMessageType;
     message: string;
 }

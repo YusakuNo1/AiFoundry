@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { api, type misc } from 'aifoundry-vscode-shared';
-import { ApiOutputCtrl } from '../types/ApiOutput';
+import { ApiOutStream } from '../types/ApiOutStream';
 
 interface ILmManager {
     init(): Promise<void>;
@@ -27,7 +27,7 @@ interface ILmManager {
     downloadLanguageModel(lmProviderId: string, id: string): Promise<ReadableStream>;
     deleteLanguageModel(lmProviderId: string, id: string): Promise<api.DeleteLanguageModelResponse>;
 
-    setupLmProvider(request: api.SetupLmProviderRequest, out: ApiOutputCtrl): void;
+    setupLmProvider(request: api.SetupLmProviderRequest, out: ApiOutStream): void;
     listLmProviders(force: boolean): Promise<api.ListLmProvidersResponse>;
     getLmProvider(id: string, force: boolean): Promise<api.LmProviderInfoResponse>;
     updateLmProviderInfo(request: api.UpdateLmProviderInfoRequest): api.UpdateLmProviderResponse;

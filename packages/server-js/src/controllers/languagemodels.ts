@@ -4,7 +4,7 @@ import ILmManager from "../lm/ILmManager";
 import ResponseUtils from "../utils/ResponseUtils";
 import RouterUtils from "../utils/RouterUtils";
 import { HttpException } from "../exceptions";
-import { ApiOutputCtrl } from "../types/ApiOutput";
+import { ApiOutStream } from "../types/ApiOutStream";
 
 
 export function registerAdminRoutes(router: express.Router, lmManager: ILmManager) {
@@ -15,7 +15,7 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
         (req, res) => {
             try {
                 const request: api.SetupLmProviderRequest = req.body;
-                lmManager.setupLmProvider(request, new ApiOutputCtrl(res));    
+                lmManager.setupLmProvider(request, new ApiOutStream(res));    
             } catch (err) {
                 ResponseUtils.handleException(res, err);
             }

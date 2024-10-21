@@ -1,5 +1,5 @@
 import ServerConfig from "../config/ServerConfig";
-import { ApiOutputCtrl } from "../types/ApiOutput";
+import { ApiOutStream } from "../types/ApiOutStream";
 
 namespace OllamaUtils {
     export function getHost(): string {
@@ -16,7 +16,7 @@ namespace OllamaUtils {
         }
     }
 
-    export async function startOllamaServer(out: ApiOutputCtrl): Promise<void> {
+    export async function startOllamaServer(out: ApiOutStream): Promise<void> {
         const healthy = await isHealthy();
         if (healthy) {
             return;
@@ -56,7 +56,7 @@ namespace OllamaUtils {
     }
 }
 
-function _startOllamaServer(out: ApiOutputCtrl): void {
+function _startOllamaServer(out: ApiOutStream): void {
     let command: string | undefined;
     
     if (process.platform === "win32") {
