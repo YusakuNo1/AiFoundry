@@ -43,6 +43,7 @@ class LmProviderAzureOpenAI extends LmBaseProvider {
             description: "",
             weight: 100,
             supportUserDefinedModels: true,
+            isLocal: false,
             modelMap: {},
             properties,
         };

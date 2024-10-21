@@ -3,6 +3,7 @@ import type { api } from "aifoundry-vscode-shared";
 import { consts, StreamingUtils } from "aifoundry-vscode-shared";
 import { APIConfig } from "./config";
 import ApiUtils from "../utils/ApiUtils";
+import ApiOutStreamMessageUtils from "../utils/ApiOutStreamMessageUtils";
 
 
 namespace LanguageModelsAPI {
@@ -58,36 +59,30 @@ namespace LanguageModelsAPI {
         });
     }
 
-    export function downloadLanguageModel(
+    export function downloadLocalLanguageModel(
         lmProviderId: string,
         id: string
-    ): Promise<string> {
+    ): Promise<void> {
         const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/crud/${lmProviderId}/${id}`;
         return fetch(endpoint, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-        }).then((response) => {
-            return response.text();
-        }).catch((err) => {
-            throw new Error(`Failed to download language model: ${err}`);
-        });
+        }).then(response => ApiOutStreamMessageUtils.handleResponse(response.status, response?.body?.getReader()));
     }
 
-    export async function deleteLanguageModel(
+    export async function deleteLocalLanguageModel(
         lmProviderId: string,
         id: string
-    ): Promise<api.DeleteLanguageModelResponse> {
+    ): Promise<void> {
         const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/crud/${lmProviderId}/${id}`;
-        return fetch(endpoint, {
+        fetch(endpoint, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
             },
-        })
-            .then(ApiUtils.processApiResponse<api.DeleteLanguageModelResponse>);
-        
+        }).then(response => ApiOutStreamMessageUtils.handleResponse(response.status, response?.body?.getReader()));
     }
 
     export async function listLmProviders(force: boolean): Promise<api.ListLmProvidersResponse> {

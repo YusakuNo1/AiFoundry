@@ -19,8 +19,6 @@ export type LmProviderBaseModelInfo = {
     features: LlmFeature[],
 	// For provider of model catelog, e.g. Azure AI, the users can add custom model name (or deployment name) + version, and they can delete it
 	isUserDefined: boolean,
-    // Is local model or not, e.g. Ollama
-    isLocal: boolean,
 }
 
 export type LmProviderBaseModelLocalInfo = LmProviderBaseModelInfo & {
@@ -40,6 +38,7 @@ export class LmProviderEntity extends BaseEntity {
         public weight: number,
         public properties: Record<string, LmProviderProperty>,
         public supportUserDefinedModels: boolean,
+        public isLocal: boolean,        // Is local model or not, e.g. Ollama
         public modelMap: Record<string, LmProviderBaseModelInfo>,
     ) {
         super(id);

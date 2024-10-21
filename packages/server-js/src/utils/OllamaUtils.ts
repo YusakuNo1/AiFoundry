@@ -1,4 +1,5 @@
 import ServerConfig from "../config/ServerConfig";
+import { HttpException } from "../exceptions";
 import { ApiOutStream } from "../types/ApiOutStream";
 
 namespace OllamaUtils {
@@ -33,26 +34,42 @@ namespace OllamaUtils {
         return (response as any).models.map((model) => model.name);
     }
 
-    export async function downloadModel(modelName: string): Promise<any> {
+    export function downloadModel(modelName: string, out: ApiOutStream): void {
         const endpoint = `${getHost()}/api/pull`;
-        return await fetch(
-            endpoint,
-            {
-                method: "POST",
-                body: JSON.stringify({ name: modelName, stream: true }),
-            },
-        );
+        fetch(endpoint, {
+            method: "POST",
+            body: JSON.stringify({ name: modelName, stream: true }),
+        }).then((response) => {
+            if (!response || response.status !== 200) {
+                out.error(`Failed to download model ${modelName}`);
+                return null;
+            } else {
+                return response.text();
+            }
+        }).then((text) => {
+            if (text !== null) {
+                out.end();
+            }
+        });
     }
 
-    export async function deleteModel(modelName: string): Promise<void> {
+    export function deleteModel(modelName: string, out: ApiOutStream): void {
         const endpoint = `${getHost()}/api/delete`;
-        await fetch(
-            endpoint,
-            {
-                method: "DELETE",
-                body: JSON.stringify({ name: modelName }),
-            },
-        );
+        fetch(endpoint, {
+            method: "DELETE",
+            body: JSON.stringify({ name: modelName }),
+        }).then((response) => {
+            if (!response || response.status !== 200) {
+                out.error(`Failed to delete model ${modelName}`);
+                return null;
+            } else {
+                return response.text();
+            }
+        }).then((text) => {
+            if (text !== null) {
+                out.end();
+            }
+        });
     }
 }
 

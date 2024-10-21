@@ -1,6 +1,5 @@
 import type * as express from 'express';
 import type { api } from 'aifoundry-vscode-shared';
-import { HttpException } from '../exceptions';
 
 export class ApiOutStream {
     constructor(private res: express.Response) {
@@ -15,15 +14,13 @@ export class ApiOutStream {
     }
 
     error(message: string) {
-        if (this.res.headersSent) {
-            this.write("Failed to handle the request", "error");
-            return;
-        } else {
-            throw new HttpException(500, "Unknown error: " + message);
-        }
+        this.write(message, "error");
     }
 
-    end() {
+    end(message?: string) {
+        if (message) {
+            this.write(message, "success");
+        }
         this.res.end();
     }
 }

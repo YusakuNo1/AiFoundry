@@ -2,6 +2,7 @@ import { Observable } from 'rxjs';
 import { ApiOutStreamMessage } from '../api';
 
 namespace StreamingUtils {
+    // Not used in the codebase for now
     export function createErrorObservable(message: string | ApiOutStreamMessage) {
         message = (typeof message === "string") ? {
             type: "error",
@@ -13,6 +14,7 @@ namespace StreamingUtils {
         });
     }
 
+    // Not used in the codebase for now
     export function convertReadableStreamToObservable(reader: ReadableStreamDefaultReader<Uint8Array> | undefined): Observable<string> {
         if (!reader) {
             return new Observable<string>((subscriber) => {

@@ -8,6 +8,7 @@ import OllamaUtils from "../utils/OllamaUtils";
 import LmProviderUtils from "./LmProviderUtils";
 import { ModelDef } from '../config/model_info/types';
 import OllamaModels from "../config/model_info/ollama_models";
+import { ApiOutStream } from '../types/ApiOutStream';
 
 class LmProviderOllama extends LmBaseProvider {
     public static readonly ID = "ollama";
@@ -22,7 +23,6 @@ class LmProviderOllama extends LmBaseProvider {
                 providerId: LmProviderOllama.ID,
                 features: LmProviderUtils.convertTagToLmFeature(model.tags),
                 isUserDefined: false,
-                isLocal: true,
                 isDownloaded: false,    // setup in _updateLmProviderRuntimeInfo
             }
             modelMap[model.title] = modelInfo;
@@ -34,6 +34,7 @@ class LmProviderOllama extends LmBaseProvider {
             description: "",
             weight: 10,
             supportUserDefinedModels: false,
+            isLocal: true,
             modelMap,
             properties: {},
         }
@@ -88,6 +89,14 @@ class LmProviderOllama extends LmBaseProvider {
         return new ChatOllama({
             model: lmInfo.modelName,
         });
+    }
+
+    public downloadLocalLanguageModel(id: string, out: ApiOutStream): void {
+        OllamaUtils.downloadModel(id, out);
+    }
+
+    public deleteLocalLanguageModel(id: string, out: ApiOutStream): void {
+        OllamaUtils.deleteModel(id, out);
     }
 }
 

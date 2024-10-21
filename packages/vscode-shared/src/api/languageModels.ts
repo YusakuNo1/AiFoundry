@@ -15,10 +15,6 @@ export type ListLanguageModelsResponse = {
 	basemodels: LmProviderBaseModelInfo[];
 };
 
-export type DeleteLanguageModelResponse = {
-	uri: string;
-}
-
 export type LmProviderProperty = Omit<DatabaseLmProviderProperty, "version" | "entityName">;
 
 export type LmProviderInfoResponse = Omit<DatabaseLmProviderInfo, "version" | "entityName"> & {

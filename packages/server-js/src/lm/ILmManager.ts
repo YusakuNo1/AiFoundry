@@ -24,8 +24,8 @@ interface ILmManager {
     deleteEmbedding(id: string): Promise<api.DeleteEmbeddingResponse>;
 
     listLanguageModels(llmFeature: api.LlmFeature): api.ListLanguageModelsResponse;
-    downloadLanguageModel(lmProviderId: string, id: string): Promise<ReadableStream>;
-    deleteLanguageModel(lmProviderId: string, id: string): Promise<api.DeleteLanguageModelResponse>;
+    downloadLocalLanguageModel(lmProviderId: string, id: string, out: ApiOutStream): void;
+    deleteLocalLanguageModel(lmProviderId: string, id: string, out: ApiOutStream): void;
 
     setupLmProvider(request: api.SetupLmProviderRequest, out: ApiOutStream): void;
     listLmProviders(force: boolean): Promise<api.ListLmProvidersResponse>;

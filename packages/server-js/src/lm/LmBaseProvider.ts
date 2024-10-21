@@ -4,6 +4,7 @@ import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { AifUtils, api, consts, database } from 'aifoundry-vscode-shared';
 import DatabaseManager from '../database/DatabaseManager';
 import { HttpException } from '../exceptions';
+import { ApiOutStream } from '../types/ApiOutStream';
 
 
 export type GetInitInfoResponse = Omit<database.LmProviderEntity, "version" | "entityName">;
@@ -24,6 +25,10 @@ abstract class LmBaseProvider {
         return this._info.name;
     }
 
+    public get isLocal(): boolean {
+        return this._info.isLocal;
+    }
+
     abstract isHealthy(): Promise<boolean>;
 
     public canHandle(aifUri: string): boolean {
@@ -42,6 +47,7 @@ abstract class LmBaseProvider {
                 initInfo.weight,
                 initInfo.properties,
                 initInfo.supportUserDefinedModels,
+                initInfo.isLocal,
                 initInfo.modelMap,
             );
 
@@ -79,6 +85,7 @@ abstract class LmBaseProvider {
             weight: this._info.weight,
             properties: _.cloneDeep(this._info.properties),
             supportUserDefinedModels: this._info.supportUserDefinedModels,
+            isLocal: this._info.isLocal,
             modelMap: _.cloneDeep(this._info.modelMap),
             status,        
         };
@@ -116,21 +123,20 @@ abstract class LmBaseProvider {
             weight: this._info.weight,
             properties: _.cloneDeep(this._info.properties),
             supportUserDefinedModels: this._info.supportUserDefinedModels,
+            isLocal: this._info.isLocal,
             modelMap: _.cloneDeep(this._info.modelMap),
         }
         return response;
     }
 
-    public updateLmProviderModel(databaseManager: DatabaseManager, _modelUri: string, selected: boolean): api.UpdateLmProviderResponse {
-        const modelUriInfo = AifUtils.extractAiUri(this._info.id, _modelUri);
-        const name = modelUriInfo?.parts[0] ?? undefined;
+    public updateLmProviderModel(databaseManager: DatabaseManager, _modelUriOrName: string, selected: boolean): api.UpdateLmProviderResponse {
+        const modelUriInfo = AifUtils.extractAiUri(this._info.id, _modelUriOrName);
+        const name = modelUriInfo?.parts[0] ?? _modelUriOrName;
         const feature = modelUriInfo?.parameters[consts.UpdateLmProviderBaseModelFeatureKey] as api.LlmFeature ?? undefined;
         const modelUri = name ? AifUtils.createAifUri(this._info.id, AifUtils.AifUriCategory.Models, name) : undefined;
 
         if (!modelUri || !name) {
             throw new HttpException(400, "Invalid model uri");
-        } else if (!feature) {
-            throw new HttpException(400, `Invalid feature name: ${feature}`);
         }
 
         let model: database.LmProviderBaseModelInfo | null = null;
@@ -152,17 +158,16 @@ abstract class LmBaseProvider {
                     model.features.push(feature);
                 }
 
-                if (this._info.modelMap[name].isLocal) {
+                if (this._info.isLocal) {
                     (model as database.LmProviderBaseModelLocalInfo).isDownloaded = true;
                 }
-            } else if (this._info.supportUserDefinedModels) {
+            } else if (feature && this._info.supportUserDefinedModels) {
                 const modelInfo: api.LmProviderBaseModelInfo = {
                     uri: modelUri,
                     name,
                     providerId: this._info.id,
                     features: [feature],
                     isUserDefined: true,
-                    isLocal: false,
                 }
                 this._info.modelMap[name] = modelInfo;    
             } else {
@@ -191,9 +196,20 @@ abstract class LmBaseProvider {
             weight: this._info.weight,
             properties: _.cloneDeep(this._info.properties),
             supportUserDefinedModels: this._info.supportUserDefinedModels,
+            isLocal: this._info.isLocal,
             modelMap: _.cloneDeep(this._info.modelMap),
         }
         return response;
+    }
+
+    public downloadLocalLanguageModel(id: string, out: ApiOutStream): void {
+        // Local language model provider should override this method
+        out.error("Only local language model provider supports download");
+    }
+
+    public deleteLocalLanguageModel(id: string, out: ApiOutStream): void {
+        // Local language model provider should override this method
+        out.error("Only local language model provider supports delete");
     }
 }
 

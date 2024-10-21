@@ -33,6 +33,7 @@ class LmProviderGoogleGemini extends LmBaseProvider {
             description: "",
             weight: 100,
             supportUserDefinedModels: false,
+            isLocal: false,
             modelMap,
             properties,
         };

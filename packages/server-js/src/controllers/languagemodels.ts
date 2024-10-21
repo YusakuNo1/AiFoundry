@@ -36,10 +36,7 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
     // Download language model
     router.post(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/crud/:lmproviderid/:id`, (req, res) => {
         try {
-            lmManager.downloadLanguageModel(req.params.lmproviderid, req.params.id).then(readableStream => {
-                const sub = StreamingUtils.convertReadableStreamToObservable(readableStream as any);
-                ResponseUtils.handleStreamingResponse(res, sub);
-            });
+            lmManager.downloadLocalLanguageModel(req.params.lmproviderid, req.params.id, new ApiOutStream(res));
         } catch (err) {
             ResponseUtils.handleException(res, err);
         }
@@ -47,10 +44,11 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
 
     // Delete language model
     router.delete(`${consts.ADMIN_CTRL_PREFIX}/languagemodels/crud/:lmproviderid/:id`, (req, res) => {
-        ResponseUtils.handler<api.DeleteLanguageModelResponse>(
-            res,
-            async () => lmManager.deleteLanguageModel(req.params.lmproviderid, req.params.id),
-        );
+        try {
+            lmManager.deleteLocalLanguageModel(req.params.lmproviderid, req.params.id, new ApiOutStream(res));
+        } catch (err) {
+            ResponseUtils.handleException(res, err);
+        }
     });
 
     // List language model provider

@@ -166,31 +166,14 @@ class LmManager implements ILmManager {
         return { basemodels };
     }
 
-    public async downloadLanguageModel(lmProviderId: string, id: string): Promise<ReadableStream> {
-        if (lmProviderId === LmProviderOllama.ID) {
-            try {
-                const response = await OllamaUtils.downloadModel(id);
-                return response.body.getReader();
-            } catch (error) {
-                throw new HttpException(500, `Failed to download model: ${error}`);
-            }
-        } else {
-            throw new HttpException(404, "Language model not found");
-        }
+    public downloadLocalLanguageModel(lmProviderId: string, id: string, out: ApiOutStream): void {
+        const provider = this._findLmProviderModel(lmProviderId);
+        provider.downloadLocalLanguageModel(id, out);
     }
 
-    public async deleteLanguageModel(lmProviderId: string, id: string): Promise<api.DeleteLanguageModelResponse> {
-        if (lmProviderId === LmProviderOllama.ID) {
-            try {
-                await OllamaUtils.deleteModel(id);
-                this._updateLmProviderModel(lmProviderId, id, false);
-                return { uri: AifUtils.createAifUri(LmProviderOllama.ID, AifUtils.AifUriCategory.Models, id) };    
-            } catch (error) {
-                throw new HttpException(500, `Failed to delete model: ${error}`);
-            }
-        } else {
-            throw new HttpException(404, "Language model not found");
-        }
+    public deleteLocalLanguageModel(lmProviderId: string, id: string, out: ApiOutStream): void {
+        const provider = this._findLmProviderModel(lmProviderId);
+        provider.deleteLocalLanguageModel(id, out);
     }
 
     public setupLmProvider(request: api.SetupLmProviderRequest, out: ApiOutStream): void {
@@ -233,13 +216,8 @@ class LmManager implements ILmManager {
             throw new HttpException(400, "Invalid request to update language model provider")
         }
 
-        for (const provider of Object.values(this._lmProviderMap)) {
-            if (provider.id === request.id) {
-                return provider.updateLmProviderInfo(this.databaseManager, request);
-            }
-        }
-
-        throw new HttpException(404, "Language model not found");
+        const provider = this._findLmProviderModel(request.id);
+        return provider.updateLmProviderInfo(this.databaseManager, request);
     }
 
     public updateLmProviderModel(request: api.UpdateLmProviderModelRequest): api.UpdateLmProviderResponse {
@@ -251,9 +229,14 @@ class LmManager implements ILmManager {
     }
 
     private _updateLmProviderModel(lmProviderId: string, modelUri: string, selected: boolean): api.UpdateLmProviderResponse {
+        const provider = this._findLmProviderModel(lmProviderId);
+        return provider.updateLmProviderModel(this.databaseManager, modelUri, selected);
+    }
+
+    protected _findLmProviderModel(lmProviderId: string): LmBaseProvider {
         for (const provider of Object.values(this._lmProviderMap)) {
             if (provider.id === lmProviderId) {
-                return provider.updateLmProviderModel(this.databaseManager, modelUri, selected);
+                return provider;
             }
         }
 

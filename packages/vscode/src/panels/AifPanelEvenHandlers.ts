@@ -130,8 +130,8 @@ namespace AifPanelEvenHandlers {
                 const id = uriInfo.parts[0];
 
                 vscode.window.showInformationMessage(`Start downloading model ${message.data.modelUri}...`);
-                LanguageModelsAPI.downloadLanguageModel(lmProviderId, id).then(() => {
-                    return _updateLmProviders("Model downloaded successfully", postMessage);
+                LanguageModelsAPI.downloadLocalLanguageModel(lmProviderId, id).then(() => {
+                    return _updateLmProviders(undefined, postMessage);
                 }).then(() => {
                     vscode.window.showInformationMessage(`Model ${message.data.modelUri} is downloaded.`);
                 }).catch((error) => {
@@ -144,8 +144,8 @@ namespace AifPanelEvenHandlers {
             if (uriInfo && uriInfo.parts.length === 1) {
                 const lmProviderId = uriInfo.protocol;
                 const id = uriInfo.parts[0];
-                LanguageModelsAPI.deleteLanguageModel(lmProviderId, id).then(() => {
-                    _updateLmProviders("Model deleted successfully", postMessage);
+                LanguageModelsAPI.deleteLocalLanguageModel(lmProviderId, id).then(() => {
+                    return _updateLmProviders(undefined, postMessage);
                 }).catch((error) => {
                     vscode.window.showErrorMessage("Error deleting model: " + error);
                 });
