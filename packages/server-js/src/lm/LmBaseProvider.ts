@@ -3,6 +3,7 @@ import { Embeddings } from '@langchain/core/embeddings';
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { AifUtils, api, consts, database } from 'aifoundry-vscode-shared';
 import DatabaseManager from '../database/DatabaseManager';
+import { HttpException } from '../exceptions';
 
 
 export type GetInitInfoResponse = Omit<database.LmProviderEntity, "version" | "entityName">;
@@ -57,7 +58,7 @@ abstract class LmBaseProvider {
     }
 
     public listLanguageModels(feature: api.LlmFeature): api.LmProviderBaseModelInfo[] {
-        return Object.values(this._info.modelMap).filter((model) => model.selected && (feature === "all" || model.features.includes(feature)));
+        return Object.values(this._info.modelMap).filter((model) => feature === "all" || model.features.includes(feature));
     }
 
     public abstract getBaseEmbeddingsModel(aifUri: string): Promise<Embeddings>;
@@ -126,33 +127,59 @@ abstract class LmBaseProvider {
         const feature = modelUriInfo?.parameters[consts.UpdateLmProviderBaseModelFeatureKey] as api.LlmFeature ?? undefined;
         const modelUri = name ? AifUtils.createAifUri(this._info.id, AifUtils.AifUriCategory.Models, name) : undefined;
 
-        // Find the model in the model map and update the selected field
-        let foundModel = false;
+        if (!modelUri || !name) {
+            throw new HttpException(400, "Invalid model uri");
+        } else if (!feature) {
+            throw new HttpException(400, `Invalid feature name: ${feature}`);
+        }
+
+        let model: database.LmProviderBaseModelInfo | null = null;
         for (const key of Object.keys(this._info.modelMap)) {
             if (modelUri === this._info.modelMap[key].uri) {
-                foundModel = true;
-                const model = this._info.modelMap[key];
-                model.selected = selected;
-
-                // If it's the request to update the feature, update the feature
-                if (this._info.supportUserDefinedModels && selected && feature && model.features.indexOf(feature) === -1) {
-                    model.features.push(feature);
-                }
+                model = this._info.modelMap[key];
                 break;
             }
         }
 
-        // Add the new model to the model map
-        if (!foundModel && this._info.supportUserDefinedModels && selected && modelUri && name && feature) {
-            const modelInfo: api.LmProviderBaseModelInfo = {
-                uri: modelUri,
-                name,
-                providerId: this._info.id,
-                features: [feature],
-                selected: true,
-                isUserDefined: true,
+        if (selected) {
+            // If the model exists:
+            //      If it includes non-existing feature, add the feature
+            //      If it's local language model provider, set it as downloaded
+            // Otherwise, if it supports user defined models, create a new model 
+            // Otherwise, throw an error as "invalid operation"
+            if (model) {
+                if (feature && model.features.indexOf(feature) === -1) {
+                    model.features.push(feature);
+                }
+
+                if (this._info.modelMap[name].isLocal) {
+                    (model as database.LmProviderBaseModelLocalInfo).isDownloaded = true;
+                }
+            } else if (this._info.supportUserDefinedModels) {
+                const modelInfo: api.LmProviderBaseModelInfo = {
+                    uri: modelUri,
+                    name,
+                    providerId: this._info.id,
+                    features: [feature],
+                    isUserDefined: true,
+                    isLocal: false,
+                }
+                this._info.modelMap[name] = modelInfo;    
+            } else {
+                throw new HttpException(400, "Invalid opeation");
             }
-            this._info.modelMap[name] = modelInfo    
+        } else {
+            // If the model exists, remove the feature, if no feature left, remove the model
+            if (model) {
+                const index = model.features.indexOf(feature);
+                if (index !== -1) {
+                    model.features.splice(index, 1);
+                }
+
+                if (model.features.length === 0) {
+                    delete this._info.modelMap[model.name];
+                }
+            }
         }
 
         databaseManager.saveDbEntity(this._info);

@@ -16,13 +16,13 @@ class LmProviderOllama extends LmBaseProvider {
         const modelMap: Record<string, api.LmProviderBaseModelInfo> = {};
         const models = (OllamaModels as ModelDef).models;
         for (const model of models) {
-            const modelInfo: api.LmProviderBaseModelInfoOllama = {
+            const modelInfo: api.LmProviderBaseModelLocalInfo = {
                 uri: AifUtils.createAifUri(LmProviderOllama.ID, AifUtils.AifUriCategory.Models, model.title),
                 name: model.title,
                 providerId: LmProviderOllama.ID,
                 features: LmProviderUtils.convertTagToLmFeature(model.tags),
-                selected: false,
                 isUserDefined: false,
+                isLocal: true,
                 isDownloaded: false,    // setup in _updateLmProviderRuntimeInfo
             }
             modelMap[model.title] = modelInfo;
@@ -45,7 +45,7 @@ class LmProviderOllama extends LmBaseProvider {
             const listModelNames = listModels.map((model) => model.split(":")[0]);   // format is "model:version"
     
             for (const modelName of Object.keys(lmProviderInfo.modelMap)) {
-                (lmProviderInfo.modelMap[modelName] as database.LmProviderBaseModelInfoOllama).isDownloaded = listModelNames.includes(modelName);
+                (lmProviderInfo.modelMap[modelName] as database.LmProviderBaseModelLocalInfo).isDownloaded = listModelNames.includes(modelName);
             }    
         } catch (error) {
             console.error(`Failed to update Ollama models: ${error}`);
@@ -58,8 +58,8 @@ class LmProviderOllama extends LmBaseProvider {
 
     public listLanguageModels(feature: api.LlmFeature): api.LmProviderBaseModelInfo[] {
         return Object.values(this._info.modelMap).filter((_model: database.LmProviderBaseModelInfo) => {
-            const model = _model as database.LmProviderBaseModelInfoOllama;
-            return model.selected && model.isDownloaded && (feature === "all" || model.features.includes(feature));
+            const model = _model as database.LmProviderBaseModelLocalInfo;
+            return model.isDownloaded && (feature === "all" || model.features.includes(feature));
         });
     }
 

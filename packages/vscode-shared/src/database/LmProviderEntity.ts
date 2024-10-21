@@ -17,16 +17,15 @@ export type LmProviderBaseModelInfo = {
     name: string,
     providerId: string,
     features: LlmFeature[],
-	selected: boolean,
 	// For provider of model catelog, e.g. Azure AI, the users can add custom model name (or deployment name) + version, and they can delete it
 	isUserDefined: boolean,
+    // Is local model or not, e.g. Ollama
+    isLocal: boolean,
 }
 
-export type LmProviderBaseModelInfoOllamaExtras = {
-    // The user needs to download the model before using it, which adds additional latency
+export type LmProviderBaseModelLocalInfo = LmProviderBaseModelInfo & {
     isDownloaded: boolean,
 }
-export type LmProviderBaseModelInfoOllama = LmProviderBaseModelInfo & LmProviderBaseModelInfoOllamaExtras;
 
 // For LmProviderEntity, "id" is the provider id
 export class LmProviderEntity extends BaseEntity {

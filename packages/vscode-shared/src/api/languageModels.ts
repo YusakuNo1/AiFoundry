@@ -1,15 +1,15 @@
 import {
 	LmProviderEntity as DatabaseLmProviderInfo,
 	LmProviderBaseModelInfo as DatabaseLmProviderBaseModelInfo,
-	LmProviderBaseModelInfoOllamaExtras,
+	LmProviderBaseModelLocalInfo as DatabaseLmProviderBaseModelLocalInfo,
 	LmProviderProperty as DatabaseLmProviderProperty,
 } from "../database/LmProviderEntity";
 
 export const LlmFeatures = ["all", "conversational", "vision", "embedding", "tools"] as const;
 export type LlmFeature = typeof LlmFeatures[number];
 
-export type LmProviderBaseModelInfo = Omit<DatabaseLmProviderBaseModelInfo, "version" | "entityName">;
-export type LmProviderBaseModelInfoOllama = LmProviderBaseModelInfo & LmProviderBaseModelInfoOllamaExtras;
+export type LmProviderBaseModelInfo = DatabaseLmProviderBaseModelInfo;
+export type LmProviderBaseModelLocalInfo = DatabaseLmProviderBaseModelLocalInfo;
 
 export type ListLanguageModelsResponse = {
 	basemodels: LmProviderBaseModelInfo[];
@@ -40,7 +40,7 @@ export type UpdateLmProviderInfoRequest = Pick<DatabaseLmProviderInfo, "id"> & P
 export type UpdateLmProviderModelRequest = {
 	id: string,
 	modelUri: string,
-	selected: boolean,
+	selected: boolean,	// This option only applies to user-defined models, selected means added to the list, otherwise removed
 };
 
 export type UpdateLmProviderResponse = Omit<LmProviderInfoResponse, "status">;

@@ -1,9 +1,7 @@
 import React from 'react';
 import { List, Stack } from '@fluentui/react';
-import { Button, Checkbox, Input } from '@fluentui/react-components';
+import { Button, Input, Label } from '@fluentui/react-components';
 import { type api, consts } from 'aifoundry-vscode-shared';
-import { themeName } from '../theme/themes';
-import { AifIcons } from '../theme/icons';
 
 
 type Props = {
@@ -34,22 +32,6 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
     }, [props.models, props.llmFeature]);
     const items = React.useMemo(() => Object.entries(modelMap).map(([key, model]) => ({ key, model })).sort(), [modelMap]);
 
-    const onChange = React.useCallback((key: string, checked: boolean) => {
-        if (!modelMap[key]) {
-            return;
-        }
-
-        const newModelMap = {
-            ...modelMap,
-            [key]: {
-                ...modelMap[key],
-                selected: checked,
-            },
-        };
-        setModelMap(newModelMap);
-        props.onChange(modelMap[key].uri, checked);
-    }, [modelMap, props]);
-
     const onAddUserDefinedModel = React.useCallback((event: any) => {
         if (modelName.trim() === "") {
             return;
@@ -64,14 +46,18 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
         if (!model) {
             return null;
         } else if (!isLocalLmProvider) {
-            return model.name;
+            return (
+                <div style={{ marginTop: "8px", marginBottom: "8px" }}>
+                    <Label disabled={!isDownloaded}>{model.name}</Label>
+                </div>
+            );
         } else {
             return (
-                <div>
-                    {model.name}
-                    &nbsp;&nbsp;
+                <div style={{ marginTop: "4px", marginBottom: "4px" }}>
                     {!isDownloaded && <Button onClick={() => props.onDownloadModel(model.uri)}>Download</Button>}
                     {isDownloaded  && <Button onClick={() => props.onDeleteModel(model.uri)}>Delete</Button>}
+                    &nbsp;&nbsp;
+                    <Label disabled={!isDownloaded}>{model.name}</Label>
                 </div>
             );    
         }
@@ -79,16 +65,10 @@ const LmProviderUpdatePageExpandableInput = (props: Props) => {
 
     return (<>
         <List items={items} onRenderCell={(item, index) => {
-            // Ollama is the only local provider for now
-            const isDownloaded = !isLocalLmProvider || ((item?.model as api.LmProviderBaseModelInfoOllama)?.isDownloaded ?? false);
-            return (<Checkbox
-                disabled={!isDownloaded}
-                key={item?.key ?? `checkbox-${index}`}
-                label={renderLabel(item?.model ?? null, isDownloaded)}
-                checked={item?.model.selected ?? false} 
-                onChange={(e) => item && onChange(item.key, e.target.checked)} 
-            />)}} />
-        {props.supportUserDefinedModels && (<Stack horizontal>
+            const isDownloaded = !isLocalLmProvider || ((item?.model as api.LmProviderBaseModelLocalInfo)?.isDownloaded ?? false);
+            return renderLabel(item?.model ?? null, isDownloaded);
+        }} />
+        {props.supportUserDefinedModels && (<Stack style={{ marginTop: "4px", marginBottom: "4px" }} horizontal>
             <Input placeholder="<model> or <model>:<version>" style={inputStyle} onChange={event => setModelName(event.target.value)} value={modelName} />
             <Button style={{ marginLeft: "8px" }} onClick={onAddUserDefinedModel}>Add</Button>
         </Stack>)}

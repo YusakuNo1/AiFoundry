@@ -139,8 +139,8 @@ const LmProviderUpdatePage = (props: Props) => {
                 name: modelName,
                 providerId: props.lmProviderId,
                 features: [llmFeature],
-                selected: true,
                 isUserDefined: true,
+                isLocal: false,
             };
             setModels([...models, newModel]);    
         }

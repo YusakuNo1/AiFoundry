@@ -12,8 +12,8 @@ namespace LmProviderUtils {
                 name: model.title,
                 providerId: lmProviderId,
                 features: convertTagToLmFeature(model.tags),
-                selected: false,
                 isUserDefined: false,
+                isLocal: false,
             }
             modelMap[model.title] = modelInfo;
         }
