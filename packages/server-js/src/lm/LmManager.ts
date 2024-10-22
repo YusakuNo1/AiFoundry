@@ -39,7 +39,7 @@ class LmManager implements ILmManager {
         this._lmProviderMap[LmProviderAwsBedrock.ID] = new LmProviderAwsBedrock(this.databaseManager);
 
         for (const provider of Object.values(this._lmProviderMap)) {
-            await provider.init(this.databaseManager);
+            await provider.init();
         }
     }
 
@@ -217,7 +217,7 @@ class LmManager implements ILmManager {
         }
 
         const provider = this._findLmProviderModel(request.id);
-        return provider.updateLmProviderInfo(this.databaseManager, request);
+        return provider.updateLmProviderInfo(request);
     }
 
     public updateLmProviderModel(request: api.UpdateLmProviderModelRequest): api.UpdateLmProviderResponse {
@@ -230,7 +230,7 @@ class LmManager implements ILmManager {
 
     private _updateLmProviderModel(lmProviderId: string, modelUri: string, selected: boolean): api.UpdateLmProviderResponse {
         const provider = this._findLmProviderModel(lmProviderId);
-        return provider.updateLmProviderModel(this.databaseManager, modelUri, selected);
+        return provider.updateLmProviderModel(modelUri, selected);
     }
 
     protected _findLmProviderModel(lmProviderId: string): LmBaseProvider {

@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
+  "scripts": {
+    "test": "npm run test -w packages/server-js"
+  },
   "workspaces": [
     "packages/server-js",
     "packages/vscode-shared",

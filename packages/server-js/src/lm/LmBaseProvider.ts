@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
-import { Embeddings } from '@langchain/core/embeddings';
-import { BaseChatModel } from "@langchain/core/language_models/chat_models";
+import type { Embeddings } from '@langchain/core/embeddings';
+import type { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { AifUtils, api, consts, database } from 'aifoundry-vscode-shared';
 import DatabaseManager from '../database/DatabaseManager';
 import { HttpException } from '../exceptions';
@@ -35,10 +35,10 @@ abstract class LmBaseProvider {
         return aifUri.startsWith(`${this.id}://`)
     }
 
-    public async init(databaseManager: DatabaseManager): Promise<void> {
+    public async init(): Promise<void> {
         const initInfo = await this._getInitInfo();
 
-        let lmProviderInfo = databaseManager.getLmProviderInfo(initInfo.id);
+        let lmProviderInfo = this._databaseManager.getLmProviderInfo(initInfo.id);
         if (!lmProviderInfo) {
             lmProviderInfo = new database.LmProviderEntity(
                 initInfo.id,
@@ -52,7 +52,7 @@ abstract class LmBaseProvider {
             );
 
             await this._updateLmProviderRuntimeInfo(lmProviderInfo);
-            databaseManager.saveDbEntity(lmProviderInfo);
+            this._databaseManager.saveDbEntity(lmProviderInfo);
         } else {
             await this._updateLmProviderRuntimeInfo(lmProviderInfo);
         }
@@ -91,7 +91,7 @@ abstract class LmBaseProvider {
         };
     }
 
-    public updateLmProviderInfo(databaseManager: DatabaseManager, request: api.UpdateLmProviderInfoRequest): api.UpdateLmProviderResponse {
+    public updateLmProviderInfo(request: api.UpdateLmProviderInfoRequest): api.UpdateLmProviderResponse {
         this._info.name = request.name ?? this._info.name;
         this._info.weight = request.weight ?? this._info.weight;
 
@@ -114,7 +114,7 @@ abstract class LmBaseProvider {
             }
         }
 
-        databaseManager.saveDbEntity(this._info);
+        this._databaseManager.saveDbEntity(this._info);
 
         const response: api.UpdateLmProviderResponse = {
             id: this._info.id,
@@ -129,7 +129,7 @@ abstract class LmBaseProvider {
         return response;
     }
 
-    public updateLmProviderModel(databaseManager: DatabaseManager, _modelUriOrName: string, selected: boolean): api.UpdateLmProviderResponse {
+    public updateLmProviderModel(_modelUriOrName: string, selected: boolean): api.UpdateLmProviderResponse {
         const modelUriInfo = AifUtils.extractAiUri(this._info.id, _modelUriOrName);
         const name = modelUriInfo?.parts[0] ?? _modelUriOrName;
         const feature = modelUriInfo?.parameters[consts.UpdateLmProviderBaseModelFeatureKey] as api.LlmFeature ?? undefined;
@@ -158,6 +158,7 @@ abstract class LmBaseProvider {
                     model.features.push(feature);
                 }
 
+                // For Ollama, we have fixed list of models and it's local
                 if (this._info.isLocal) {
                     (model as database.LmProviderBaseModelLocalInfo).isDownloaded = true;
                 }
@@ -169,7 +170,14 @@ abstract class LmBaseProvider {
                     features: [feature],
                     isUserDefined: true,
                 }
-                this._info.modelMap[name] = modelInfo;    
+
+                if (this._info.isLocal) {
+                    // For HuggingFace, we don't have fixed list of models, and it's local
+                    // For local model, we don't know the model is downloaded or not for now, need to wait for the next refresh
+                    (modelInfo as database.LmProviderBaseModelLocalInfo).isDownloaded = false;
+                }
+
+                this._info.modelMap[name] = modelInfo;
             } else {
                 throw new HttpException(400, "Invalid opeation");
             }
@@ -181,13 +189,13 @@ abstract class LmBaseProvider {
                     model.features.splice(index, 1);
                 }
 
-                if (model.features.length === 0) {
+                if (model.features.length === 0 && this._info.supportUserDefinedModels) {
                     delete this._info.modelMap[model.name];
                 }
             }
         }
 
-        databaseManager.saveDbEntity(this._info);
+        this._databaseManager.saveDbEntity(this._info);
 
         const response: api.UpdateLmProviderResponse = {
             id: this._info.id,
