@@ -80,22 +80,6 @@
 				}
 			},
 			{
-				"command": "AiFoundry.installDocker",
-				"title": "Install Docker"
-			},
-			{
-				"command": "AiFoundry.startDockerApp",
-				"title": "Start Docker app"
-			},
-			{
-				"command": "AiFoundry.startDockerServer",
-				"title": "Start Docker server"
-			},
-			{
-				"command": "AiFoundry.startDockerDevContainer",
-				"title": "Start Docker Dev Container"
-			},
-			{
 				"command": "AiFoundryEmbeddings.refresh",
 				"title": "Refresh",
 				"icon": {
@@ -202,16 +186,6 @@
 		],
 		"menus": {
 			"view/title": [
-				{
-					"command": "AiFoundry.installDocker",
-					"when": "view == aiFoundryMainViewId",
-					"group": "aiFoundryMainViewId@1"
-				},
-				{
-					"command": "AiFoundry.startDockerApp",
-					"when": "view == aiFoundryMainViewId",
-					"group": "aiFoundryMainViewId@2"
-				},
 				{
 					"command": "AiFoundry.refreshMainView",
 					"when": "view == aiFoundryMainViewId",

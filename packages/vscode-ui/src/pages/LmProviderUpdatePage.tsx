@@ -140,7 +140,6 @@ const LmProviderUpdatePage = (props: Props) => {
                 providerId: props.lmProviderId,
                 features: [llmFeature],
                 isUserDefined: true,
-                isLocal: false,
             };
             setModels([...models, newModel]);    
         }
