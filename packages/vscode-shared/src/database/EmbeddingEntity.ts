@@ -1,4 +1,4 @@
-
+import { SplitterParams } from "../misc/common";
 import { BaseEntity } from "./BaseEntity"
 
 export class EmbeddingEntity extends BaseEntity {
@@ -9,8 +9,11 @@ export class EmbeddingEntity extends BaseEntity {
     constructor(
         public id: string,
         public name: string,
-        public vs_provider: string,
+        public vectorStoreProvider: string,
         public basemodelUri: string,
+        public description: string,         // summary of the file content, no more than 100 characters
+        public fileNames: string[],
+        public splitterParams: SplitterParams,
     ) {
         super(id);
     }

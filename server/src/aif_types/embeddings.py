@@ -6,7 +6,7 @@ from sqlmodel import Field, SQLModel
 class EmbeddingEntity(SQLModel, table=True):
     id: str = Field(primary_key=True)
     name: str
-    vs_provider: str
+    vectorStoreProvider: str
     basemodel_uri: str
 
 class CreateEmbeddingsRequest(BaseModel):

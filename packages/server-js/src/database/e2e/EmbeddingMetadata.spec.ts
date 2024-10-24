@@ -24,11 +24,11 @@ describe('AgentEntity', () => {
         expect(embeddings).toHaveLength(2);
         expect(embeddings[0].id).toBe("test-1");
         expect(embeddings[0].name).toBe("embedding-test-1");
-        expect(embeddings[0].vs_provider).toBe("vs_provider-test-1");
+        expect(embeddings[0].vectorStoreProvider).toBe("vectorStoreProvider-test-1");
         expect(embeddings[0].basemodelUri).toBe("basemodelUri-test-1");
         expect(embeddings[1].id).toBe("test-2");
         expect(embeddings[1].name).toBe("embedding-test-2");
-        expect(embeddings[1].vs_provider).toBe("vs_provider-test-2");
+        expect(embeddings[1].vectorStoreProvider).toBe("vectorStoreProvider-test-2");
         expect(embeddings[1].basemodelUri).toBe("basemodelUri-test-2");
     });
 
@@ -38,7 +38,7 @@ describe('AgentEntity', () => {
         const embedding = databaseManager.getEmbeddingsMetadata("test-2");
         expect(embedding.id).toBe("test-2");
         expect(embedding.name).toBe("embedding-test-2");
-        expect(embedding.vs_provider).toBe("vs_provider-test-2");
+        expect(embedding.vectorStoreProvider).toBe("vectorStoreProvider-test-2");
         expect(embedding.basemodelUri).toBe("basemodelUri-test-2");
     });
 
@@ -59,7 +59,7 @@ function createEmbeddingMetadata(id: string) {
     return new database.EmbeddingEntity(
         id,
         `embedding-${id}`,
-        `vs_provider-${id}`,
+        `vectorStoreProvider-${id}`,
         `basemodelUri-${id}`,
     );
 }

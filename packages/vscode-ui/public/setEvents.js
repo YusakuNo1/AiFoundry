@@ -9,7 +9,7 @@ function _showEmbeddingDetailsPage() {
         data: {
             id: 'embedding-id',
             name: 'embedding-name',
-            vs_provider: 'vs-provider',
+            vectorStoreProvider: 'vs-provider',
             agent_uri: 'model-uri',
         },
     });
@@ -40,7 +40,7 @@ function _showModelPlaygroundPage() {
         data: {
             id: '13d2c85da52e4225b81c788859b429ad',
             name: 'fake name',
-            vs_provider: 'fake provider',
+            vectorStoreProvider: 'fake provider',
             agent_uri: 'fake model uri',
         },
     });

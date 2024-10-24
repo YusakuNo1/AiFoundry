@@ -119,35 +119,27 @@ class LmManager implements ILmManager {
         return { embeddings };
     }
 
-    public async createEmbedding(
-        afBaseModelUri: string | undefined,
-        files: misc.UploadFileInfo[] | undefined,
-        name: string | undefined,
-    ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
-        if (!afBaseModelUri || afBaseModelUri.length === 0 || !files || files.length === 0) {
-            throw new HttpException(400, "afBaseModelUri and files are required");
+    public async createEmbedding(request: api.CreateEmbeddingRequest): Promise<api.CreateOrUpdateEmbeddingsResponse> {
+        if (!request.basemodelUri || request.basemodelUri.length === 0 || !request.files || request.files.length === 0) {
+            throw new HttpException(400, "basemodelUri and files are required");
         }
 
-        const llm = await LmManagerUtils.getBaseEmbeddingsModel(this._lmProviderMap, afBaseModelUri);
-        return AssetUtils.createEmbeddings(this.databaseManager, llm, afBaseModelUri, files, name);
+        const llm = await LmManagerUtils.getBaseEmbeddingsModel(this._lmProviderMap, request.basemodelUri);
+        return AssetUtils.createEmbedding(this.databaseManager, llm, request);
     }
 
-    public async updateEmbedding(
-        aifEmbeddingAssetId: string | undefined,
-        files: misc.UploadFileInfo[] | undefined,
-        name: string | undefined,
-    ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
-        if (!aifEmbeddingAssetId || aifEmbeddingAssetId.length === 0) {
+    public async updateEmbedding(request: api.UpdateEmbeddingRequest): Promise<api.CreateOrUpdateEmbeddingsResponse> {
+        if (!request.id || request.id.length === 0) {
             throw new HttpException(400, "Embedding id is required");
         }
 
-        const embeddingMetadata = this.databaseManager.getEmbeddingsMetadata(aifEmbeddingAssetId);
+        const embeddingMetadata = this.databaseManager.getEmbeddingsMetadata(request.id);
         if (!embeddingMetadata) {
             throw new HttpException(404, "Embedding not found");
         }
 
         const llm = await LmManagerUtils.getBaseEmbeddingsModel(this._lmProviderMap, embeddingMetadata.basemodelUri);
-        return AssetUtils.updateEmbeddings(this.databaseManager, llm, embeddingMetadata, files, name);
+        return AssetUtils.updateEmbeddings(this.databaseManager, llm, embeddingMetadata, request);
     }
 
     public async deleteEmbedding(id: string): Promise<api.DeleteEmbeddingResponse> {

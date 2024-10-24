@@ -9,6 +9,19 @@ export type DataUrlInfo = {
     dataUrlPrefix: string | null,
 };
 
+// File information in server side
+export type UploadFileInfo = DataUrlInfo & {
+    type: AcceptedFileInfoType,
+    fileName: string,
+}
+
+export type SplitterParams = {
+	// Currently, only support TokenTextSplitter which is the most accurate but slowest one
+    splitterType: "TokenTextSplitter" | "CharacterTextSplitter" | "RecursiveCharacterTextSplitter";
+	chunkSize: number;
+	chunkOverlap: number;  
+};
+
 export const AcceptedFileInfo: Record<AcceptedFileInfoType, {
     name: string,
     extensions: string[],
@@ -26,7 +39,7 @@ export const AcceptedFileInfo: Record<AcceptedFileInfoType, {
     },
     "txt": {
         name: "Text",
-        extensions: ["txt", "csv"],
+        extensions: ["txt", "csv", "json", "yaml", "yml"],
         convert: (ext: string, buffer: Buffer) => {
             return {
                 data: buffer.toString('utf8'),
@@ -50,12 +63,6 @@ export const AcceptedFileInfo: Record<AcceptedFileInfoType, {
     },
 };
 
-// File information in server side
-export type UploadFileInfo = DataUrlInfo & {
-    type: AcceptedFileInfoType,
-    fileName: string,
-}
-
 export function convertToDataUrlInfo(dataUrl: string): DataUrlInfo {
     const parts = dataUrl.split(",");
     return {
@@ -65,5 +72,6 @@ export function convertToDataUrlInfo(dataUrl: string): DataUrlInfo {
 }
 
 export function expandAcceptedFileInfoTypeToFileExtensionMap(types: AcceptedFileInfoType[]): Record<string, string[]> {
-    return Object.fromEntries(types.map(type => [type, AcceptedFileInfo[type].extensions]));
+    // For some reasons, it seems like fitlers from vscode.window.showOpenDialog only takes the values from the first key (maybe only for Mac), combining all the extensions into one key
+    return {"All": types.flatMap(type => AcceptedFileInfo[type].extensions)};
 }

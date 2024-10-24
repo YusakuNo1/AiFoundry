@@ -1,5 +1,5 @@
 import * as express from "express";
-import { consts, misc } from 'aifoundry-vscode-shared';
+import { type api, consts, misc } from 'aifoundry-vscode-shared';
 import Config from "../config";
 import ILmManager from "../lm/ILmManager";
 import ResponseUtils from "../utils/ResponseUtils";
@@ -18,7 +18,14 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
         RouterUtils.middlewares.uploadFiles,
         RouterUtils.fileConvertMiddleware(misc.AcceptedFileInfoEmbedding),
         (req, res) => {
-            ResponseUtils.handler(res, async () => lmManager.createEmbedding(req.headers[Config.HEADER_AIF_BASEMODEL_URI] as string, req["files"], req.body?.name));
+            const request: api.CreateEmbeddingRequest = {
+                basemodelUri: req.headers[Config.HEADER_AIF_BASEMODEL_URI] as string,
+                files: req["files"],
+                name: req.body?.name,
+                description: req.body?.description ?? "",
+                splitterParams: req.body?.splitterParams,
+            }
+            ResponseUtils.handler(res, async () => lmManager.createEmbedding(request));
         }
     );
 
@@ -29,7 +36,13 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
         RouterUtils.middlewares.uploadFiles,
         RouterUtils.fileConvertMiddleware(misc.AcceptedFileInfoEmbedding),
         (req, res) => {
-            ResponseUtils.handler(res, async () => lmManager.updateEmbedding(req.headers[Config.HEADER_AIF_EMBEDDING_ASSET_ID] as string, req["files"], req.body?.name));
+            const request: api.UpdateEmbeddingRequest = {
+                id: req.headers[Config.HEADER_AIF_EMBEDDING_ASSET_ID] as string,
+                files: req["files"],
+                name: req.body?.name,
+                description: req.body?.description,
+            }
+            ResponseUtils.handler(res, async () => lmManager.updateEmbedding(request));
         }
     );
 

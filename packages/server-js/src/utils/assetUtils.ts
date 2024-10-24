@@ -28,27 +28,36 @@ namespace AssetUtils {
         return path.join(getAssetsPath(), Config.EMBEDDINGS_FOLDER_NAME);
     }
 
-    export async function createEmbeddings(
+    export async function createEmbedding(
         databaseManager: DatabaseManager,
         llm: Embeddings,
-        baseModelUri: string,
-        files: misc.UploadFileInfo[],
-        name: string | undefined,
+        request: api.CreateEmbeddingRequest,
     ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
         const assetId = uuid();
         const assetsPath = getEmbeddingsAssetPath();
         const storePath = path.join(assetsPath, assetId);
         const aifVsProvider = Config.VECTOR_STORE_PROVIDER;
+        const files = request.files ?? [];
 
-        name = name ?? files.map(f => f.fileName).join("-");
+        const name: string = request.name ?? files.map(f => f.fileName).join("-");
+        const fileNames: string[] = files.map(f => f.fileName);
+        const splitterParams: misc.SplitterParams = request.splitterParams ?? {
+            splitterType: Config.LanguageModelRag.SPLITTER_TYPE,
+            chunkSize: Config.LanguageModelRag.CHUNK_SIZE,
+            chunkOverlap: Config.LanguageModelRag.CHUNK_OVERLAP,
+        };
+
         const metadata = new database.EmbeddingEntity(
             assetId,
             name,
             aifVsProvider,
-            baseModelUri,
+            request.basemodelUri,
+            request.description,
+            fileNames,
+            splitterParams,
         );
 
-        const documents = files.map(FileUtils.convertToDocument).filter(d => d !== null) as Document[];
+        const documents = await FileUtils.convertToDocuments(files, splitterParams);
         if (aifVsProvider === "faiss") {
             const vectorStore = await FaissStore.fromDocuments(documents, llm);
             await vectorStore.save(storePath);
@@ -66,34 +75,51 @@ namespace AssetUtils {
         databaseManager: DatabaseManager,
         llm: Embeddings,
         embeddingMetadata: database.EmbeddingEntity,
-        files: misc.UploadFileInfo[] | undefined,
-        name: string | undefined,
+        request: api.UpdateEmbeddingRequest,
     ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
         const assetsPath = getEmbeddingsAssetPath();
         const storePath = path.join(assetsPath, embeddingMetadata.id);
-        const documents = files ? files.map(FileUtils.convertToDocument).filter(d => d !== null) as Document[] : null;
 
-        if (documents) {
-            let vectorStore: SaveableVectorStore | null = null;
-            if (embeddingMetadata.vs_provider === "faiss") {
-                vectorStore = await FaissStore.load(storePath, llm);
-                await vectorStore.addDocuments(documents);
-                await vectorStore.save(storePath);
-            } else if (embeddingMetadata.vs_provider === "chroma") {
-                throw new Error("Not implemented");
-            } else {
-                throw new Error("Invalid vector store provider");
-            }    
+        let shouldSave = false;
+        if (request.files && request.files.length > 0) {
+            const documents = await FileUtils.convertToDocuments(request.files, embeddingMetadata.splitterParams);
+            if (documents.length > 0) {
+                let vectorStore: SaveableVectorStore | null = null;
+                if (embeddingMetadata.vectorStoreProvider === "faiss") {
+                    vectorStore = await FaissStore.load(storePath, llm);
+                    await vectorStore.addDocuments(documents);
+                    await vectorStore.save(storePath);
+                } else if (embeddingMetadata.vectorStoreProvider === "chroma") {
+                    throw new Error("Not implemented");
+                } else {
+                    throw new Error("Invalid vector store provider");
+                }    
+            }
+
+            const fileNames: string[] = request.files.map(f => f.fileName);
+            for (const fileName of fileNames) {
+                if (!embeddingMetadata.fileNames.includes(fileName)) {
+                    embeddingMetadata.fileNames.push(fileName);
+                }
+            }
+            shouldSave = true;
         }
 
-        if (name) {
-            embeddingMetadata.name = name;
+        if (request.name) {
+            embeddingMetadata.name = request.name;
+            shouldSave = true;
+        }
+
+        if (request.description) {
+            embeddingMetadata.description = request.description;
+            shouldSave = true;
+        }
+
+        if (shouldSave) {
             databaseManager.saveDbEntity(embeddingMetadata);
-        } else {
-            name = embeddingMetadata.name;
         }
 
-        return { id: embeddingMetadata.id, name };
+        return { id: embeddingMetadata.id, name: embeddingMetadata.name };
     }
 
     export async function deleteEmbedding(

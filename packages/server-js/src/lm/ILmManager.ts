@@ -19,8 +19,8 @@ interface ILmManager {
     deleteAgent(id: string): api.DeleteAgentResponse;
 
     listEmbeddings(): api.ListEmbeddingsResponse;
-    createEmbedding(afBaseModelUri: string | undefined, files: misc.UploadFileInfo[] | undefined, name: string | undefined): Promise<api.CreateOrUpdateEmbeddingsResponse>;
-    updateEmbedding(id: string | undefined, files: misc.UploadFileInfo[] | undefined, name: string | undefined): Promise<api.CreateOrUpdateEmbeddingsResponse>;
+    createEmbedding(request: api.CreateEmbeddingRequest): Promise<api.CreateOrUpdateEmbeddingsResponse>;
+    updateEmbedding(request: api.UpdateEmbeddingRequest): Promise<api.CreateOrUpdateEmbeddingsResponse>;
     deleteEmbedding(id: string): Promise<api.DeleteEmbeddingResponse>;
 
     listLanguageModels(llmFeature: api.LlmFeature): api.ListLanguageModelsResponse;

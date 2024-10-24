@@ -20,7 +20,7 @@ def create_or_update_embeddings(asset_id: str | None, name: str, basemodel_uri: 
 
     assets_path = get_embeddings_asset_path()
     aif_vs_provider = os.environ.get("VECTOR_STORE_PROVIDER")
-    metadata = EmbeddingEntity(name=name, vs_provider=aif_vs_provider, basemodel_uri=basemodel_uri, id=asset_id)
+    metadata = EmbeddingEntity(name=name, vectorStoreProvider=aif_vs_provider, basemodel_uri=basemodel_uri, id=asset_id)
 
     if documents is not None:
         if aif_vs_provider == "faiss":
@@ -54,10 +54,10 @@ def load_embeddings(asset_id: str, llm: Embeddings | None, get_llm: Callable[[st
 
     assets_path = get_embeddings_asset_path()
 
-    vs_provider = embedding_metadata.vs_provider
-    if vs_provider == "faiss":
+    vectorStoreProvider = embedding_metadata.vectorStoreProvider
+    if vectorStoreProvider == "faiss":
         return FAISS.load_local(folder_path=assets_path, embeddings=llm, index_name=asset_id, allow_dangerous_deserialization=True)
-    elif vs_provider == "chroma":
+    elif vectorStoreProvider == "chroma":
         # return Chroma.load_local(assets_path, asset_id)
         raise Exception("Not implemented")
     else:
@@ -67,13 +67,13 @@ def load_embeddings(asset_id: str, llm: Embeddings | None, get_llm: Callable[[st
 def delete_embedding(asset_id: str, database_manager: DatabaseManager):
     assets_path = get_embeddings_asset_path()
     embedding_metadata = database_manager.load_embeddings_metadata(asset_id=asset_id)
-    vs_provider = embedding_metadata.vs_provider
-    if vs_provider == "faiss":
+    vectorStoreProvider = embedding_metadata.vectorStoreProvider
+    if vectorStoreProvider == "faiss":
         faiss_file_path = f"{assets_path}/{asset_id}.faiss"
         pkl_file_path = f"{assets_path}/{asset_id}.pkl"
         os.remove(faiss_file_path)
         os.remove(pkl_file_path)
-    elif vs_provider == "chroma":
+    elif vectorStoreProvider == "chroma":
         raise Exception("Not implemented")
     else:
         raise Exception("Invalid vector store provider")

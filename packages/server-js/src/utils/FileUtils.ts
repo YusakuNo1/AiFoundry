@@ -1,19 +1,31 @@
 import { Document } from "@langchain/core/documents";
+import { TextSplitter, TokenTextSplitter, CharacterTextSplitter, RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { type misc } from "aifoundry-vscode-shared";
 
 namespace FileUtils {
-    export function convertToDocument(file: misc.UploadFileInfo): Document | null {
-        if (file.type !== "txt") {
-            // TODO: only support text type for now
-            return null;
+    export async function convertToDocuments(uploadFileInfoList: misc.UploadFileInfo[], splitterParams: misc.SplitterParams): Promise<Document[]> {
+        // TODO: support PDF here
+        const texts = uploadFileInfoList.filter(f => f.type === "txt").map(f => f.data);
+
+        let splitter: TextSplitter;
+        if (splitterParams.splitterType === "CharacterTextSplitter") {
+            splitter = new CharacterTextSplitter({
+                chunkSize: 100,
+                chunkOverlap: 20,
+            });
+        } else if (splitterParams.splitterType === "RecursiveCharacterTextSplitter") {
+            splitter = new RecursiveCharacterTextSplitter({
+                chunkSize: 100,
+                chunkOverlap: 20,
+            });
+        } else {
+            splitter = new TokenTextSplitter({
+                chunkSize: 100,
+                chunkOverlap: 20,
+            });
         }
 
-        return new Document({
-            pageContent: file.data,
-            metadata: {
-                fileName: file.fileName,
-            },
-        });
+        return splitter.createDocuments(texts);
     }
 }
 

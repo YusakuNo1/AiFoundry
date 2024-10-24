@@ -1,7 +1,21 @@
+import type { SplitterParams, UploadFileInfo } from "../misc/common";
 import type { EmbeddingEntity } from "../database/EmbeddingEntity";
 
 export type ListEmbeddingsResponse = {
 	embeddings: EmbeddingEntity[];
+};
+
+export type CreateEmbeddingRequest = {
+	basemodelUri: string,
+	files: UploadFileInfo[],
+	name: string | undefined,
+	description: string,
+	splitterParams: SplitterParams | undefined,
+};
+
+export type UpdateEmbeddingRequest = Omit<CreateEmbeddingRequest, "basemodelUri" | "splitterParams" | "splitterParams" | "description"> &{
+	id: string,
+	description: string | undefined,
 };
 
 export type CreateOrUpdateEmbeddingsResponse = {

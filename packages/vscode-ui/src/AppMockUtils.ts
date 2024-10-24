@@ -11,7 +11,7 @@ export function mockVSCodeExt() {
                             id: "13d2c85da52e4225b81c788859b429ad",
                             agentUri: "ollama://mxbai-embed-large-david-test",
                             name: "david-test-name",
-                            vs_provider: "faiss",
+                            vectorStoreProvider: "faiss",
                         }
                         window.postMessage({ aifMessageType: "setPageType", pageType: "embeddings", data }, "*");
                     }
