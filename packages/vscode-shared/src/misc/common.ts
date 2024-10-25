@@ -1,8 +1,7 @@
-export const AcceptedFileInfoTypes = ["image", "txt", "pdf"] as const;
+export const AcceptedFileInfoTypes = ["image", "text:plain", "text:binary"] as const;
 export type AcceptedFileInfoType = typeof AcceptedFileInfoTypes[number];
 
-// export const AcceptedFileInfoEmbedding: AcceptedFileInfoType[] = ["txt", "pdf"] as const;
-export const AcceptedFileInfoEmbedding: AcceptedFileInfoType[] = ["txt"] as const;  // "pdf" is not supported for now
+export const AcceptedFileInfoEmbedding: AcceptedFileInfoType[] = ["text:plain", "text:binary"] as const;
 
 export type DataUrlInfo = {
     data: string,
@@ -37,7 +36,7 @@ export const AcceptedFileInfo: Record<AcceptedFileInfoType, {
             };
         }
     },
-    "txt": {
+    "text:plain": {
         name: "Text",
         extensions: ["txt", "csv", "json", "yaml", "yml"],
         convert: (ext: string, buffer: Buffer) => {
@@ -47,7 +46,7 @@ export const AcceptedFileInfo: Record<AcceptedFileInfoType, {
             };
         }
     },
-    "pdf": {
+    "text:binary": {
         name: "PDF",
         extensions: ["pdf"],
         convert: (ext: string, buffer: Buffer) => {

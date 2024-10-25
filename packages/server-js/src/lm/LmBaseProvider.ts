@@ -63,7 +63,11 @@ abstract class LmBaseProvider {
         // Do nothing by default
     }
 
-    public listLanguageModels(feature: api.LlmFeature): api.LmProviderBaseModelInfo[] {
+    public async listLanguageModels(feature: api.LlmFeature): Promise<api.LmProviderBaseModelInfo[]> {
+        const isHealthy = await this.isHealthy();
+        return !isHealthy ? [] : this._listLanguageModels(feature);
+    }
+    protected async _listLanguageModels(feature: api.LlmFeature): Promise<api.LmProviderBaseModelInfo[]> {
         return Object.values(this._info.modelMap).filter((model) => feature === "all" || model.features.includes(feature));
     }
 

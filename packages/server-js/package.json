@@ -52,6 +52,7 @@
     "ollama": "^0.5.9",
     "openai": "^4.63.0",
     "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^4.7.76",
     "pickleparser": "^0.2.1",
     "tsc-watch": "^6.2.0",
     "uuid": "^10.0.0"

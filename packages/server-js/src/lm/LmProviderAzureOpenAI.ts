@@ -112,6 +112,8 @@ function _updateAzureOpenAIBasePath(azureOpenAIBasePath: string): string {
     // Special patch for `cognitive.microsoft.com` domain base path
     if (azureOpenAIBasePath.includes("cognitive.microsoft.com") && !azureOpenAIBasePath.includes("openai")) {
         azureOpenAIBasePath = `${azureOpenAIBasePath}/openai/deployments/`;
+    } else if (azureOpenAIBasePath.includes("openai.azure.com") && !azureOpenAIBasePath.includes("openai.azure.com/openai")) {
+        azureOpenAIBasePath = `${azureOpenAIBasePath}/openai/deployments/`;
     }
 
     return azureOpenAIBasePath;

@@ -57,7 +57,7 @@ class LmProviderOllama extends LmBaseProvider {
         return OllamaUtils.isHealthy();
     }
 
-    public listLanguageModels(feature: api.LlmFeature): api.LmProviderBaseModelInfo[] {
+    protected async _listLanguageModels(feature: api.LlmFeature): Promise<api.LmProviderBaseModelInfo[]> {
         return Object.values(this._info.modelMap).filter((_model: database.LmProviderBaseModelInfo) => {
             const model = _model as database.LmProviderBaseModelLocalInfo;
             return model.isDownloaded && (feature === "all" || model.features.includes(feature));
