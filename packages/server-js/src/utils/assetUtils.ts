@@ -116,6 +116,11 @@ namespace AssetUtils {
             shouldSave = true;
         }
 
+        if (request.searchTopK) {
+            embeddingMetadata.searchTopK = request.searchTopK;
+            shouldSave = true;
+        }
+
         if (shouldSave) {
             databaseManager.saveDbEntity(embeddingMetadata);
         }

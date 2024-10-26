@@ -1,6 +1,11 @@
 import * as shared from "./shared";
 
-export const MessageEditInfoEmbeddingsTypes = ['UpdateEmbeddingName', 'UpdateEmbeddingDoc', 'DeleteEmbedding'] as const;
+export const MessageEditInfoEmbeddingsTypes = [
+    'UpdateEmbeddingName',
+    'UpdateEmbeddingDoc',
+    'DeleteEmbedding',
+    "UpdateEmbeddingSearchTopK",
+] as const;
 export type MessageEditInfoEmbeddingsType = typeof MessageEditInfoEmbeddingsTypes[number];
 export const MessageEditInfoAgentsTypes = ['agent:update:name', 'agent:update:systemPrompt', 'agent:delete'] as const;
 export type MessageEditInfoAgentsType = typeof MessageEditInfoAgentsTypes[number];
@@ -28,6 +33,12 @@ export type MessageEditInfoEmbeddingUpdateDoc = MessageEditInfoEmbeddings & {
 export type MessageEditInfoDeleteEmbedding = MessageEditInfoEmbeddings & {
     data: {
         aifEmbeddingAssetId: string;
+    };
+};
+export type MessageEditInfoEmbeddingSearchTopK = MessageEditInfoEmbeddings & {
+    data: {
+        aifEmbeddingAssetId: string;
+        searchTopK: number;
     };
 };
 

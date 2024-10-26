@@ -41,6 +41,7 @@ export function registerAdminRoutes(router: express.Router, lmManager: ILmManage
                 files: req["files"],
                 name: req.body?.name,
                 description: req.body?.description,
+                searchTopK: req.body?.searchTopK ? parseInt(req.body.searchTopK) : undefined,
             }
             ResponseUtils.handler(res, async () => lmManager.updateEmbedding(request));
         }

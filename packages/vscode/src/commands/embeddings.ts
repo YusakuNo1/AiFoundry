@@ -81,6 +81,22 @@ namespace EmbeddingsCommands {
 			vscode.window.showErrorMessage(error.message);
 		});
 	}
+
+	export function startUpdateEmbeddingSearchTopKFlow(embeddingsViewProvider: IViewProvider, aifEmbeddingAssetId: string, searchTopK: number) {
+		CommandUtils.chooseInteger('Search Top K', searchTopK, 5)
+			.then(newSearchTopK => {
+				if (newSearchTopK !== undefined) {
+					const newSearchTopKNumber = parseInt(newSearchTopK);
+					EmbeddingsAPI.updateEmbedding(aifEmbeddingAssetId, [], undefined, newSearchTopKNumber).then(() => {
+						embeddingsViewProvider.refresh(aifEmbeddingAssetId);
+						vscode.window.showInformationMessage('Search top k is updated');
+					})
+					.catch((error) => {
+						vscode.window.showErrorMessage(error.message);
+					});
+				}
+			});
+	}
 }
 
 function _showEmbeddingLlmOptions(name: string, embeddingsViewProvider: IViewProvider) {

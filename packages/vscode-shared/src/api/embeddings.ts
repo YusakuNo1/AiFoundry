@@ -18,6 +18,7 @@ export type CreateEmbeddingRequest = {
 export type UpdateEmbeddingRequest = Omit<CreateEmbeddingRequest, "basemodelUri" | "splitterParams" | "splitterParams" | "description"> &{
 	id: string,
 	description: string | undefined,
+	searchTopK: number | undefined,
 };
 
 export type CreateOrUpdateEmbeddingsResponse = {

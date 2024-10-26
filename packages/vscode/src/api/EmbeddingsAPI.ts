@@ -32,8 +32,9 @@ namespace EmbeddingsAPI {
         aifEmbeddingAssetId: string,
         fileUriList: Uri[],
         name?: string,
+        searchTopK?: number,
     ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
-        return _createOrUpdateEmbedding(false, aifEmbeddingAssetId, fileUriList, name);
+        return _createOrUpdateEmbedding(false, aifEmbeddingAssetId, fileUriList, name, searchTopK);
     }
 
     export async function deleteEmbedding(
@@ -52,6 +53,7 @@ namespace EmbeddingsAPI {
         aifBasemodelUriOrAifEmbeddingAssetId: string,
         fileUriList: Uri[],
         name?: string,
+        searchTopK?: number,
     ): Promise<api.CreateOrUpdateEmbeddingsResponse> {
         const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/embeddings/`;
 
@@ -63,6 +65,10 @@ namespace EmbeddingsAPI {
 
         if (name) {
             formData.append("name", name);
+        }
+
+        if (searchTopK) {
+            formData.append("searchTopK", searchTopK.toString());
         }
 
         const headers = new Headers();

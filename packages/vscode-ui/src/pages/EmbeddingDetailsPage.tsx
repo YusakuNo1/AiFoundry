@@ -37,8 +37,8 @@ const EmbeddingDetailsPage: React.FC<Props> = (props: Props) => {
                 aifMessageType,
                 type,
                 data: {
-                    name: embedding.name,
                     aifEmbeddingAssetId,
+                    name: embedding.name,
                 },
             };
             props.onPostMessage(message);    
@@ -54,6 +54,16 @@ const EmbeddingDetailsPage: React.FC<Props> = (props: Props) => {
                 aifMessageType,
                 type,
                 data: { aifEmbeddingAssetId },
+            };
+            props.onPostMessage(message);
+        } else if (type === "UpdateEmbeddingSearchTopK") {
+            const message: messages.MessageEditInfoEmbeddingSearchTopK = {
+                aifMessageType,
+                type,
+                data: {
+                    aifEmbeddingAssetId,
+                    searchTopK: embedding.searchTopK,
+                },
             };
             props.onPostMessage(message);
         }
@@ -78,7 +88,7 @@ const EmbeddingDetailsPage: React.FC<Props> = (props: Props) => {
                 { type: "label", key: "vectorStoreProvider", label: "Vector Store Provider", item: { name: embedding.vectorStoreProvider }},
                 { type: "label", key: "chunk_size", label: "Embedding Chunk Size", item: { name: embedding.splitterParams.chunkSize }},
                 { type: "label", key: "chunk_overlap", label: "Embedding Chunk Overlap", item: { name: embedding.splitterParams.chunkOverlap }},
-                { type: "label", key: "search_top_k", label: "Search Top K", item: { name: embedding.searchTopK }},
+                { type: "label", key: "search_top_k", label: "Search Range", item: { name: embedding.searchTopK, onClick: () => onPostMessage("UpdateEmbeddingSearchTopK") }},
             ]}
             actionButtons={[
                 { key: "append-new-document", label: "Append New Document", onClick: () => onPostMessage("UpdateEmbeddingDoc") },

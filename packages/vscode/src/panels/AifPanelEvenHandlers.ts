@@ -44,6 +44,9 @@ namespace AifPanelEvenHandlers {
             } else if (_message.type === 'DeleteEmbedding') {
                 const messageEditInfo = message as messages.MessageEditInfoDeleteEmbedding;
                 EmbeddingsCommands.startDeleteEmbeddingFlow(viewProviderMap.embeddings, messageEditInfo.data.aifEmbeddingAssetId);
+            } else if (_message.type === 'UpdateEmbeddingSearchTopK') {
+                const messageEditInfo = message as messages.MessageEditInfoEmbeddingSearchTopK;
+                EmbeddingsCommands.startUpdateEmbeddingSearchTopKFlow(viewProviderMap.embeddings, messageEditInfo.data.aifEmbeddingAssetId, messageEditInfo.data.searchTopK);
             }
         } else if (viewProviderMap?.agents && messages.MessageEditInfoAgentsTypes.includes(_message.type as messages.MessageEditInfoAgentsType)) {
             if (_message.type === 'agent:update:name') {

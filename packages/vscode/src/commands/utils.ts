@@ -18,6 +18,30 @@ namespace CommandUtils {
 		});
 	}
 
+	export async function chooseInteger(
+		title: string,
+		value?: number,
+		placeHolder?: number,
+		allowEmpty?: boolean,
+	): Promise<string | undefined> {
+		const validateInput = allowEmpty ? {} : { validateInput: (text: string) => {
+			const trimmed = text.trim();
+			if (!trimmed) {
+				return 'Number cannot be empty';
+			} else if (!/^\d+$/.test(trimmed)) {
+				return 'Number must be an integer';
+			} else {
+				return null;
+			}
+		}};
+		return vscode.window.showInputBox({
+			title,
+			value: `${value ?? 0}`,
+			placeHolder: placeHolder ? (placeHolder + "") : undefined,
+			...validateInput,
+		});
+	}
+
 	export async function chooseFolder(
 		title: string,
 		defaultUri?: vscode.Uri
