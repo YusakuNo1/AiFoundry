@@ -60,27 +60,15 @@ function App(props: Props) {
 
     const routeMap: Record<messages.IPageContextPageType, React.ReactNode> = {
         "home": <HomePage vscode={props.vscode} />,
-        "embeddings": <EmbeddingDetailsPage
-            data={(pageContext as messages.PageContextEmbeddings).data}
-            onPostMessage={props.vscode.postMessage}
-        />,
-        "agents": <AgentDetailsPage
-            data={(pageContext as messages.PageContextAgentDetails).data}
-            onPostMessage={props.vscode.postMessage}
-        />,
+        "embeddings": <EmbeddingDetailsPage onPostMessage={props.vscode.postMessage} />,
+        "agents": <AgentDetailsPage onPostMessage={props.vscode.postMessage} />,
         "modelPlayground": <ModelPlaygroundPage
             aifAgentUri={(pageContext as messages.PageContextModelPlayground).data?.aifAgentUri}
             outputFormat={(pageContext as messages.PageContextModelPlayground).data?.outputFormat}
             onPostMessage={props.vscode.postMessage}
         />,
-        "functions": <FunctionDetailsPage
-            data={(pageContext as messages.PageContextFunctions).data}
-            onPostMessage={props.vscode.postMessage}
-        />,
-        "page:updateLmProvider": <LmProviderUpdatePage
-            lmProviderId={(pageContext as messages.PageContextUpdateLmProvider).data?.lmProviderId}
-            onPostMessage={props.vscode.postMessage}
-        />,
+        "functions": <FunctionDetailsPage onPostMessage={props.vscode.postMessage} />,
+        "page:updateLmProvider": <LmProviderUpdatePage onPostMessage={props.vscode.postMessage} />,
     };
 
     return (

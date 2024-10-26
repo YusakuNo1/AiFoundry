@@ -9,6 +9,7 @@ export const MessageApiTypes = [
     "api:updateLmProviderInfo",
     "api:updateLmProviderModel",
     "api:listLmProviders",
+    "api:getAgents",
     "api:getEmbeddings",
     "api:listFunctions",
     "api:download:model",
@@ -46,6 +47,10 @@ export type MessageApiUpdateLmProviderModel = MessageApi & {
 };
 export type MessageApiListLmProviders = MessageApi & {
     type: "api:listLmProviders",
+    data: {};
+};
+export type MessageApiGetAgents = MessageApi & {
+    type: "api:getAgents",
     data: {};
 };
 export type MessageApiGetEmbeddings = MessageApi & {

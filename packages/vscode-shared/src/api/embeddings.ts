@@ -1,5 +1,7 @@
 import type { SplitterParams, UploadFileInfo } from "../misc/common";
-import type { EmbeddingEntity } from "../database/EmbeddingEntity";
+import type { EmbeddingEntity as DatabaseEmbeddingEntity } from "../database/EmbeddingEntity";
+
+export type EmbeddingEntity = Omit<DatabaseEmbeddingEntity, "ENTITY_NAME" | "version">;
 
 export type ListEmbeddingsResponse = {
 	embeddings: EmbeddingEntity[];

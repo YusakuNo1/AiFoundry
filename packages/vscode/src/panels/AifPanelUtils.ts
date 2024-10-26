@@ -18,43 +18,28 @@ namespace AifPanelUtils {
 		return createCommandShowAifPanel(message);
 	}
 
-	export function createMessageSetPageEmbeddings(embeddingInfo: database.EmbeddingEntity): messages.MessageSetPageContextEmbeddings {
+	export function createMessageSetPageEmbeddings(embeddingId: string): messages.MessageSetPageContextEmbeddings {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "embeddings",
-			data: embeddingInfo,
+			data: embeddingId,
 		};
 	}
 
-	export function createCommandShowAifPanelEmbeddings(embeddingInfo: database.EmbeddingEntity): vscode.Command {
-		const message = createMessageSetPageEmbeddings(embeddingInfo);
-		return createCommandShowAifPanel(message);
-	}
-
-	export function createMessageSetPageAgents(agentInfo: database.AgentEntity): messages.MessageSetPageContextAgentDetails {
+	export function createMessageSetPageAgents(agentId: string): messages.MessageSetPageContextAgentDetails {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "agents",
-			data: agentInfo,
+			data: agentId,
 		};
 	}
 
-	export function createCommandShowAifPanelAgents(agentInfo: database.AgentEntity): vscode.Command {
-		const message = createMessageSetPageAgents(agentInfo);
-		return createCommandShowAifPanel(message);
-	}
-
-	export function createMessageSetPageFunctions(functionMetadata: api.FunctionEntity): messages.MessageSetPageContextFunctions {
+	export function createMessageSetPageFunctions(functionId: string): messages.MessageSetPageContextFunctions {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "functions",
-			data: functionMetadata,
+			data: functionId,
 		};
-	}
-
-	export function createCommandShowAifPanelFunctions(functionMetadata: api.FunctionEntity): vscode.Command {
-		const message = createMessageSetPageFunctions(functionMetadata);
-		return createCommandShowAifPanel(message);
 	}
 
 	export function createCommandShowAifPanel(message: messages.MessageSetPageContext): vscode.Command {
@@ -71,9 +56,7 @@ namespace AifPanelUtils {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "page:updateLmProvider",
-			data: {
-				lmProviderId,
-			}
+			data: lmProviderId,
 		};
 	}
 

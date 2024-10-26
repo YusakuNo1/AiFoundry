@@ -1,5 +1,6 @@
 import { FunctionEntity } from '../api/functions';
-import type { EmbeddingEntity } from '../database/EmbeddingEntity';
+import type { AgentEntity } from '../api/agents';
+import type { EmbeddingEntity } from '../api/embeddings';
 import type { ChatHistoryMessageContent } from '../database/ChatHistoryEntity';
 import { TextFormat } from '../api/chat';
 import { LmProviderInfoResponse } from '../api/languageModels';
@@ -11,6 +12,7 @@ export const IStoreUpdateTypes = [
     "appendToLastChatAssistantMessage",
     "updateLastChatAssistantMessage",
     "updateLmProviders",
+    "updateAgents",
     "updateEmbeddings",
     "updateFunctions",
 ] as const;
@@ -47,6 +49,12 @@ export type MessageStoreUpdateLmProviders = shared.IMessage & IStoreUpdate & {
     type: "updateLmProviders",
     data: {
         lmProviders: LmProviderInfoResponse[];
+    };
+}
+export type MessageStoreUpdateAgents = shared.IMessage & IStoreUpdate & {
+    type: "updateAgents",
+    data: {
+        agents: AgentEntity[];
     };
 }
 export type MessageStoreUpdateEmbeddings = shared.IMessage & IStoreUpdate & {

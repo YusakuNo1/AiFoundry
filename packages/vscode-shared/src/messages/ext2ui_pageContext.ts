@@ -10,17 +10,18 @@ export type IPageContext = {
 };
 
 export type PageContextHome = IPageContext;
-export type PageContextEmbeddings = IPageContext & { data: EmbeddingEntity };
-export type PageContextAgentDetails = IPageContext & { data: AgentEntity };
+export type PageContextEmbeddings = IPageContext & { data: string }; // embeddingId
+export type PageContextAgentDetails = IPageContext & { data: string }; // agentId
 export type PageContextModelPlayground = IPageContext & { data: {
     aifAgentUri: string,
     outputFormat: TextFormat,
 } };
-export type PageContextFunctions = IPageContext & { data: FunctionEntity };
-export type PageContextUpdateLmProvider = IPageContext & { data: { lmProviderId: string } };
+export type PageContextFunctions = IPageContext & { data: string }; // functionId
+export type PageContextUpdateLmProvider = IPageContext & { data: string }; // lmProviderId
 export type PageContext = PageContextEmbeddings | PageContextAgentDetails | PageContextModelPlayground;
 
 export type MessageSetPageContextHome = shared.IMessage & PageContextHome;
+export type MessageSetPageContextAgents = shared.IMessage & PageContextAgentDetails;
 export type MessageSetPageContextEmbeddings = shared.IMessage & PageContextEmbeddings;
 export type MessageSetPageContextAgentDetails = shared.IMessage & PageContextAgentDetails;
 export type MessageSetPageContextModelPlayground = shared.IMessage & PageContextModelPlayground;
@@ -28,6 +29,7 @@ export type MessageSetPageContextFunctions = shared.IMessage & PageContextFuncti
 export type MessageSetPageContextUpdateLmProvider = shared.IMessage & PageContextUpdateLmProvider;
 export type MessageSetPageContext =
     MessageSetPageContextHome |
+    MessageSetPageContextAgents |
     MessageSetPageContextEmbeddings |
     MessageSetPageContextAgentDetails |
     MessageSetPageContextModelPlayground |

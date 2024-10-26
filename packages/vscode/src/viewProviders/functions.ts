@@ -45,10 +45,12 @@ export class AifFunctionsViewProvider implements IViewProvider {
 		} else {
 			const iconName = "icon-lambda.svg";
 			return Promise.resolve(this._functions.map((functionMetadata) => {
+				const message = AifPanelUtils.createMessageSetPageFunctions(functionMetadata.id);
+				const command = AifPanelUtils.createCommandShowAifPanel(message);		
 				return new AifTreeItem(
 					functionMetadata.name ?? functionMetadata.uri,
 					vscode.TreeItemCollapsibleState.None,
-					AifPanelUtils.createCommandShowAifPanelFunctions(functionMetadata),
+					command,
 					functionMetadata.id,
 					iconName,
 				);
@@ -65,7 +67,7 @@ export class AifFunctionsViewProvider implements IViewProvider {
 				if (id) {
 					const functionMetadata = this._functions.find((func) => func.id === id);
 					if (functionMetadata) {
-						const message = AifPanelUtils.createMessageSetPageFunctions(functionMetadata);
+						const message = AifPanelUtils.createMessageSetPageFunctions(functionMetadata.id);
 						AifPanel.postMessage(message as any);
 					}
 				}

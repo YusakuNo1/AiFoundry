@@ -131,9 +131,7 @@ export function LmStatusRow(props: LmStatusRowProps) {
         const message: messages.MessageSetPageContextUpdateLmProvider = {
             aifMessageType: 'setPageType',
             pageType: 'page:updateLmProvider',
-            data: {
-                lmProviderId,
-            },
+            data: lmProviderId,
         };
         window.postMessage(message);
     }, []);

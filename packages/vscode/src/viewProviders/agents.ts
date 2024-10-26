@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { database } from 'aifoundry-vscode-shared';
+import type { api } from 'aifoundry-vscode-shared';
 import { consts } from 'aifoundry-vscode-shared';
 import AgentsAPI from '../api/AgentsAPI';
 import AifPanel from '../panels/AifPanel';
@@ -15,7 +15,7 @@ export class AifAgentsViewProvider implements IViewProvider {
 	private _onDidChangeTreeData: vscode.EventEmitter<AifTreeItem | undefined | void> = new vscode.EventEmitter<AifTreeItem | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<AifTreeItem | undefined | void> = this._onDidChangeTreeData.event;
 
-	private _agents: database.AgentEntity[] | undefined = undefined;
+	private _agents: api.AgentEntity[] | undefined = undefined;
 
 	constructor() {
 		this._refreshCallback = this._refreshCallback.bind(this);
@@ -46,10 +46,13 @@ export class AifAgentsViewProvider implements IViewProvider {
 		} else {
 			return Promise.resolve(this._agents.map((agentInfo) => {
 				const iconName = "icon-agent.svg";
+				const message = AifPanelUtils.createMessageSetPageAgents(agentInfo.id);
+				const command = AifPanelUtils.createCommandShowAifPanel(message);
+		
 				return new AifTreeItem(
 					agentInfo.name,
 					vscode.TreeItemCollapsibleState.None,
-					AifPanelUtils.createCommandShowAifPanelAgents(agentInfo),
+					command,
 					agentInfo.id,
 					iconName,
 				);
@@ -65,7 +68,7 @@ export class AifAgentsViewProvider implements IViewProvider {
 				if (agentId) {
 					const agentInfo = this._agents.find((model) => model.id === agentId);
 					if (agentInfo) {
-						const message = AifPanelUtils.createMessageSetPageAgents(agentInfo);
+						const message = AifPanelUtils.createMessageSetPageAgents(agentInfo.id);
 						AifPanel.postMessage(message as any);
 					}
 				}

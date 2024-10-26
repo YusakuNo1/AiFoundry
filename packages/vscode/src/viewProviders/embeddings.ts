@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import type { database } from 'aifoundry-vscode-shared';
+import type { api } from 'aifoundry-vscode-shared';
 import { consts } from 'aifoundry-vscode-shared';
 import EmbeddingsAPI from '../api/EmbeddingsAPI';
 import AifPanel from '../panels/AifPanel';
@@ -16,7 +16,7 @@ export class AifEmbeddingsViewProvider implements IViewProvider {
 	private _onDidChangeTreeData: vscode.EventEmitter<AifTreeItem | undefined | void> = new vscode.EventEmitter<AifTreeItem | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<AifTreeItem | undefined | void> = this._onDidChangeTreeData.event;
 
-	private _embeddings: database.EmbeddingEntity[] | undefined = undefined;
+	private _embeddings: api.EmbeddingEntity[] | undefined = undefined;
 
 	constructor() {
 		this._refreshCallback = this._refreshCallback.bind(this);
@@ -47,10 +47,12 @@ export class AifEmbeddingsViewProvider implements IViewProvider {
 		} else {
 			const iconName = "icon-embed.svg";
 			return Promise.resolve(this._embeddings.map((embeddingInfo) => {
-				return new AifTreeItem(
+				const message = AifPanelUtils.createMessageSetPageEmbeddings(embeddingInfo.id);
+				const command = AifPanelUtils.createCommandShowAifPanel(message);
+						return new AifTreeItem(
 					embeddingInfo.name,
 					vscode.TreeItemCollapsibleState.None,
-					AifPanelUtils.createCommandShowAifPanelEmbeddings(embeddingInfo),
+					command,
 					embeddingInfo.id,
 					iconName,
 				);
@@ -67,7 +69,7 @@ export class AifEmbeddingsViewProvider implements IViewProvider {
 				if (embeddingId) {
 					const embeddingInfo = this._embeddings.find((embedding) => embedding.id === embeddingId);
 					if (embeddingInfo) {
-						const message = AifPanelUtils.createMessageSetPageEmbeddings(embeddingInfo);
+						const message = AifPanelUtils.createMessageSetPageEmbeddings(embeddingInfo.id);
 						AifPanel.postMessage(message as any);
 					}
 				}

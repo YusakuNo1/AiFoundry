@@ -11,6 +11,7 @@ import FunctionsCommands from '../commands/functions';
 import FileUtils from '../utils/FileUtils';
 import ApiOutStreamMessageUtils from "../utils/ApiOutStreamMessageUtils";
 import ApiUtils from '../utils/ApiUtils';
+import AgentsAPI from '../api/AgentsAPI';
 
 
 namespace AifPanelEvenHandlers {
@@ -91,6 +92,21 @@ namespace AifPanelEvenHandlers {
                 .then(response => postMessageUpdateLmProviders(response.providers, postMessage))
                 .catch((error) => {
                     vscode.window.showErrorMessage("Error listing language model providers: " + error);
+                });
+        } else if (_message.type === "api:getAgents") {
+            AgentsAPI.list()
+                .then(response => {
+                    const message: messages.MessageStoreUpdateAgents = {
+                        aifMessageType: 'store:update',
+                        type: 'updateAgents',
+                        data: {
+                            agents: response.agents,
+                        },
+                    };
+                    postMessage(message);
+                })
+                .catch((error) => {
+                    vscode.window.showErrorMessage("Error getting agents: " + error);
                 });
         } else if (_message.type === "api:getEmbeddings") {
             EmbeddingsAPI.getEmbeddings()
