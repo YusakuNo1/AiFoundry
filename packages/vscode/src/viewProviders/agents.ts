@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-import type { api } from 'aifoundry-vscode-shared';
-import { consts } from 'aifoundry-vscode-shared';
+import { type api, consts, type messages } from 'aifoundry-vscode-shared';
 import AgentsAPI from '../api/AgentsAPI';
 import AifPanel from '../panels/AifPanel';
 import AifPanelTypes from '../panels/types';
@@ -69,7 +68,7 @@ export class AifAgentsViewProvider implements IViewProvider {
 					const agentInfo = this._agents.find((model) => model.id === agentId);
 					if (agentInfo) {
 						const message = AifPanelUtils.createMessageSetPageAgents(agentInfo.id);
-						AifPanel.postMessage(message as any);
+						AifPanel.postMessage(message);
 					}
 				}
 

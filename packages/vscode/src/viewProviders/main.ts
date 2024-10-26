@@ -60,7 +60,8 @@ export class AifMainViewProvider implements IViewProvider {
 				: provider.status === "checking" ? "refresh.svg"
 				: provider.status === "unavailable" ? "icon-cross.svg" : availableIconName;
 
-			const command = AifPanelUtils.createCommandSetPageContextUpdateLmProvider(provider.id);
+			const message = AifPanelUtils.createMessageSetPageContextUpdateLmProvider(provider.id);
+			const command = AifPanelUtils.createCommandShowAifPanel(message);
 			return new AifTreeItem(
 				provider.name,
 				vscode.TreeItemCollapsibleState.None,

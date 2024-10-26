@@ -49,7 +49,7 @@ export class AifEmbeddingsViewProvider implements IViewProvider {
 			return Promise.resolve(this._embeddings.map((embeddingInfo) => {
 				const message = AifPanelUtils.createMessageSetPageEmbeddings(embeddingInfo.id);
 				const command = AifPanelUtils.createCommandShowAifPanel(message);
-						return new AifTreeItem(
+				return new AifTreeItem(
 					embeddingInfo.name,
 					vscode.TreeItemCollapsibleState.None,
 					command,

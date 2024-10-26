@@ -4,11 +4,15 @@ import { api, ChatHistoryMessageContentUtils, type database } from "aifoundry-vs
 
 interface ChatInfoState {
     aifSessionId: string | null;
+    aifAgentUri: string | null;
+    outputFormat: api.TextFormat;
     messages: database.ChatHistoryMessage[];
 }
 
 const initialState: ChatInfoState = {
     aifSessionId: null,
+    aifAgentUri: null,
+    outputFormat: "plain",
     messages: [],
 };
 
@@ -19,6 +23,10 @@ export const chatInfoSlice = createSlice({
         reset: (state) => {
             state.aifSessionId = null;
             state.messages = [];
+        },
+        initPlayground: (state, action: PayloadAction<{ aifAgentUri: string, outputFormat: api.TextFormat }>) => {
+            state.aifAgentUri = action.payload.aifAgentUri;
+            state.outputFormat = action.payload.outputFormat;
         },
         setChatHistory: (state, action: PayloadAction<database.ChatHistoryEntity>) => {
             state.aifSessionId = action.payload.id;
@@ -114,6 +122,7 @@ export const chatInfoSlice = createSlice({
 
 export const {
     reset,
+    initPlayground,
     setChatHistory,
     appendChatAssistantMessage,
     appendChatUserMessage,

@@ -4,23 +4,23 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { RootState } from "./store/store";
 
 const Layout = () => {
-    const pageContext = useSelector((state: RootState) => state.pageInfo.pageContext);
+    const pageType = useSelector((state: RootState) => state.pageInfo.pageType);
     const [lastPageType, setLastPageType] = React.useState<string | null>(null);
     const navigate = useNavigate();
     const location = useLocation();
 
     React.useEffect(() => {
-        if (pageContext?.pageType === lastPageType) {
+        if (pageType === lastPageType) {
             return;
         }
 
-        if (pageContext?.pageType) {
-            setLastPageType(pageContext.pageType);
-            navigate(`/${pageContext?.pageType}${location.search}`);
+        if (pageType) {
+            setLastPageType(pageType);
+            navigate(`/${pageType}${location.search}`);
         } else {
             setLastPageType(null);
         }
-    }, [pageContext, navigate, location, lastPageType]);
+    }, [pageType, navigate, location, lastPageType]);
 
     return (
         <Outlet />

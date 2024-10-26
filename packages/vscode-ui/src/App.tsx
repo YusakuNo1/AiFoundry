@@ -17,7 +17,7 @@ import FunctionDetailsPage from "./pages/FunctionDetailsPage";
 import LmProviderUpdatePage from "./pages/LmProviderUpdatePage";
 import Layout from "./Layout";
 import { RootState, store } from "./store/store";
-import { setPageContext } from "./store/pageInfoSlice";
+import { setPageType } from "./store/pageInfoSlice";
 import type { VSCodeInterface } from './types';
 import AppEventUtils from "./AppEventUtils";
 
@@ -27,7 +27,7 @@ type Props = {
 }
 
 function App(props: Props) {
-    const pageContext = useSelector((state: RootState) => state.pageInfo.pageContext);
+    const pageType = useSelector((state: RootState) => state.pageInfo.pageType);
 
     React.useEffect(() => {
         // For some reasons, this useEffect will be called 2 times when the app is loaded, which causes the event listeners to be registered 2 times
@@ -39,14 +39,14 @@ function App(props: Props) {
         }
     }, [props.vscode]);
 
-    const onClickHome = React.useCallback(() => store.dispatch(setPageContext({ pageType: "home" })), []);
+    const onClickHome = React.useCallback(() => store.dispatch(setPageType("home")), []);
 
     function renderCurrentPage() {
-        const pageName = (pageContext?.pageType === "embeddings") ? "Embedding Details" :
-            (pageContext?.pageType === "agents") ? "Agent Details" :
-            (pageContext?.pageType === "modelPlayground") ? "Playground" :
-            (pageContext?.pageType === "functions") ? "Function Details" : 
-            (pageContext?.pageType === "page:updateLmProvider") ? "Update Language Model Provider" : null;
+        const pageName = (pageType === "embeddings") ? "Embedding Details" :
+            (pageType === "agents") ? "Agent Details" :
+            (pageType === "modelPlayground") ? "Playground" :
+            (pageType === "functions") ? "Function Details" : 
+            (pageType === "page:updateLmProvider") ? "Update Language Model Provider" : null;
 
         if (!pageName) {
             return null;
@@ -62,11 +62,7 @@ function App(props: Props) {
         "home": <HomePage vscode={props.vscode} />,
         "embeddings": <EmbeddingDetailsPage onPostMessage={props.vscode.postMessage} />,
         "agents": <AgentDetailsPage onPostMessage={props.vscode.postMessage} />,
-        "modelPlayground": <ModelPlaygroundPage
-            aifAgentUri={(pageContext as messages.PageContextModelPlayground).data?.aifAgentUri}
-            outputFormat={(pageContext as messages.PageContextModelPlayground).data?.outputFormat}
-            onPostMessage={props.vscode.postMessage}
-        />,
+        "modelPlayground": <ModelPlaygroundPage onPostMessage={props.vscode.postMessage} />,
         "functions": <FunctionDetailsPage onPostMessage={props.vscode.postMessage} />,
         "page:updateLmProvider": <LmProviderUpdatePage onPostMessage={props.vscode.postMessage} />,
     };
@@ -75,7 +71,7 @@ function App(props: Props) {
         <BrowserRouter>
             <Breadcrumb aria-label="breadcrumb" style={{ padding: 8 }}>
                 <BreadcrumbItem><Link onClick={onClickHome}>Home</Link></BreadcrumbItem>
-                {pageContext?.pageType !== "home" && renderCurrentPage()}
+                {pageType !== "home" && renderCurrentPage()}
             </Breadcrumb>
 
             <Routes>

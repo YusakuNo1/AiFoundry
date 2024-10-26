@@ -92,7 +92,7 @@ namespace AgentsCommands {
 						const newAgent = { ...agent, systemPrompt };
 						return AgentsAPI.updateAgent(newAgent.id, newAgent.agentUri, newAgent.basemodelUri, newAgent.name, newAgent.systemPrompt, newAgent.ragAssetIds, newAgent.functionAssetIds).then(() => {
 							agentsViewProvider.refresh(id);
-							vscode.window.showInformationMessage('Agent name is updated');
+							vscode.window.showInformationMessage('System prompt is updated');
 						});	
 					}).catch((error) => {
 						vscode.window.showErrorMessage(error.message);

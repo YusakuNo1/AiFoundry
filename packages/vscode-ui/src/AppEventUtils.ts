@@ -46,12 +46,6 @@ namespace AppEventUtils {
                     store.dispatch(setFunctionId(functionId));
                     store.dispatch(pageInfoSlice.actions.setPageType("functions"));
                 }
-
-                // TODO: delete this block
-                const message: messages.MessageSetPageContext = event.data;
-                store.dispatch(pageInfoSlice.actions.setPageContext(message));
-
-
             } else if (event.data?.aifMessageType === "store:update") {
                 const message: messages.IStoreUpdate = event.data;
                 if (message.type === "appendChatAssistantMessage") {

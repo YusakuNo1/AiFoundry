@@ -6,18 +6,6 @@ import { type api, type database, type messages } from 'aifoundry-vscode-shared'
 namespace AifPanelUtils {
 	export const AifPanelCommand = 'AiFoundry.showPanel';
 
-	export function createMessageSetPageHome(): messages.MessageSetPageContextHome {
-		return {
-			aifMessageType: "setPageType",
-			pageType: "home",
-		};
-	}
-
-	export function createCommandShowAifPanelHome(): vscode.Command {
-		const message = createMessageSetPageHome();
-		return createCommandShowAifPanel(message);
-	}
-
 	export function createMessageSetPageEmbeddings(embeddingId: string): messages.MessageSetPageContextEmbeddings {
 		return {
 			aifMessageType: "setPageType",
@@ -50,19 +38,12 @@ namespace AifPanelUtils {
 		};
 	}	
 
-
-
 	export function createMessageSetPageContextUpdateLmProvider(lmProviderId: string): messages.MessageSetPageContextUpdateLmProvider {
 		return {
 			aifMessageType: "setPageType",
 			pageType: "page:updateLmProvider",
 			data: lmProviderId,
 		};
-	}
-
-	export function createCommandSetPageContextUpdateLmProvider(lmProviderId: string): vscode.Command {
-		const message = createMessageSetPageContextUpdateLmProvider(lmProviderId);
-		return createCommandShowAifPanel(message);
 	}
 }
 

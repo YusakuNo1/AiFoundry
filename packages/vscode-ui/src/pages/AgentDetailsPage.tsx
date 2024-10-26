@@ -2,9 +2,9 @@ import * as React from "react";
 import { useSelector } from "react-redux";
 import { api, consts, type database, type messages } from "aifoundry-vscode-shared";
 import { store } from "../store/store";
-import { pageInfoSlice } from "../store/pageInfoSlice";
+import { pageInfoSlice, setPageType } from "../store/pageInfoSlice";
 import BasePage, { RowSelectionItem } from "./BasePage";
-import { chatInfoSlice } from "../store/chatInfoSlice";
+import { chatInfoSlice, initPlayground } from "../store/chatInfoSlice";
 import { RootState } from '../store/store';
 
 
@@ -107,16 +107,9 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
         if (!agent) {
             return;
         }
-
         store.dispatch(chatInfoSlice.actions.reset());
-        const pageContext: messages.PageContextModelPlayground = {
-            pageType: "modelPlayground",
-            data: {
-                aifAgentUri: agent.agentUri,
-                outputFormat: api.TextFormats[outputFormatIndex],
-            }
-        };
-        store.dispatch(pageInfoSlice.actions.setPageContext(pageContext));
+        store.dispatch(initPlayground({ aifAgentUri: agent.agentUri, outputFormat: api.TextFormats[outputFormatIndex] }));
+        store.dispatch(setPageType("modelPlayground"));
     }, [agent, outputFormatIndex]);
 
     const outputFormatOptions: string[] = React.useMemo(() => {

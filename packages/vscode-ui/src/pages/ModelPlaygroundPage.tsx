@@ -15,8 +15,6 @@ import WebApiImageUtils from "../utils/WebApiImageUtils";
 
 
 interface Props {
-    aifAgentUri: string;
-    outputFormat: api.TextFormat;
     onPostMessage: (message: messages.IMessage) => void;
 }
 
@@ -34,6 +32,8 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
     const backgroundColor = React.useMemo(() => getBackgroundColor(), []);
     const chatBgColorUser = React.useMemo(() => getChatBgColorUser(), []);
     const chatBgColorAi = React.useMemo(() => getChatBgColorAi(), []);
+    const aifAgentUri = useSelector((state: RootState) => state.chatInfo.aifAgentUri);
+    const outputFormat = useSelector((state: RootState) => state.chatInfo.outputFormat);
     const chatHistoryMessages = useSelector((state: RootState) => state.chatInfo.messages);
     const [pageChatHistoryMessages, setPageChatHistoryMessages] = React.useState<PageChatHistoryMessage[]>([]);
     const aifSessionId = useSelector((state: RootState) => state.chatInfo.aifSessionId);
@@ -57,7 +57,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
     }, [props]);
 
     const onPostMessage = React.useCallback(() => {
-        if (!inputText || inputText.trim().length === 0) {
+        if (!inputText || inputText.trim().length === 0 || !aifAgentUri) {
             return;
         }
 
@@ -66,8 +66,8 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
             type: "chat:sendMessage",
             data: {
                 aifSessionId,
-                aifAgentUri: props.aifAgentUri,
-                contentTextFormat: props.outputFormat,
+                aifAgentUri: aifAgentUri,
+                contentTextFormat: outputFormat,
                 input: inputText,
                 files: chatHistoryMessageFiles,
             },
@@ -80,7 +80,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
         WebApiImageUtils.batchResizeUploadFileInfo(chatHistoryMessageFiles, { maxHeight: consts.THUMBNAIL_HEIGHT }).then((thumbNailFiles) => {
             store.dispatch(appendChatUserMessage({
                 content: ChatHistoryMessageContentUtils.createChatHistoryMessageContent(inputText, thumbNailFiles),
-                contentTextFormat: props.outputFormat,
+                contentTextFormat: outputFormat,
             }));
         });
 
