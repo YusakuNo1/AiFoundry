@@ -7,13 +7,13 @@ export type MessageEditInfoAgentsType = typeof MessageEditInfoAgentsTypes[number
 export const MessageEditInfoFunctionsTypes = ['function:update:name', 'function:openfile'] as const;
 export type MessageEditInfoFunctionsType = typeof MessageEditInfoFunctionsTypes[number];
 
-export type MessageEditInfoType = MessageEditInfoEmbeddingsType | MessageEditInfoAgentsType | MessageEditInfoFunctionsType;
+type MessageEditInfoType = MessageEditInfoEmbeddingsType | MessageEditInfoAgentsType | MessageEditInfoFunctionsType;
 export type MessageEditInfo = shared.IMessage & {
     aifMessageType: 'editInfo',
     type: MessageEditInfoType,
 };
 
-export type MessageEditInfoEmbeddings = MessageEditInfo & { type: MessageEditInfoEmbeddingsType };
+type MessageEditInfoEmbeddings = MessageEditInfo & { type: MessageEditInfoEmbeddingsType };
 export type MessageEditInfoEmbeddingName = MessageEditInfoEmbeddings & {
     data: {
         name: string;
@@ -31,7 +31,7 @@ export type MessageEditInfoDeleteEmbedding = MessageEditInfoEmbeddings & {
     };
 };
 
-export type MessageEditInfoAgents = MessageEditInfo & { type: MessageEditInfoAgentsType };
+type MessageEditInfoAgents = MessageEditInfo & { type: MessageEditInfoAgentsType };
 export type MessageEditInfoAgentName = MessageEditInfoAgents & {
     data: {
         name: string;
@@ -50,8 +50,7 @@ export type MessageEditInfodeleteAgent = MessageEditInfoAgents & {
     };
 };
 
-
-export type MessageEditInfoFunctions = MessageEditInfo & { type: MessageEditInfoFunctionsType };
+type MessageEditInfoFunctions = MessageEditInfo & { type: MessageEditInfoFunctionsType };
 export type MessageEditInfoFunctionUpdateName = MessageEditInfoFunctions & {
     data: {
         name: string;

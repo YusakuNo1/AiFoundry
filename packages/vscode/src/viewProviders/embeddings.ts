@@ -65,16 +65,12 @@ export class AifEmbeddingsViewProvider implements IViewProvider {
 		return EmbeddingsAPI.getEmbeddings()
 			.then((response) => {
 				this._embeddings = response.embeddings;
-
-				if (embeddingId) {
-					const embeddingInfo = this._embeddings.find((embedding) => embedding.id === embeddingId);
-					if (embeddingInfo) {
-						const message = AifPanelUtils.createMessageSetPageEmbeddings(embeddingInfo.id);
-						AifPanel.postMessage(message as any);
-					}
-				}
-
 				this._onDidChangeTreeData.fire();
+
+				AifPanel.postMessage(AifPanelUtils.createMessageStoreUpdateEmbeddings(this._embeddings));
+				if (embeddingId) {
+					AifPanel.postMessage(AifPanelUtils.createMessageSetPageEmbeddings(embeddingId));
+				}
 				return true;
 			}).catch((error) => {
 				return false;

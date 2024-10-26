@@ -58,21 +58,17 @@ export class AifFunctionsViewProvider implements IViewProvider {
 		}
 	}
 
-	private _refresh(id?: string): Promise<boolean> {
+	private _refresh(functionId?: string): Promise<boolean> {
 		this._functions = undefined;
 		return FunctionsAPI.listFunctions()
 			.then((response) => {
 				this._functions = response.functions;
-
-				if (id) {
-					const functionMetadata = this._functions.find((func) => func.id === id);
-					if (functionMetadata) {
-						const message = AifPanelUtils.createMessageSetPageFunctions(functionMetadata.id);
-						AifPanel.postMessage(message as any);
-					}
-				}
-
 				this._onDidChangeTreeData.fire();
+
+				AifPanel.postMessage(AifPanelUtils.createMessageStoreUpdateFunctions(this._functions));
+				if (functionId) {
+					AifPanel.postMessage(AifPanelUtils.createMessageSetPageFunctions(functionId));
+				}
 				return true;
 			}).catch((error) => {
 				return false;

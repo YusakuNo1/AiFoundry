@@ -1,6 +1,9 @@
 export const AcceptedFileInfoTypes = ["image", "text:plain", "text:binary"] as const;
 export type AcceptedFileInfoType = typeof AcceptedFileInfoTypes[number];
 
+export const PageTypes = ["home",  "embeddings",  "agents",  "modelPlayground",  "functions",  "page:updateLmProvider"];
+export type PageType = typeof PageTypes[number];
+
 export const AcceptedFileInfoEmbedding: AcceptedFileInfoType[] = ["text:plain", "text:binary"] as const;
 
 export type DataUrlInfo = {

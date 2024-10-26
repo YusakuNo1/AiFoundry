@@ -1,6 +1,6 @@
 import * as shared from "./shared";
 
-export const MessageHostMsgTypes = ['executeCommand', "showMessage"] as const;
+const MessageHostMsgTypes = ['executeCommand', "showMessage"] as const;
 export type MessageHostMsg = shared.IMessage & {
     aifMessageType: "hostMsg",
     type: typeof MessageHostMsgTypes[number],

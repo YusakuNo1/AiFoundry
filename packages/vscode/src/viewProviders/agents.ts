@@ -63,16 +63,12 @@ export class AifAgentsViewProvider implements IViewProvider {
 		return AgentsAPI.list()
 			.then((response) => {
 				this._agents = response.agents;
-
-				if (agentId) {
-					const agentInfo = this._agents.find((model) => model.id === agentId);
-					if (agentInfo) {
-						const message = AifPanelUtils.createMessageSetPageAgents(agentInfo.id);
-						AifPanel.postMessage(message);
-					}
-				}
-
 				this._onDidChangeTreeData.fire();
+
+				AifPanel.postMessage(AifPanelUtils.createMessageStoreUpdateAgents(this._agents));
+				if (agentId) {
+					AifPanel.postMessage(AifPanelUtils.createMessageSetPageAgents(agentId));
+				}
 				return true;
 			}).catch((error) => {
 				return false;

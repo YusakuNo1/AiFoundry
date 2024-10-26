@@ -8,7 +8,7 @@ import {
     Link,
 } from "@fluentui/react-components";
 import "./App.css";
-import type { messages } from "aifoundry-vscode-shared";
+import { type messages, type misc } from "aifoundry-vscode-shared";
 import HomePage from "./pages/HomePage";
 import EmbeddingDetailsPage from "./pages/EmbeddingDetailsPage";
 import AgentDetailsPage from "./pages/AgentDetailsPage";
@@ -58,7 +58,7 @@ function App(props: Props) {
         }
     }
 
-    const routeMap: Record<messages.IPageContextPageType, React.ReactNode> = {
+    const routeMap: Record<misc.PageType, React.ReactNode> = {
         "home": <HomePage vscode={props.vscode} />,
         "embeddings": <EmbeddingDetailsPage onPostMessage={props.vscode.postMessage} />,
         "agents": <AgentDetailsPage onPostMessage={props.vscode.postMessage} />,
@@ -79,7 +79,7 @@ function App(props: Props) {
                     <Route index element={routeMap["home"]} />
                     <Route path="/index.html" element={routeMap["home"]} />
                     {Object.keys(routeMap).filter(key => key !== "home").map(key => (
-                        <Route key={key} path={`/${key}`} element={routeMap[key as messages.IPageContextPageType]} />
+                        <Route key={key} path={`/${key}`} element={routeMap[key as misc.PageType]} />
                     ))}
                     <Route path="*" element={routeMap["home"]} />
                 </Route>

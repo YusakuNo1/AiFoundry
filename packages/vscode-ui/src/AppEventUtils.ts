@@ -34,7 +34,7 @@ namespace AppEventUtils {
                     store.dispatch(setEmbeddingId(embeddingId));
                     store.dispatch(pageInfoSlice.actions.setPageType("embeddings"));
                 } else if (event.data.pageType === "agents") {
-                    const agentId = (event.data as messages.MessageSetPageContextAgents).data;
+                    const agentId = (event.data as messages.MessageSetPageContextAgentDetails).data;
                     store.dispatch(setAgentId(agentId));
                     store.dispatch(pageInfoSlice.actions.setPageType("agents"));
                 } else if (event.data.pageType === "page:updateLmProvider") {

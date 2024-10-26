@@ -60,14 +60,6 @@ const LmProviderUpdatePage = (props: Props) => {
         props.onPostMessage(message);
     }, [props, weight, requestProperties, lmProviderId]);
 
-    const onCancel = React.useCallback(() => {
-        const message: messages.MessageSetPageContext = {
-            aifMessageType: "setPageType",
-            pageType: "home",
-        };
-        window.postMessage(message);
-    }, []);
-
     const onChangeProperty = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const newRequestProperties = { ...requestProperties, [event.target.id]: event.target.value };
         setRequestProperties(newRequestProperties);
@@ -269,7 +261,6 @@ const LmProviderUpdatePage = (props: Props) => {
 
         {!showOllamaSetup && <>
             <DefaultButton style={{ margin: 8 }} key="setup-button" onClick={onSubmit}>Setup</DefaultButton>
-            <DefaultButton style={{ margin: 8 }} key="cancel-button" onClick={onCancel}>Cancel</DefaultButton>
         </>}
     </>);    
 };

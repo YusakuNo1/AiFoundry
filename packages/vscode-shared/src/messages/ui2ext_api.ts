@@ -3,7 +3,7 @@ import { UploadFileInfo } from '../misc/common';
 import { UpdateLmProviderInfoRequest, UpdateLmProviderModelRequest } from '../api/languageModels';
 import * as shared from "./shared";
 
-export const MessageApiTypes = [
+const MessageApiTypes = [
     "chat:history:get",
     "chat:sendMessage",
     "api:updateLmProviderInfo",
@@ -16,7 +16,7 @@ export const MessageApiTypes = [
     "api:delete:model",
     "api:setup:lmProvider",
 ] as const;
-export type MessageApiType = typeof MessageApiTypes[number];
+type MessageApiType = typeof MessageApiTypes[number];
 export type MessageApi = shared.IMessage & {
     aifMessageType: "api",
     type: MessageApiType,
