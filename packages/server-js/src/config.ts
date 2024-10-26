@@ -10,7 +10,8 @@ namespace Config {
     export namespace LanguageModelRag {
         export const SPLITTER_TYPE = "RecursiveCharacterTextSplitter";
         export const CHUNK_SIZE = 128;
-        export const CHUNK_OVERLAP = 20;    
+        export const CHUNK_OVERLAP = 20;
+        export const SEARCH_K = 5;
     }
     
     // Headers and cookies used in the AIFoundry API

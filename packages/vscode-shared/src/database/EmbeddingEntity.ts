@@ -14,6 +14,7 @@ export class EmbeddingEntity extends BaseEntity {
         public description: string,         // summary of the file content, no more than 100 characters
         public fileNames: string[],
         public splitterParams: SplitterParams,
+        public searchTopK: number,   // sample size for similarity search
     ) {
         super(id);
     }

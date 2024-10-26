@@ -59,6 +59,9 @@ const EmbeddingDetailsPage: React.FC<Props> = (props: Props) => {
                 { type: "label", key: "name", label: "Name", item: { name: props.data.name ?? "", onClick: () => onPostMessage("UpdateEmbeddingName") }},
                 { type: "label", key: "model_uri", label: "Model URI", item: { name: props.data.basemodelUri }},
                 { type: "label", key: "vectorStoreProvider", label: "Vector Store Provider", item: { name: props.data.vectorStoreProvider }},
+                { type: "label", key: "chunk_size", label: "Embedding Chunk Size", item: { name: props.data.splitterParams.chunkSize }},
+                { type: "label", key: "chunk_overlap", label: "Embedding Chunk Overlap", item: { name: props.data.splitterParams.chunkOverlap }},
+                { type: "label", key: "search_top_k", label: "Search Top K", item: { name: props.data.searchTopK }},
             ]}
             actionButtons={[
                 { key: "append-new-document", label: "Append New Document", onClick: () => onPostMessage("UpdateEmbeddingDoc") },

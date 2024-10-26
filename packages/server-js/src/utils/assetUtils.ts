@@ -55,6 +55,7 @@ namespace AssetUtils {
             request.description,
             fileNames,
             splitterParams,
+            Config.LanguageModelRag.SEARCH_K,
         );
 
         const documents = await FileUtils.convertToDocuments(files, splitterParams);

@@ -20,7 +20,7 @@ export type ColumnHeader = {
 };
 
 export type RowItem = {
-    name: string;
+    name: string | number;
     onClick?: () => void;
 };
 

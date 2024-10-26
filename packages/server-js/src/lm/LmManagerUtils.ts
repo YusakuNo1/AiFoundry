@@ -59,7 +59,7 @@ namespace LmManagerUtils {
         const assetsPath = AssetUtils.getEmbeddingsAssetPath();
         const storePath = path.join(assetsPath, embeddingId);
         const vectorStore = await FaissStore.load(storePath, llm);
-        const document = await vectorStore.similaritySearch(input, 1);
+        const document = await vectorStore.similaritySearch(input, embeddingMetadata.searchTopK);
         return document;
     }
 
