@@ -37,9 +37,11 @@ abstract class LmBaseProvider {
 
     public async init(): Promise<void> {
         const initInfo = await this._getInitInfo();
+        const initInfoModelMapVersion = initInfo.modelMapVersion ?? 0;
 
         let lmProviderInfo = this._databaseManager.getLmProviderInfo(initInfo.id);
-        if (!lmProviderInfo) {
+        const lmProviderInfoModelMapVersion = lmProviderInfo?.modelMapVersion ?? 0;
+        if (!lmProviderInfo || initInfoModelMapVersion > lmProviderInfoModelMapVersion) {
             lmProviderInfo = new database.LmProviderEntity(
                 initInfo.id,
                 initInfo.name,
@@ -48,7 +50,8 @@ abstract class LmBaseProvider {
                 initInfo.properties,
                 initInfo.supportUserDefinedModels,
                 initInfo.isLocal,
-                initInfo.modelMap,
+                initInfo.modelMap, // the flag isDownloaded will be updated in _updateLmProviderRuntimeInfo
+                initInfo.modelMapVersion,
             );
 
             await this._updateLmProviderRuntimeInfo(lmProviderInfo);
@@ -91,6 +94,7 @@ abstract class LmBaseProvider {
             supportUserDefinedModels: this._info.supportUserDefinedModels,
             isLocal: this._info.isLocal,
             modelMap: _.cloneDeep(this._info.modelMap),
+            modelMapVersion: this._info.modelMapVersion,
             status,        
         };
     }
@@ -129,6 +133,7 @@ abstract class LmBaseProvider {
             supportUserDefinedModels: this._info.supportUserDefinedModels,
             isLocal: this._info.isLocal,
             modelMap: _.cloneDeep(this._info.modelMap),
+            modelMapVersion: this._info.modelMapVersion,
         }
         return response;
     }
@@ -210,6 +215,7 @@ abstract class LmBaseProvider {
             supportUserDefinedModels: this._info.supportUserDefinedModels,
             isLocal: this._info.isLocal,
             modelMap: _.cloneDeep(this._info.modelMap),
+            modelMapVersion: this._info.modelMapVersion,
         }
         return response;
     }

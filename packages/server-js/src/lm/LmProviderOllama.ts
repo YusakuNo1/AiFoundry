@@ -36,6 +36,7 @@ class LmProviderOllama extends LmBaseProvider {
             supportUserDefinedModels: false,
             isLocal: true,
             modelMap,
+            modelMapVersion: (OllamaModels as ModelDef).version,
             properties: {},
         }
     }

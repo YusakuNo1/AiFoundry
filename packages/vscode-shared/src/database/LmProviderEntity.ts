@@ -40,6 +40,7 @@ export class LmProviderEntity extends BaseEntity {
         public supportUserDefinedModels: boolean,
         public isLocal: boolean,        // Is local model or not, e.g. Ollama
         public modelMap: Record<string, LmProviderBaseModelInfo>,
+        public modelMapVersion?: number,
     ) {
         super(id);
     }

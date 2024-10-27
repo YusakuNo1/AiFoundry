@@ -34,7 +34,8 @@ for result in results:
   title = result.find("h2").text.strip()
   
   # Get the description (if available)
-  description = result.find("p", class_="max-w-md break-words").text.strip() if result.find("p", class_="max-w-md break-words") else ""
+  description = result.find("p", class_="max-w-lg break-words text-neutral-800 text-md")
+  description = description.text.strip() if description else ""
   
   # Get the list of tags (if available)
   tag_holder = result.find("div", class_="flex flex-wrap space-x-2")

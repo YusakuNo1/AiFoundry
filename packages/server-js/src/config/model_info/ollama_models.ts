@@ -1,7 +1,7 @@
 import { ModelDef } from './types';
 
 const modelDef: ModelDef = {
-    version: 1,
+    version: 2,
     models: [
         {
             "title": "llama3.2",
@@ -49,14 +49,15 @@ const modelDef: ModelDef = {
             "title": "phi3.5",
             "description": "A lightweight AI model with 3.8 billion parameters with performance overtaking similarly and larger sized models.",
             "tags": [
-                "3b"
+                "3.8b"
             ]
         },
         {
             "title": "nemotron-mini",
             "description": "A commercial-friendly small language model by NVIDIA optimized for roleplay, RAG QA, and function calling.",
             "tags": [
-                "tools"
+                "tools",
+                "4b"
             ]
         },
         {
@@ -65,24 +66,6 @@ const modelDef: ModelDef = {
             "tags": [
                 "tools",
                 "22b"
-            ]
-        },
-        {
-            "title": "deepseek-coder-v2",
-            "description": "An open-source Mixture-of-Experts code language model that achieves performance comparable to GPT4-Turbo in code-specific tasks.",
-            "tags": [
-                "code",
-                "16b",
-                "236b"
-            ]
-        },
-        {
-            "title": "codegemma",
-            "description": "CodeGemma is a collection of powerful, lightweight models that can perform a variety of coding tasks like fill-in-the-middle code completion, code generation, natural language understanding, mathematical reasoning, and instruction following.",
-            "tags": [
-                "code",
-                "2b",
-                "7b"
             ]
         },
         {
@@ -96,17 +79,6 @@ const modelDef: ModelDef = {
             ]
         },
         {
-            "title": "codellama",
-            "description": "A large language model that can use text prompts to generate and discuss code.",
-            "tags": [
-                "code",
-                "7b",
-                "13b",
-                "34b",
-                "70b"
-            ]
-        },
-        {
             "title": "nomic-embed-text",
             "description": "A high-performing open embedding model with a large token context window.",
             "tags": [
@@ -117,26 +89,8 @@ const modelDef: ModelDef = {
             "title": "mxbai-embed-large",
             "description": "State-of-the-art large embedding model from mixedbread.ai",
             "tags": [
-                "embedding"
-            ]
-        },
-        {
-            "title": "deepseek-coder",
-            "description": "DeepSeek Coder is a capable coding model trained on two trillion code and natural language tokens.",
-            "tags": [
-                "code",
-                "1b",
-                "7b",
-                "33b"
-            ]
-        },
-        {
-            "title": "starcoder2",
-            "description": "StarCoder2 is the next generation of transparently trained open code LLMs that comes in three sizes: 3B, 7B and 15B parameters.",
-            "tags": [
-                "code",
-                "3b",
-                "7b"
+                "embedding",
+                "335m"
             ]
         },
         {
@@ -153,7 +107,10 @@ const modelDef: ModelDef = {
             "tags": [
                 "embedding",
                 "22m",
-                "33m"
+                "33m",
+                "110m",
+                "137m",
+                "335m"
             ]
         },
         {
@@ -177,7 +134,8 @@ const modelDef: ModelDef = {
             "title": "moondream",
             "description": "moondream2 is a small vision language model designed to run efficiently on edge devices.",
             "tags": [
-                "vision"
+                "vision",
+                "1.8b"
             ]
         },
         {
@@ -185,14 +143,15 @@ const modelDef: ModelDef = {
             "description": "A new small LLaVA model fine-tuned from Phi 3 Mini.",
             "tags": [
                 "vision",
-                "3b"
+                "3.8b"
             ]
         },
         {
             "title": "bge-m3",
             "description": "BGE-M3 is a new model from BAAI distinguished for its versatility in Multi-Functionality, Multi-Linguality, and Multi-Granularity.",
             "tags": [
-                "embedding"
+                "embedding",
+                "567m"
             ]
         }
     ]
