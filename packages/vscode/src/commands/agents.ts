@@ -43,7 +43,9 @@ namespace AgentsCommands {
 		CommandUtils.chooseText('Agent Name', defaultName, 'New agent name').then(result => {
 			// if result is undefined, the user cancelled the input box
 			if (result) {
-				_showChatLlmOptions(true, agentsViewProvider, result ?? defaultName);
+				_showChatLlmOptions(true, agentsViewProvider, result ?? defaultName).catch((error) => {
+					vscode.window.showErrorMessage(error.message ?? 'Failed to create agent');
+				});
 			}
 		});
 	}
@@ -117,87 +119,89 @@ namespace AgentsCommands {
 }
 
 async function _showChatLlmOptions(isCreate: boolean, agentsViewProvider: IViewProvider, name: string): Promise<void> {
-	const response = await LanguageModelsAPI.listLanguageModelsChat();
-	if (response.basemodels.length === 0) {
-		vscode.window.showErrorMessage('No LLM models found, please setup at least one language model provider with models');
-		return;
-	}
-
-	return new Promise((resolve) => {
-		const options = Object.fromEntries(response.basemodels.map(basemodel => [`${basemodel.providerId}-${basemodel.name}`, basemodel]));
-		const quickPick = vscode.window.createQuickPick();
-		quickPick.title = 'Select LLM model';
-		quickPick.items = Object.keys(options).map(key => ({ label: options[key].uri, key }));
-		quickPick.onDidChangeSelection(selection => {
-			_showEmbeddingAssetIds(isCreate, agentsViewProvider, name, selection[0].label).then(resolve);
-			quickPick.dispose();
-		});
-		quickPick.onDidHide(() => {
-			resolve();
-			quickPick.dispose();
-		});
-		quickPick.show();
+	return LanguageModelsAPI.listLanguageModelsChat().then((response) => {
+		if (response.basemodels.length === 0) {
+			vscode.window.showErrorMessage('No LLM models found, please setup at least one language model provider with models');
+		} else {
+			return new Promise((resolve, reject) => {
+				const options = Object.fromEntries(response.basemodels.map(basemodel => [`${basemodel.providerId}-${basemodel.name}`, basemodel]));
+				const quickPick = vscode.window.createQuickPick();
+				quickPick.title = 'Select LLM model';
+				quickPick.items = Object.keys(options).map(key => ({ label: options[key].uri, key }));
+				quickPick.onDidChangeSelection(selection => {
+					const basemodelUri = selection[0].label;
+					_showEmbeddingAssetIds(isCreate, agentsViewProvider, basemodelUri, name).then(resolve).catch(reject);
+					quickPick.dispose();
+				});
+				quickPick.onDidHide(() => {
+					resolve();
+					quickPick.dispose();
+				});
+				quickPick.show();
+			});
+		}
 	});
 }
 
 async function _showEmbeddingAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, basemodelOrAgentUri: string, name: string | undefined, selectedEmbeddingIds: string[] = []): Promise<void> {
-	const response = await EmbeddingsAPI.getEmbeddings();
-	if (response.embeddings.length === 0) {
-		if (consts.AppConfig.ENABLE_FUNCTIONS) {
-			return _showFunctionsAssetIds(isCreate, agentsViewProvider, basemodelOrAgentUri, name, []);
-		} else {
-			return _createOrUpdateAgent(isCreate, agentsViewProvider, basemodelOrAgentUri, name, []);
-		}
-	}
-
-	return new Promise((resolve) => {
-		const options = Object.fromEntries(response.embeddings.map(embedding => [embedding.name, embedding]));
-
-		const quickPick = vscode.window.createQuickPick();
-		quickPick.title = 'Select embeddings';
-		quickPick.canSelectMany = true;
-		quickPick.items = Object.keys(options).map(label => ({ label }));
-		quickPick.selectedItems = quickPick.items.filter(item => selectedEmbeddingIds.includes(options[item.label].id));
-		quickPick.onDidAccept((selection) => {
-			const embeddings = quickPick.selectedItems.map(item => options[item.label]);
+	return EmbeddingsAPI.getEmbeddings().then((response) => {
+		if (response.embeddings.length === 0) {
 			if (consts.AppConfig.ENABLE_FUNCTIONS) {
-				_showFunctionsAssetIds(isCreate, agentsViewProvider, basemodelOrAgentUri, name, embeddings).then(resolve);
+				return _showFunctionsAssetIds(isCreate, agentsViewProvider, basemodelOrAgentUri, name, []);
 			} else {
-				_createOrUpdateAgent(isCreate, agentsViewProvider, basemodelOrAgentUri, name, embeddings).then(resolve);
+				return _createOrUpdateAgent(isCreate, agentsViewProvider, basemodelOrAgentUri, name, []);
 			}
-			quickPick.dispose();
-		});
-		quickPick.onDidHide(() => {
-			resolve();
-			quickPick.dispose();
-		});
-		quickPick.show();
+		} else {
+			return new Promise((resolve, reject) => {
+				const options = Object.fromEntries(response.embeddings.map(embedding => [embedding.name, embedding]));
+		
+				const quickPick = vscode.window.createQuickPick();
+				quickPick.title = 'Select embeddings';
+				quickPick.canSelectMany = true;
+				quickPick.items = Object.keys(options).map(label => ({ label }));
+				quickPick.selectedItems = quickPick.items.filter(item => selectedEmbeddingIds.includes(options[item.label].id));
+				quickPick.onDidAccept((selection) => {
+					const embeddings = quickPick.selectedItems.map(item => options[item.label]);
+					if (consts.AppConfig.ENABLE_FUNCTIONS) {
+						_showFunctionsAssetIds(isCreate, agentsViewProvider, basemodelOrAgentUri, name, embeddings).then(resolve).catch(reject);
+					} else {
+						_createOrUpdateAgent(isCreate, agentsViewProvider, basemodelOrAgentUri, name, embeddings).then(resolve).catch(reject);
+					}
+					quickPick.dispose();
+				});
+				quickPick.onDidHide(() => {
+					resolve();
+					quickPick.dispose();
+				});
+				quickPick.show();
+			});					
+		}
 	});
 }
 
 async function _showFunctionsAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, basemodelOrAgentUri: string, name: string | undefined, embeddings: api.EmbeddingEntity[]): Promise<void> {
-	const response = await FunctionsAPI.listFunctions();
-
-	if (response.functions.length === 0) {
-		return _createOrUpdateAgent(isCreate, agentsViewProvider, basemodelOrAgentUri, name, embeddings);
-	}
-
-	return new Promise((resolve) => {
-		const options = Object.fromEntries(response.functions.map(func => [func.name, func]));
-		const quickPick = vscode.window.createQuickPick();
-		quickPick.title = 'Select functions';
-		quickPick.canSelectMany = true;
-		quickPick.items = Object.keys(options).map(label => ({ label }));
-		quickPick.onDidAccept((selection) => {
-			const functions = quickPick.selectedItems.map(item => options[item.label]);
-			_createOrUpdateAgent(isCreate, agentsViewProvider, basemodelOrAgentUri, name, embeddings, functions).then(resolve);
-			quickPick.dispose();
-		});
-		quickPick.onDidHide(() => {
-			quickPick.dispose();
-			resolve();
-		});
-		quickPick.show();	
+	return FunctionsAPI.listFunctions().then((response) => {
+		if (response.functions.length === 0) {
+			return _createOrUpdateAgent(isCreate, agentsViewProvider, basemodelOrAgentUri, name, embeddings);
+		} else {
+			return new Promise((resolve, reject) => {
+				const options = Object.fromEntries(response.functions.map(func => [func.name, func]));
+				const quickPick = vscode.window.createQuickPick();
+				quickPick.title = 'Select functions';
+				quickPick.canSelectMany = true;
+				quickPick.items = Object.keys(options).map(label => ({ label }));
+				quickPick.onDidAccept((selection) => {
+					const functions = quickPick.selectedItems.map(item => options[item.label]);
+					_createOrUpdateAgent(isCreate, agentsViewProvider, basemodelOrAgentUri, name, embeddings, functions).then(resolve).catch(reject);
+					quickPick.dispose();
+				});
+				quickPick.onDidHide(() => {
+					quickPick.dispose();
+					resolve();
+				});
+				quickPick.show();	
+			});
+		}
 	});
 }
 
