@@ -17,15 +17,15 @@ namespace OllamaUtils {
         }
     }
 
-    export async function startOllamaServer(out: ApiOutStream): Promise<void> {
-        const healthy = await isHealthy();
-        if (healthy) {
-            return;
-        }
-
-        out.write("Ollama server is not running. Starting Ollama server...");
-        _startOllamaServer(out);
-        out.end();
+    export function startOllamaServer(out: ApiOutStream): void {
+        isHealthy().then((healthy: boolean) => {
+            if (healthy) {
+                out.end();
+            } else {
+                out.write("Ollama server is not running. Starting Ollama server...");
+                _startOllamaServer(out);
+            }
+        });
     }
 
     export async function listDownloadedModels(): Promise<string[]> {
@@ -90,10 +90,10 @@ end tell'`;
     exec(command, (error, stdout, stderr) => {
         if (error) {
             out.error(`Failed to start Ollama server: ${error}`);
-            return;
         } else {
             out.write("Ollama server is running.", "success");
         }      
+        out.end();
     });
 }
 

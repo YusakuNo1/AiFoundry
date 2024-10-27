@@ -50,10 +50,10 @@ const SetupInstructionOllama = (props: Props) => {
             <TableBody>
                 {platforms.map(platform => 
                     <TableRow>
-                        <TableCell width={"100px"}>{ollamaDownloadInstructions[platform].name}</TableCell>
+                        <TableCell style={{ "width": "120px" }}>{ollamaDownloadInstructions[platform].name}</TableCell>
                         {ollamaDownloadInstructions[platform].url && <TableCell><Link href={ollamaDownloadInstructions[platform].url}>Download</Link></TableCell>}
                         {!ollamaDownloadInstructions[platform].url && <TableCell>{ollamaDownloadInstructions[platform].instruction}</TableCell>}
-                        {ollamaDownloadInstructions[platform].website && <TableCell><Link href={ollamaDownloadInstructions[platform].website}>Website</Link></TableCell>}
+                        {ollamaDownloadInstructions[platform].website && <TableCell style={{ "width": "100px" }}><Link href={ollamaDownloadInstructions[platform].website}>Website</Link></TableCell>}
                     </TableRow>
                 )}
             </TableBody>

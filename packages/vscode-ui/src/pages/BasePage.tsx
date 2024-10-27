@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Text } from '@fluentui/react/lib/Text';
 import { FluentIcon, EditRegular } from "@fluentui/react-icons";
 import {
     Select,
@@ -7,12 +6,9 @@ import {
     TableCell,
     TableRow,
     Table,
-    TableHeader,
-    TableHeaderCell,
     TableCellLayout,
 } from "@fluentui/react-components";
 import { DefaultButton } from '@fluentui/react/lib/Button';
-import { getTextColor } from "../theme/themes";
 
 export type ColumnHeader = {
     key: string;
@@ -52,8 +48,6 @@ interface Props {
 }
 
 const BasePage: React.FC<Props> = (props: Props) => {
-    const textColor = React.useMemo(() => getTextColor(), []);
-
     function RenderRowItem(props: { item: RowItem, columnStyles?: React.CSSProperties[] }) {
         return (
             <>

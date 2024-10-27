@@ -44,11 +44,7 @@ namespace LanguageModelsAPI {
                         const result: any = await reader!.read();
                         finished = result.done;
                         if (!finished) {
-                            const message = {
-                                type: "info",
-                                message: decoder.decode(result.value),
-                            };
-                            subscriber.next(JSON.stringify(message));
+                            subscriber.next(decoder.decode(result.value));
                         }    
                     }
                     subscriber.complete();    
