@@ -32,6 +32,7 @@ export type RowInfo = {
     icon?: React.ReactElement<FluentIcon>;
     label: string;
     item: RowItem | RowItem[] | RowSelectionItem;
+    onClickCollection?: () => void;
 };
 
 export type ActionButton = {
@@ -48,15 +49,19 @@ interface Props {
 }
 
 const BasePage: React.FC<Props> = (props: Props) => {
-    function RenderRowItem(props: { item: RowItem, columnStyles?: React.CSSProperties[] }) {
+    function RenderRowItem(props: { item: RowItem, columnStyles?: React.CSSProperties[], hasCollectionButton: boolean }) {
         return (
             <>
                 <TableCell style={props.columnStyles?.[1]}>
                     {props.item.name}
                 </TableCell>
-                <TableCell style={props.columnStyles?.[2]}>
-                    {props.item.onClick && <TableCellLayout media={<EditRegular />} onClick={props.item.onClick} />}
-                </TableCell>
+
+                { // Only if hasCollectionButton is false, render the last column
+                !props.hasCollectionButton &&
+                    <TableCell style={props.columnStyles?.[2]}>
+                        {props.item.onClick && <TableCellLayout media={<EditRegular />} onClick={props.item.onClick} />}
+                    </TableCell>
+                }
             </>
         );
     }
@@ -64,18 +69,23 @@ const BasePage: React.FC<Props> = (props: Props) => {
     function RenderRow(props: { row: RowInfo, columnStyles?: React.CSSProperties[] }) {
         const rowItem = props.row.type === "collection" ? ((props.row.item as RowItem[]).length === 0 ? { "name": "" } : (props.row.item as RowItem[])[0]) : props.row.item as RowItem;
         const numItems = props.row.type === "collection" ? Math.max((props.row.item as RowItem[]).length, 1) : 1;
+        const hasCollectionButton = !!(props.row.type === "collection" && props.row.onClickCollection);
         return (
             <>
                 <TableRow>
                     <TableCell rowSpan={numItems} style={props.columnStyles?.[0]}>
                         <TableCellLayout media={props.row.icon ?? null}>{props.row.label}</TableCellLayout>
                     </TableCell>
-                    <RenderRowItem item={rowItem} columnStyles={props.columnStyles} />
+                    <RenderRowItem item={rowItem} columnStyles={props.columnStyles} hasCollectionButton={hasCollectionButton} />
+
+                    {hasCollectionButton && <TableCell rowSpan={numItems} style={props.columnStyles?.[0]}>
+                        <TableCellLayout media={<EditRegular />} onClick={props.row.onClickCollection} />
+                    </TableCell>}
                 </TableRow>
 
                 {numItems > 1 && (props.row.item as RowItem[]).slice(1).map((item) => (
                     <TableRow key={item.name}>
-                        <RenderRowItem item={item} columnStyles={props.columnStyles} />
+                        <RenderRowItem item={item} columnStyles={props.columnStyles} hasCollectionButton={hasCollectionButton} />
                     </TableRow>
                 ))}
             </>

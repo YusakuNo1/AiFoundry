@@ -56,8 +56,11 @@ namespace AifPanelEvenHandlers {
                 const messageEditInfo = message as messages.MessageEditInfoAgentsystemPrompt;
                 AgentsCommands.startupdateAgentSystemPromptFlow(viewProviderMap.agents, messageEditInfo.data.id, messageEditInfo.data.systemPrompt);
             } else if (_message.type === 'agent:delete') {
-                const messageEditInfo = message as messages.MessageEditInfodeleteAgent;
+                const messageEditInfo = message as messages.MessageEditInfoDeleteAgent;
                 AgentsCommands.startdeleteAgentFlow(viewProviderMap.agents, messageEditInfo.data.id);
+            } else if (_message.type === "agent:updateRagAssets") {
+                const messageEditInfo = message as messages.MessageEditInfoAgentUpdateRagAssets;
+                AgentsCommands.startUpdateAgentRagAssetsFlow(viewProviderMap.agents, messageEditInfo.data.agentUri, messageEditInfo.data.ragAssetIds);
             }
         } else if (viewProviderMap?.functions && messages.MessageEditInfoFunctionsTypes.includes(_message.type as messages.MessageEditInfoFunctionsType)) {
             if (_message.type === 'function:update:name') {

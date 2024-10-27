@@ -1,6 +1,6 @@
 'use strict';
 import * as vscode from 'vscode';
-import { type api, consts, type database } from 'aifoundry-vscode-shared';
+import { type api, consts } from 'aifoundry-vscode-shared';
 import EmbeddingsAPI from '../api/EmbeddingsAPI';
 import AgentsAPI from '../api/AgentsAPI';
 import LanguageModelsAPI from '../api/LanguageModelsAPI';
@@ -63,7 +63,7 @@ namespace AgentsCommands {
 						}
 					}).then((agent) => {
 						const newAgent = { ...agent, name };
-						return AgentsAPI.updateAgent(newAgent.id, newAgent.agentUri, newAgent.basemodelUri, newAgent.name, newAgent.systemPrompt, newAgent.ragAssetIds, newAgent.functionAssetIds).then(() => {
+						return AgentsAPI.updateAgent(newAgent.agentUri, newAgent.basemodelUri, newAgent.name, newAgent.systemPrompt, newAgent.ragAssetIds, newAgent.functionAssetIds).then(() => {
 							agentsViewProvider.refresh(id);
 							vscode.window.showInformationMessage('Agent name is updated');
 						});	
@@ -90,7 +90,7 @@ namespace AgentsCommands {
 						}
 					}).then((agent) => {
 						const newAgent = { ...agent, systemPrompt };
-						return AgentsAPI.updateAgent(newAgent.id, newAgent.agentUri, newAgent.basemodelUri, newAgent.name, newAgent.systemPrompt, newAgent.ragAssetIds, newAgent.functionAssetIds).then(() => {
+						return AgentsAPI.updateAgent(newAgent.agentUri, newAgent.basemodelUri, newAgent.name, newAgent.systemPrompt, newAgent.ragAssetIds, newAgent.functionAssetIds).then(() => {
 							agentsViewProvider.refresh(id);
 							vscode.window.showInformationMessage('System prompt is updated');
 						});	
@@ -110,84 +110,115 @@ namespace AgentsCommands {
 			vscode.window.showErrorMessage(error.message);
 		});
 	}
+	
+	export function startUpdateAgentRagAssetsFlow(agentsViewProvider: IViewProvider, agentUri: string, embeddingIds: string[]) {
+		_showEmbeddingAssetIds(false, agentsViewProvider, agentUri, undefined, embeddingIds);
+	}
 }
 
-function _showChatLlmOptions(isCreate: boolean, agentsViewProvider: IViewProvider, name: string) {
-	LanguageModelsAPI.listLanguageModelsChat().then((response) => {
+async function _showChatLlmOptions(isCreate: boolean, agentsViewProvider: IViewProvider, name: string): Promise<void> {
+	const response = await LanguageModelsAPI.listLanguageModelsChat();
+	if (response.basemodels.length === 0) {
+		vscode.window.showErrorMessage('No LLM models found, please setup at least one language model provider with models');
+		return;
+	}
+
+	return new Promise((resolve) => {
 		const options = Object.fromEntries(response.basemodels.map(basemodel => [`${basemodel.providerId}-${basemodel.name}`, basemodel]));
 		const quickPick = vscode.window.createQuickPick();
 		quickPick.title = 'Select LLM model';
-
 		quickPick.items = Object.keys(options).map(key => ({ label: options[key].uri, key }));
-
 		quickPick.onDidChangeSelection(selection => {
+			_showEmbeddingAssetIds(isCreate, agentsViewProvider, name, selection[0].label).then(resolve);
 			quickPick.dispose();
-			_showEmbeddingAssetIds(isCreate, agentsViewProvider, name, options[(selection[0] as any).key]);
 		});
-		quickPick.onDidHide(() => quickPick.dispose());
+		quickPick.onDidHide(() => {
+			resolve();
+			quickPick.dispose();
+		});
 		quickPick.show();
 	});
 }
 
-function _showEmbeddingAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, model: api.LmProviderBaseModelInfo) {
-	EmbeddingsAPI.getEmbeddings().then((response) => {
+async function _showEmbeddingAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, basemodelOrAgentUri: string, name: string | undefined, selectedEmbeddingIds: string[] = []): Promise<void> {
+	const response = await EmbeddingsAPI.getEmbeddings();
+	if (response.embeddings.length === 0) {
+		if (consts.AppConfig.ENABLE_FUNCTIONS) {
+			return _showFunctionsAssetIds(isCreate, agentsViewProvider, basemodelOrAgentUri, name, []);
+		} else {
+			return _createOrUpdateAgent(isCreate, agentsViewProvider, basemodelOrAgentUri, name, []);
+		}
+	}
+
+	return new Promise((resolve) => {
 		const options = Object.fromEntries(response.embeddings.map(embedding => [embedding.name, embedding]));
 
 		const quickPick = vscode.window.createQuickPick();
 		quickPick.title = 'Select embeddings';
 		quickPick.canSelectMany = true;
 		quickPick.items = Object.keys(options).map(label => ({ label }));
+		quickPick.selectedItems = quickPick.items.filter(item => selectedEmbeddingIds.includes(options[item.label].id));
 		quickPick.onDidAccept((selection) => {
 			const embeddings = quickPick.selectedItems.map(item => options[item.label]);
-
 			if (consts.AppConfig.ENABLE_FUNCTIONS) {
-				_showFunctionsAssetIds(isCreate, agentsViewProvider, name, model, embeddings);
+				_showFunctionsAssetIds(isCreate, agentsViewProvider, basemodelOrAgentUri, name, embeddings).then(resolve);
 			} else {
-				_createOrupdateAgent(isCreate, agentsViewProvider, name, model, embeddings);
+				_createOrUpdateAgent(isCreate, agentsViewProvider, basemodelOrAgentUri, name, embeddings).then(resolve);
 			}
-
 			quickPick.dispose();
 		});
-		quickPick.onDidHide(() => quickPick.dispose());
+		quickPick.onDidHide(() => {
+			resolve();
+			quickPick.dispose();
+		});
 		quickPick.show();
 	});
 }
 
-function _showFunctionsAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, model: api.LmProviderBaseModelInfo, embeddings: api.EmbeddingEntity[]) {
-	FunctionsAPI.listFunctions().then((response) => {
-		if (response.functions.length === 0) {
-			_createOrupdateAgent(isCreate, agentsViewProvider, name, model, embeddings);
-			return;
-		} else {
-			const options = Object.fromEntries(response.functions.map(func => [func.name, func]));
+async function _showFunctionsAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, basemodelOrAgentUri: string, name: string | undefined, embeddings: api.EmbeddingEntity[]): Promise<void> {
+	const response = await FunctionsAPI.listFunctions();
 
-			const quickPick = vscode.window.createQuickPick();
-			quickPick.title = 'Select functions';
-			quickPick.canSelectMany = true;
-			quickPick.items = Object.keys(options).map(label => ({ label }));
-			quickPick.onDidAccept((selection) => {
-				const functions = quickPick.selectedItems.map(item => options[item.label]);
-				_createOrupdateAgent(isCreate, agentsViewProvider, name, model, embeddings, functions);
-				quickPick.dispose();
-			});
-			quickPick.onDidHide(() => quickPick.dispose());
-			quickPick.show();	
-		}
+	if (response.functions.length === 0) {
+		return _createOrUpdateAgent(isCreate, agentsViewProvider, basemodelOrAgentUri, name, embeddings);
+	}
+
+	return new Promise((resolve) => {
+		const options = Object.fromEntries(response.functions.map(func => [func.name, func]));
+		const quickPick = vscode.window.createQuickPick();
+		quickPick.title = 'Select functions';
+		quickPick.canSelectMany = true;
+		quickPick.items = Object.keys(options).map(label => ({ label }));
+		quickPick.onDidAccept((selection) => {
+			const functions = quickPick.selectedItems.map(item => options[item.label]);
+			_createOrUpdateAgent(isCreate, agentsViewProvider, basemodelOrAgentUri, name, embeddings, functions).then(resolve);
+			quickPick.dispose();
+		});
+		quickPick.onDidHide(() => {
+			quickPick.dispose();
+			resolve();
+		});
+		quickPick.show();	
 	});
 }
 
-function _createOrupdateAgent(isCreate: boolean, agentsViewProvider: IViewProvider, name: string, modelInfo: api.LmProviderBaseModelInfo, embeddings: api.EmbeddingEntity[], functions: api.FunctionEntity[] = []) {
+async function _createOrUpdateAgent(isCreate: boolean, agentsViewProvider: IViewProvider, basemodelOrAgentUri: string, name: string | undefined, embeddings: api.EmbeddingEntity[], functions: api.FunctionEntity[] = []): Promise<void> {
+	let promise: Promise<api.CreateOrUpdateAgentResponse>;
 	if (isCreate) {
 		const ragAssetIds = embeddings.map(embedding => embedding.id);
 		const functionAssetIds = functions.map(func => func.id);
-		AgentsAPI.createAgent(modelInfo.uri, name, undefined, ragAssetIds, functionAssetIds).then(() => {
-			agentsViewProvider.refresh();
-			vscode.window.showInformationMessage(`Agent ${modelInfo.uri} is created`);
-		})
-		.catch((error) => {
-			vscode.window.showErrorMessage(error.message);
-		});
+		promise = AgentsAPI.createAgent(basemodelOrAgentUri, name, undefined, ragAssetIds, functionAssetIds);
+	} else {
+		const ragAssetIds = embeddings.map(embedding => embedding.id);
+		const functionAssetIds = functions.map(func => func.id);
+		promise = AgentsAPI.updateAgent(basemodelOrAgentUri, undefined, name, undefined, ragAssetIds, functionAssetIds);
 	}
+
+	return promise.then(() => {
+		agentsViewProvider.refresh();
+		vscode.window.showInformationMessage(`Agent is ${isCreate ? "created" : "updated"} successfully`);
+	}).catch((error) => {
+		vscode.window.showErrorMessage(error?.message ?? error?.toString() ?? 'Failed to create agent');
+	});
 }
 
 export default AgentsCommands;

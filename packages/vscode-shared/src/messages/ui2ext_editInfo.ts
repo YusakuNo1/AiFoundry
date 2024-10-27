@@ -1,3 +1,4 @@
+import { EmbeddingEntity } from "../api/embeddings";
 import * as shared from "./shared";
 
 export const MessageEditInfoEmbeddingsTypes = [
@@ -7,7 +8,7 @@ export const MessageEditInfoEmbeddingsTypes = [
     "UpdateEmbeddingSearchTopK",
 ] as const;
 export type MessageEditInfoEmbeddingsType = typeof MessageEditInfoEmbeddingsTypes[number];
-export const MessageEditInfoAgentsTypes = ['agent:update:name', 'agent:update:systemPrompt', 'agent:delete'] as const;
+export const MessageEditInfoAgentsTypes = ['agent:update:name', 'agent:update:systemPrompt', 'agent:delete', "agent:updateRagAssets"] as const;
 export type MessageEditInfoAgentsType = typeof MessageEditInfoAgentsTypes[number];
 export const MessageEditInfoFunctionsTypes = ['function:update:name', 'function:openfile'] as const;
 export type MessageEditInfoFunctionsType = typeof MessageEditInfoFunctionsTypes[number];
@@ -55,9 +56,15 @@ export type MessageEditInfoAgentsystemPrompt = MessageEditInfoAgents & {
         id: string;
     };
 };
-export type MessageEditInfodeleteAgent = MessageEditInfoAgents & {
+export type MessageEditInfoDeleteAgent = MessageEditInfoAgents & {
     data: {
         id: string;
+    };
+};
+export type MessageEditInfoAgentUpdateRagAssets = MessageEditInfoAgents & {
+    data: {
+        agentUri: string;
+        ragAssetIds: string[];
     };
 };
 

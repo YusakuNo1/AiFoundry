@@ -92,11 +92,21 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
             };
             props.onPostMessage(message);
         } else if (type === "agent:delete") {
-            const message: messages.MessageEditInfodeleteAgent = {
+            const message: messages.MessageEditInfoDeleteAgent = {
                 aifMessageType,
                 type,
                 data: {
                     id: agent.id,
+                },
+            };
+            props.onPostMessage(message);
+        } else if (type === "agent:updateRagAssets") {
+            const message: messages.MessageEditInfoAgentUpdateRagAssets = {
+                aifMessageType,
+                type,
+                data: {
+                    agentUri: agent.agentUri,
+                    ragAssetIds: agent.ragAssetIds,
                 },
             };
             props.onPostMessage(message);
@@ -153,7 +163,7 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
                 { type: "label", key: "agentUri", label: "URI", item: { name: agent.agentUri }},
                 { type: "label", key: "basemodelUri", label: "Base Model", item: { name: agent.basemodelUri }},
                 { type: "label", key: "systemPrompt", label: "System Prompt", item: { name: agent.systemPrompt, onClick: () => onPostMessage("agent:update:systemPrompt") }},
-                { type: "collection", key: "ragAssetIds", label: "RAG Assets", item: ragAssetsItems },
+                { type: "collection", key: "ragAssetIds", label: "RAG Assets", item: ragAssetsItems, onClickCollection: () => onPostMessage("agent:updateRagAssets") },
                 // { type: "collection", key: "functionAssetIds", label: "Function Calling Assets", item: functionAssetsItems },
                 { type: "selection", key: "output_format", label: "Output Format", item: {
                     selectedIndex: outputFormatIndex,

@@ -1,6 +1,6 @@
 import { APIConfig } from "./config";
 import type { api } from 'aifoundry-vscode-shared';
-import { consts } from 'aifoundry-vscode-shared';
+import { AifUtils, consts } from 'aifoundry-vscode-shared';
 import ApiUtils from "../utils/ApiUtils";
 
 
@@ -23,11 +23,10 @@ namespace AgentsAPI {
         ragAssetIds: string[] | undefined,
         funcCallAssetIds: string[] | undefined,
     ): Promise<api.CreateOrUpdateAgentResponse> {
-        return _createOrupdateAgent(true, undefined, undefined, baseModelUri, name, systemPrompt, ragAssetIds, funcCallAssetIds);
+        return _createOrupdateAgent(true, undefined, baseModelUri, name, systemPrompt, ragAssetIds, funcCallAssetIds);
     }
 
     export async function updateAgent(
-        id: string,
         agentUri: string,
         baseModelUri: string | undefined,
         name: string | undefined,
@@ -35,7 +34,7 @@ namespace AgentsAPI {
         ragAssetIds: string[],
         funcCallAssetIds: string[],
     ): Promise<api.CreateOrUpdateAgentResponse> {
-        return _createOrupdateAgent(false, id, agentUri, baseModelUri, name, systemPrompt, ragAssetIds, funcCallAssetIds);
+        return _createOrupdateAgent(false, agentUri, baseModelUri, name, systemPrompt, ragAssetIds, funcCallAssetIds);
     }
 
     export async function deleteAgent(
@@ -51,7 +50,6 @@ namespace AgentsAPI {
 
     async function _createOrupdateAgent(
         isCreate: boolean,
-        id: string | undefined,
         agentUri: string | undefined,
         baseModelUri: string | undefined,
         name: string | undefined,
@@ -60,7 +58,15 @@ namespace AgentsAPI {
         funcCallAssetIds: string[] | undefined,
     ): Promise<api.CreateOrUpdateAgentResponse> {
         const apiEndpoint = APIConfig.getApiEndpoint();
-        const endpoint = isCreate ? `${apiEndpoint}${consts.ADMIN_CTRL_PREFIX}/agents/` : `${apiEndpoint}${consts.ADMIN_CTRL_PREFIX}/agents/${id}`;
+
+        let endpoint: string = `${apiEndpoint}${consts.ADMIN_CTRL_PREFIX}/agents/`;
+        if (!isCreate) {
+            const agentId = AifUtils.getAgentId(agentUri ?? "");
+            if (!agentId) {
+                throw new Error("Invalid agentUri");
+            }
+            endpoint = endpoint + agentId;
+        }
 
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
