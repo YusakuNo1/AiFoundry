@@ -1,3 +1,9 @@
+import {
+    ChatHistoryMessage as DatabaseChatHistoryMessage,
+    ChatHistoryEntity as DatabaseChatHistoryEntity,
+    ChatHistoryMessageContent as DatabaseChatHistoryMessageContent,
+} from "../../database/ChatHistoryEntity";
+
 export const TextFormats = ["plain", "markdown", "latex"] as const;
 export const TextFormatDisplayNames = {
     plain: "Plain Text",
@@ -16,3 +22,9 @@ export enum ChatRole {
     USER = 'USER',
     ASSISTANT = 'ASSISTANT',
 }
+
+export type ChatHistoryMessage = Omit<DatabaseChatHistoryMessage, "ENTITY_NAME" | "version">;
+
+export type ChatHistoryEntity = Omit<DatabaseChatHistoryEntity, "ENTITY_NAME" | "version">;
+
+export type ChatHistoryMessageContent = DatabaseChatHistoryMessageContent;

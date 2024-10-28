@@ -4,3 +4,6 @@ export type ApiOutStreamMessage = {
     type: ApiOutStreamMessageType;
     message: string;
 }
+
+export const LlmFeatures = ["all", "conversational", "vision", "embedding", "tools"] as const;
+export type LlmFeature = typeof LlmFeatures[number];

@@ -5,9 +5,6 @@ import {
 	LmProviderProperty as DatabaseLmProviderProperty,
 } from "../../database/LmProviderEntity";
 
-export const LlmFeatures = ["all", "conversational", "vision", "embedding", "tools"] as const;
-export type LlmFeature = typeof LlmFeatures[number];
-
 export type LmProviderBaseModelInfo = DatabaseLmProviderBaseModelInfo;
 export type LmProviderBaseModelLocalInfo = DatabaseLmProviderBaseModelLocalInfo;
 

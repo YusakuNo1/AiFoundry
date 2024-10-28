@@ -1,22 +1,21 @@
 import * as React from "react";
 import { useSelector } from "react-redux";
-import { api, consts, type database, type messages } from "aifoundry-vscode-shared";
+import { api, consts, type messages } from "aifoundry-vscode-shared";
 import { store } from "../store/store";
-import { pageInfoSlice, setPageType } from "../store/pageInfoSlice";
-import BasePage, { RowSelectionItem } from "./BasePage";
+import { setPageType } from "../store/pageInfoSlice";
+import BasePage from "./BasePage";
 import { chatInfoSlice, initPlayground } from "../store/chatInfoSlice";
 import { RootState } from '../store/store';
 
 
 interface Props {
-    // data: database.AgentEntity;
     onPostMessage: (message: messages.IMessage) => void;
 }
 
 const AgentDetailsPage: React.FC<Props> = (props: Props) => {
     const [outputFormatIndex, setOutputFormatIndex] = React.useState<number>(api.TextFormats.indexOf(api.defaultTextFormat));
     const embeddings = useSelector((state: RootState) => state.serverData.embeddings);
-    const functions = useSelector((state: RootState) => state.serverData.functions);
+    // const functions = useSelector((state: RootState) => state.serverData.functions);
     const agentId = useSelector((state: RootState) => state.serverData.agentId);
     const agents = useSelector((state: RootState) => state.serverData.agents);
 
@@ -59,11 +58,11 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
         return map;
     }, [embeddings]);
 
-    const functionMap = React.useMemo(() => {
-        const map: Record<string, api.FunctionEntity> = {};
-        functions.forEach(func => map[func.id] = func);
-        return map;
-    }, [functions]);
+    // const functionMap = React.useMemo(() => {
+    //     const map: Record<string, api.FunctionEntity> = {};
+    //     functions.forEach(func => map[func.id] = func);
+    //     return map;
+    // }, [functions]);
 
     const onPostMessage = React.useCallback((type: messages.MessageEditInfoAgentsType) => {
         if (!agent) {
@@ -138,12 +137,12 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
         }) ?? [];
     }, [agent, embeddingMap]);
 
-    const functionAssetsItems = React.useMemo(() => {
-        return agent?.functionAssetIds?.map(id => {
-            const name = functionMap[id]?.name ? `${functionMap[id].name} (${id})` : id;
-            return { name };
-        }) ?? [];
-    }, [agent, functionMap]);
+    // const functionAssetsItems = React.useMemo(() => {
+    //     return agent?.functionAssetIds?.map(id => {
+    //         const name = functionMap[id]?.name ? `${functionMap[id].name} (${id})` : id;
+    //         return { name };
+    //     }) ?? [];
+    // }, [agent, functionMap]);
 
     if (!agent) {
         return null;

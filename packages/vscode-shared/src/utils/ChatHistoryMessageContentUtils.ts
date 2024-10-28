@@ -1,9 +1,5 @@
-import { Marked } from "marked";
-import { TextFormat } from "../api/types/chat";
 import { UploadFileInfo } from "../misc/common";
 import { ChatHistoryMessageContent } from "../database/ChatHistoryEntity";
-
-const marked = new Marked();
 
 namespace ChatHistoryMessageContentUtils {
     export function createChatHistoryMessageContent(text: string, files: UploadFileInfo[]): ChatHistoryMessageContent {
@@ -29,19 +25,6 @@ namespace ChatHistoryMessageContentUtils {
             }
         }
         return null;
-    }
-
-    export async function getAndConvertMessageContentText(messageContent: ChatHistoryMessageContent, contentTextFormat: TextFormat): Promise<string | null> {
-        const text = getMessageContentText(messageContent);
-        if (!text) {
-            return null;
-        }
-
-        if (contentTextFormat === "markdown") {
-            return (await marked.parse(text)) ?? text;
-        } else {
-            return text;
-        }
     }
 
     export function getMessageContentText(messageContent: ChatHistoryMessageContent): string | null {

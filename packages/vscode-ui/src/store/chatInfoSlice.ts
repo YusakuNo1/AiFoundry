@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { api, ChatHistoryMessageContentUtils, type database } from "aifoundry-vscode-shared";
+import { api, ChatHistoryMessageContentUtils } from "aifoundry-vscode-shared";
 
 
 interface ChatInfoState {
     aifSessionId: string | null;
     aifAgentUri: string | null;
     outputFormat: api.TextFormat;
-    messages: database.ChatHistoryMessage[];
+    messages: api.ChatHistoryMessage[];
 }
 
 const initialState: ChatInfoState = {
@@ -28,12 +28,12 @@ export const chatInfoSlice = createSlice({
             state.aifAgentUri = action.payload.aifAgentUri;
             state.outputFormat = action.payload.outputFormat;
         },
-        setChatHistory: (state, action: PayloadAction<database.ChatHistoryEntity>) => {
+        setChatHistory: (state, action: PayloadAction<api.ChatHistoryEntity>) => {
             state.aifSessionId = action.payload.id;
             state.messages = action.payload.messages;
         },
         appendChatUserMessage: (state, action: PayloadAction<{
-            content: database.ChatHistoryMessageContent,
+            content: api.ChatHistoryMessageContent,
             contentTextFormat: api.TextFormat,
         }>) => {
             // For user chat message, always append it since it's from local, we have no session ID
@@ -47,7 +47,7 @@ export const chatInfoSlice = createSlice({
         // For non-streaming, append chat assistant message
         appendChatAssistantMessage: (state, action: PayloadAction<{
             aifSessionId: string,
-            content: database.ChatHistoryMessageContent,
+            content: api.ChatHistoryMessageContent,
             contentTextFormat: api.TextFormat,
         }>) => {
             if (state.aifSessionId === null) {
@@ -90,7 +90,7 @@ export const chatInfoSlice = createSlice({
             }
         },
         // For streaming, append chunks to the last chat assistant message
-        updateLastChatAssistantMessage: (state, action: PayloadAction<{ aifSessionId: string, content: database.ChatHistoryMessageContent, contentTextFormat: api.TextFormat }>) => {
+        updateLastChatAssistantMessage: (state, action: PayloadAction<{ aifSessionId: string, content: api.ChatHistoryMessageContent, contentTextFormat: api.TextFormat }>) => {
             if (state.aifSessionId === null) {
                 state.aifSessionId = action.payload.aifSessionId;
             }

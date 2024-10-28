@@ -1,6 +1,6 @@
 import { type messages } from "aifoundry-vscode-shared";
 import { store } from "./store/store";
-import { setPageType, pageInfoSlice } from "./store/pageInfoSlice";
+import { pageInfoSlice } from "./store/pageInfoSlice";
 import {
     appendChatAssistantMessage,
     appendToLastChatAssistantMessage,
@@ -19,7 +19,7 @@ import {
 
 
 namespace AppEventUtils {
-    export let isRegistered = false;
+    let isRegistered = false;
 
     export function registerEvents(): boolean {
         if (isRegistered) {

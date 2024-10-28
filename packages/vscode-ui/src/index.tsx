@@ -1,7 +1,7 @@
 import React from "react";
 import { Provider } from "react-redux";
 import ReactDOM from "react-dom/client";
-import { FluentProvider, teamsDarkTheme } from "@fluentui/react-components";
+import { FluentProvider } from "@fluentui/react-components";
 
 import App from "./App";
 import { currentTheme } from "./theme/themes";

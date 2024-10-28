@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
-import { type api, type messages } from "aifoundry-vscode-shared";
+import { type messages } from "aifoundry-vscode-shared";
 import { consts } from "aifoundry-vscode-shared";
 import BasePage from "./BasePage";
 import ConfigUtils from "../utils/ConfigUtils";

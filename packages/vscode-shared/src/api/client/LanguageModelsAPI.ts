@@ -6,8 +6,8 @@ import {
     UpdateLmProviderInfoRequest,
     UpdateLmProviderModelRequest,
     UpdateLmProviderResponse,
-    LlmFeature,
 } from "../types/languageModels";
+import { LlmFeature } from "../types";
 import { ADMIN_CTRL_PREFIX, QUERY_PARAM_FORCE } from '../../consts/misc';
 import { Config } from "./config";
 import ApiUtils from "./ApiUtils";

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useSelector } from "react-redux";
+import Markdown from 'marked-react';
 import { DefaultButton, TextField, Stack } from '@fluentui/react';
 import { Image as FluentUIImage } from '@fluentui/react-components';
 import {
@@ -7,7 +8,7 @@ import {
     LightbulbFilamentRegular as AiIcon,
   } from '@fluentui/react-icons';
 import { Text } from '@fluentui/react/lib/Text';
-import { api, ChatHistoryMessageContentUtils, type database, consts, messages, misc } from "aifoundry-vscode-shared";
+import { api, ChatHistoryMessageContentUtils, consts, messages, misc } from "aifoundry-vscode-shared";
 import { appendChatUserMessage } from "../store/chatInfoSlice";
 import { getTextColor, getBackgroundColor, getChatBgColorUser, getChatBgColorAi } from "../theme/themes";
 import { RootState, store } from "../store/store";
@@ -21,11 +22,6 @@ interface Props {
 // const ICON_SIZE = "64px";
 const ICON_SIZE = 32;
 
-// Add converted content to the message, e.g. convert markdown to HTML
-type PageChatHistoryMessage = database.ChatHistoryMessage & {
-    convertedContent: string;
-};
-
 const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
     const inputRef = React.useRef<HTMLInputElement>(null);
     const textColor = React.useMemo(() => getTextColor(), []);
@@ -35,21 +31,9 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
     const aifAgentUri = useSelector((state: RootState) => state.chatInfo.aifAgentUri);
     const outputFormat = useSelector((state: RootState) => state.chatInfo.outputFormat);
     const chatHistoryMessages = useSelector((state: RootState) => state.chatInfo.messages);
-    const [pageChatHistoryMessages, setPageChatHistoryMessages] = React.useState<PageChatHistoryMessage[]>([]);
     const aifSessionId = useSelector((state: RootState) => state.chatInfo.aifSessionId);
     const [inputText, setInputText] = React.useState('');
     const [chatHistoryMessageFiles, setChatHistoryMessageFiles] = React.useState<misc.UploadFileInfo[]>([]);
-
-    React.useEffect(() => {
-        async function run() {
-            const _pageChatHistoryMessages = await Promise.all(chatHistoryMessages.map(async (message) => {
-                const convertedContent = await ChatHistoryMessageContentUtils.getAndConvertMessageContentText(message.content, message.contentTextFormat as api.TextFormat) ?? "";
-                return {...message, convertedContent};
-            }));
-            setPageChatHistoryMessages(_pageChatHistoryMessages);
-        }
-        run();
-    }, [chatHistoryMessages]);
 
     React.useEffect(() => {
         const inputField = document.getElementById("chat-input");
@@ -87,7 +71,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
         if (inputRef.current) {
             inputRef.current.value = "";
         }
-    }, [props, aifSessionId, inputText, chatHistoryMessageFiles, inputRef]);
+    }, [props, aifAgentUri, aifSessionId, inputText, chatHistoryMessageFiles, inputRef, outputFormat]);
 
     const onChangeInputText = React.useCallback((event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
         setInputText(newValue || "");
@@ -114,17 +98,17 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
         process();
     }, []);
 
-    const renderMessageRow = (message: PageChatHistoryMessage, index: number) => {
+    const renderMessageRow = (message: api.ChatHistoryMessage, index: number) => {
         const isUser = message.role === api.ChatRole.USER;
+        const contentText = ChatHistoryMessageContentUtils.getMessageContentTextSync(message.content) ?? "";
         return (
             <Stack horizontal tokens={{ childrenGap: 10 }} style={{ margin: 8 }} key={`message-${index}`}>
                 <Stack.Item styles={{ root: { width: ICON_SIZE } }}>
                     <UserIcon style={{ width: ICON_SIZE, height: ICON_SIZE, visibility: isUser ? "visible" : "hidden" }} />
                 </Stack.Item>
                 <Stack.Item grow style={{ backgroundColor: isUser ? chatBgColorUser : chatBgColorAi }}>
-                    <Text style={{ color: textColor, marginLeft: '8px', marginRight: '8px' }}>
-                        <div style={{ marginLeft: '8px', marginRight: '8px' }} dangerouslySetInnerHTML={{ __html: message.convertedContent }} />
-                    </Text>
+                    {message.contentTextFormat === "markdown" && <div style={{ marginLeft: '8px', marginRight: '8px' }}><Markdown>{contentText}</Markdown></div>}
+                    {message.contentTextFormat !== "markdown" && <Text style={{ color: textColor, marginLeft: '8px', marginRight: '8px' }}>{contentText}</Text>}
                     {ChatHistoryMessageContentUtils.getMessageContentImageUrl(message.content).map((imageUrl, index) =>
                         <FluentUIImage key={`file-${index}`} src={imageUrl} style={{ padding: '2px', border: 2, borderColor: 'black' }} />
                     )}
@@ -139,8 +123,7 @@ const ModelPlaygroundPage: React.FC<Props> = (props: Props) => {
     return (
         <>
             <Text style={{ color: textColor, padding: 8, display: 'flex' }} variant="large">Playground</Text>
-
-            {pageChatHistoryMessages.map((message, index) => renderMessageRow(message, index))}
+            {chatHistoryMessages.map((message, index) => renderMessageRow(message, index))}
             <Stack horizontal tokens={{ childrenGap: 10 }} style={{ alignItems: "center" }}>
                 <TextField
                     styles={{ root: { flexGrow: 1 } }}
