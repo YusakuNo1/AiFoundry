@@ -1,28 +1,28 @@
-import type { api } from "aifoundry-vscode-shared";
-import { consts } from 'aifoundry-vscode-shared';
-import { APIConfig } from "./config";
-import ApiUtils from "../utils/ApiUtils";
+import { AifFunctionType, CreateOrUpdateFunctionResponse, ListFunctionsResponse, UpdateFunctionRequest } from '../types/functions';
+import { ADMIN_CTRL_PREFIX } from '../../consts/misc';
+import { Config } from "./config";
+import ApiUtils from "./ApiUtils";
 
 
 namespace FunctionsAPI {
-    export async function listFunctions(): Promise<api.ListFunctionsResponse> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/functions`;
+    export async function listFunctions(): Promise<ListFunctionsResponse> {
+        const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/functions`;
         return fetch(endpoint, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
         })
-            .then(ApiUtils.processApiResponse<api.ListFunctionsResponse>);
+            .then(ApiUtils.processApiResponse<ListFunctionsResponse>);
     }
 
     export async function createFunction(
-        type: api.AifFunctionType,
+        type: AifFunctionType,
         name: string | undefined,
         functionsPath: string,
         functionsName: string,
-    ): Promise<api.CreateOrUpdateFunctionResponse> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/functions`;
+    ): Promise<CreateOrUpdateFunctionResponse> {
+        const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/functions`;
         const body = {
             type,
             name,
@@ -36,15 +36,15 @@ namespace FunctionsAPI {
             },
             body: JSON.stringify(body),
         })
-            .then(ApiUtils.processApiResponse<api.CreateOrUpdateFunctionResponse>);
+            .then(ApiUtils.processApiResponse<CreateOrUpdateFunctionResponse>);
     }
 
     export async function updateFunction(
         id: string,
         name: string,
-    ): Promise<api.CreateOrUpdateFunctionResponse> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/functions`;
-        const body: api.UpdateFunctionRequest = { id, name };
+    ): Promise<CreateOrUpdateFunctionResponse> {
+        const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/functions`;
+        const body: UpdateFunctionRequest = { id, name };
         return fetch(endpoint, {
             method: "PUT",
             headers: {
@@ -52,11 +52,11 @@ namespace FunctionsAPI {
             },
             body: JSON.stringify(body),
         })
-            .then(ApiUtils.processApiResponse<api.CreateOrUpdateFunctionResponse>);
+            .then(ApiUtils.processApiResponse<CreateOrUpdateFunctionResponse>);
     }
 
     export async function deleteFunction(id: string): Promise<void> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/functions/${id}`;
+        const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/functions/${id}`;
         return fetch(endpoint, {
             method: "DELETE",
         })

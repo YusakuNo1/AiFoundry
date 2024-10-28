@@ -3,7 +3,7 @@ import {
 	LmProviderBaseModelInfo as DatabaseLmProviderBaseModelInfo,
 	LmProviderBaseModelLocalInfo as DatabaseLmProviderBaseModelLocalInfo,
 	LmProviderProperty as DatabaseLmProviderProperty,
-} from "../database/LmProviderEntity";
+} from "../../database/LmProviderEntity";
 
 export const LlmFeatures = ["all", "conversational", "vision", "embedding", "tools"] as const;
 export type LlmFeature = typeof LlmFeatures[number];

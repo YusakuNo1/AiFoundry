@@ -1,19 +1,25 @@
-import { APIConfig } from "./config";
-import type { api } from 'aifoundry-vscode-shared';
-import { AifUtils, consts } from 'aifoundry-vscode-shared';
-import ApiUtils from "../utils/ApiUtils";
 
+import {
+    CreateAgentRequest,
+    CreateOrUpdateAgentResponse,
+    ListAgentsResponse,
+    UpdateAgentRequest,
+} from "../types/agents";
+import { ADMIN_CTRL_PREFIX } from "../../consts/misc";
+import { Config } from "./config";
+import AifUtils from "../../utils/AifUtils";
+import ApiUtils from "./ApiUtils";
 
 namespace AgentsAPI {
-    export async function list(): Promise<api.ListAgentsResponse> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/agents`;
+    export async function list(): Promise<ListAgentsResponse> {
+        const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/agents`;
         return fetch(endpoint, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
         })
-            .then(ApiUtils.processApiResponse<api.ListAgentsResponse>);
+            .then(ApiUtils.processApiResponse<ListAgentsResponse>);
     }
 
     export async function createAgent(
@@ -22,7 +28,7 @@ namespace AgentsAPI {
         systemPrompt: string | undefined,
         ragAssetIds: string[] | undefined,
         funcCallAssetIds: string[] | undefined,
-    ): Promise<api.CreateOrUpdateAgentResponse> {
+    ): Promise<CreateOrUpdateAgentResponse> {
         return _createOrupdateAgent(true, undefined, baseModelUri, name, systemPrompt, ragAssetIds, funcCallAssetIds);
     }
 
@@ -33,14 +39,14 @@ namespace AgentsAPI {
         systemPrompt: string | undefined,
         ragAssetIds: string[],
         funcCallAssetIds: string[],
-    ): Promise<api.CreateOrUpdateAgentResponse> {
+    ): Promise<CreateOrUpdateAgentResponse> {
         return _createOrupdateAgent(false, agentUri, baseModelUri, name, systemPrompt, ragAssetIds, funcCallAssetIds);
     }
 
     export async function deleteAgent(
         embeddingAssetId: string,
     ): Promise<void> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/agents/${embeddingAssetId}`;
+        const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/agents/${embeddingAssetId}`;
 
         return fetch(endpoint, {
             method: "DELETE",
@@ -56,10 +62,10 @@ namespace AgentsAPI {
         systemPrompt: string | undefined,
         ragAssetIds: string[] | undefined,
         funcCallAssetIds: string[] | undefined,
-    ): Promise<api.CreateOrUpdateAgentResponse> {
-        const apiEndpoint = APIConfig.getApiEndpoint();
+    ): Promise<CreateOrUpdateAgentResponse> {
+        const apiEndpoint = Config.getApiEndpoint();
 
-        let endpoint: string = `${apiEndpoint}${consts.ADMIN_CTRL_PREFIX}/agents/`;
+        let endpoint: string = `${apiEndpoint}${ADMIN_CTRL_PREFIX}/agents/`;
         if (!isCreate) {
             const agentId = AifUtils.getAgentId(agentUri ?? "");
             if (!agentId) {
@@ -71,13 +77,13 @@ namespace AgentsAPI {
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
 
-        let body: api.CreateAgentRequest | api.UpdateAgentRequest;
+        let body: CreateAgentRequest | UpdateAgentRequest;
         if (isCreate) {
             if (!name || !baseModelUri || !ragAssetIds || !funcCallAssetIds) {
                 throw new Error("Missing required fields");
             }
 
-            const _body: api.CreateAgentRequest = {
+            const _body: CreateAgentRequest = {
                 basemodelUri: baseModelUri!,
                 name: name,
                 systemPrompt: systemPrompt,
@@ -86,7 +92,7 @@ namespace AgentsAPI {
             };
             body = _body;
         } else {
-            const _body: api.UpdateAgentRequest = {
+            const _body: UpdateAgentRequest = {
                 agentUri: agentUri!,
                 basemodelUri: baseModelUri,
                 name: name,
@@ -102,7 +108,7 @@ namespace AgentsAPI {
             headers: headers,
             body: JSON.stringify(body),
         })
-            .then(ApiUtils.processApiResponse<api.CreateOrUpdateAgentResponse>);
+            .then(ApiUtils.processApiResponse<CreateOrUpdateAgentResponse>);
     }
 }
 

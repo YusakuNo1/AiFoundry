@@ -1,24 +1,24 @@
-import * as vscode from 'vscode';
 import { Observable } from 'rxjs';
-import { type api, consts } from 'aifoundry-vscode-shared';
-import { APIConfig } from "./config";
+import { Config } from './config';
+import { Markup } from "../../consts/Markup";
+import { TextFormat } from "../types/chat";
+import { COOKIE_AIF_SESSION_ID, HEADER_AIF_AGENT_URI } from '../../consts/misc';
 import CookiesUtils from "./CookiesUtils";
-
 
 namespace ChatAPI {
     export function chat(
         input: string,
         files: File[],
-        outputFormat: api.TextFormat,
+        outputFormat: TextFormat,
         aifSessionId: string | null,
         aifAgentUri: string,
     ): Observable<string> {
-        const endpoint = `${APIConfig.getApiEndpoint()}/chat/?outputFormat=${outputFormat}`;
+        const endpoint = `${Config.getApiEndpoint()}/chat/?outputFormat=${outputFormat}`;
         const headers = new Headers();
         if (aifSessionId) {
-            headers.append("Cookie", `${consts.COOKIE_AIF_SESSION_ID}=${aifSessionId}`);
+            headers.append("Cookie", `${COOKIE_AIF_SESSION_ID}=${aifSessionId}`);
         }
-        headers.append(consts.HEADER_AIF_AGENT_URI, aifAgentUri);
+        headers.append(HEADER_AIF_AGENT_URI, aifAgentUri);
 
         const formData = new FormData();
         formData.append("input", input);      
@@ -31,29 +31,26 @@ namespace ChatAPI {
         }
 
         return new Observable<string>((subscriber) => {
-            function outputError(message: string) {
-                vscode.window.showErrorMessage(`Failed to send chat message ${message}`);
-                subscriber.complete();
-            }
-
             fetch(endpoint, {
                 method: "POST",
                 headers: headers,
                 body: formData,
             }).then(async (response) => {
                 if (!response.ok || !response.body || !response.headers) {
-                    outputError("");
+                    subscriber.error("Failed to get chat message response");
+                    subscriber.complete();
                     return;
                 }
     
-                const aifSessionId = CookiesUtils.getCookieFromHeaders(response.headers.getSetCookie(), consts.COOKIE_AIF_SESSION_ID);
+                const aifSessionId = CookiesUtils.getCookieFromHeaders(response.headers.getSetCookie(), COOKIE_AIF_SESSION_ID);
                 if (aifSessionId) {
-                    subscriber.next(consts.Markup.Varialbe.Create(consts.COOKIE_AIF_SESSION_ID, aifSessionId));
+                    subscriber.next(Markup.Varialbe.Create(COOKIE_AIF_SESSION_ID, aifSessionId));
                 }
 
                 const reader = response.body.getReader();
                 if (!reader) {
-                    outputError("Failed to send chat message");
+                    subscriber.error("Failed to get chat message response");
+                    subscriber.complete();
                     return;
                 }
     
@@ -68,7 +65,8 @@ namespace ChatAPI {
 
                 subscriber.complete();
             }).catch((error) => {
-                outputError(error.toString());
+                subscriber.error(`Failed to get chat message response: ${error}`);
+                subscriber.complete();
             });
         });
     }

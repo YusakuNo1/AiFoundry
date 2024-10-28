@@ -1,4 +1,4 @@
-import { EmbeddingEntity } from "../api/embeddings";
+import { EmbeddingEntity } from "../api/types/embeddings";
 import * as shared from "./shared";
 
 export const MessageEditInfoEmbeddingsTypes = [

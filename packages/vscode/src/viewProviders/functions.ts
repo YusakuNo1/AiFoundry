@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import type { api } from 'aifoundry-vscode-shared';
+import { api } from 'aifoundry-vscode-shared';
 import { consts } from 'aifoundry-vscode-shared';
-import FunctionsAPI from '../api/FunctionsAPI';
 import AifPanel from '../panels/AifPanel';
 import AifTreeItem from '../types/AifTreeItem';
 import { IViewProvider, VIEW_PROVIDER_RETRY_COUNT, VIEW_PROVIDER_RETRY_INTERVAL } from './base';
@@ -60,7 +59,7 @@ export class AifFunctionsViewProvider implements IViewProvider {
 
 	private _refresh(functionId?: string): Promise<boolean> {
 		this._functions = undefined;
-		return FunctionsAPI.listFunctions()
+		return api.FunctionsAPI.listFunctions()
 			.then((response) => {
 				this._functions = response.functions;
 				this._onDidChangeTreeData.fire();

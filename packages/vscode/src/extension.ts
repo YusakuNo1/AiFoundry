@@ -1,6 +1,6 @@
 'use strict';
 import * as vscode from 'vscode';
-import { consts } from 'aifoundry-vscode-shared';
+import { api, consts } from 'aifoundry-vscode-shared';
 import { setupServer } from 'aifoundry-server-js';
 import { VIEW_PROVIDER_RETRY_COUNT } from './viewProviders/base';
 import { AifMainViewProvider } from './viewProviders/main';
@@ -20,6 +20,11 @@ import AifPanelUtils from './panels/AifPanelUtils';
 export function activate(context: vscode.ExtensionContext) {
 	// This function is called when the extension is started
 	LaunchUtils.setupFolders();
+	// Setup message functions
+	api.ApiOutStreamMessageUtils.registerMessageFunc("info", vscode.window.showInformationMessage);
+	api.ApiOutStreamMessageUtils.registerMessageFunc("success", vscode.window.showInformationMessage);
+	api.ApiOutStreamMessageUtils.registerMessageFunc("warning", vscode.window.showWarningMessage);
+	api.ApiOutStreamMessageUtils.registerMessageFunc("error", vscode.window.showErrorMessage);
 
 	if (consts.AppConfig.MODE === "dev") {
 		LaunchUtils.installDevExtensions();

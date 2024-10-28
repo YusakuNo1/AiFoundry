@@ -1,9 +1,9 @@
-import { FunctionEntity } from '../api/functions';
-import type { AgentEntity } from '../api/agents';
-import type { EmbeddingEntity } from '../api/embeddings';
+import { FunctionEntity } from '../api/types/functions';
+import type { AgentEntity } from '../api/types/agents';
+import type { EmbeddingEntity } from '../api/types/embeddings';
 import type { ChatHistoryMessageContent } from '../database/ChatHistoryEntity';
-import { TextFormat } from '../api/chat';
-import { LmProviderInfoResponse } from '../api/languageModels';
+import { TextFormat } from '../api/types/chat';
+import { LmProviderInfoResponse } from '../api/types/languageModels';
 import * as shared from "./shared";
 
 const IStoreUpdateTypes = [

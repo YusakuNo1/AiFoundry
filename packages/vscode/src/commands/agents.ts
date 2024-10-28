@@ -1,12 +1,8 @@
 'use strict';
 import * as vscode from 'vscode';
-import { type api, consts } from 'aifoundry-vscode-shared';
-import EmbeddingsAPI from '../api/EmbeddingsAPI';
-import AgentsAPI from '../api/AgentsAPI';
-import LanguageModelsAPI from '../api/LanguageModelsAPI';
+import { api, consts } from 'aifoundry-vscode-shared';
 import { IViewProvider } from '../viewProviders/base';
 import CommandUtils from './utils';
-import FunctionsAPI from '../api/FunctionsAPI';
 
 namespace AgentsCommands {
 	export function setupCommands(context: vscode.ExtensionContext, agentsViewProvider: IViewProvider) {
@@ -56,7 +52,7 @@ namespace AgentsCommands {
 				// if result is undefined, the user cancelled the input box
 				if (result) {
 					const name = result;
-					AgentsAPI.list().then((response) => {
+					api.AgentsAPI.list().then((response) => {
 						const agent = response.agents.find(agent => agent.id === id);
 						if (!agent) {
 							throw new Error('Agent not found');
@@ -65,7 +61,7 @@ namespace AgentsCommands {
 						}
 					}).then((agent) => {
 						const newAgent = { ...agent, name };
-						return AgentsAPI.updateAgent(newAgent.agentUri, newAgent.basemodelUri, newAgent.name, newAgent.systemPrompt, newAgent.ragAssetIds, newAgent.functionAssetIds).then(() => {
+						return api.AgentsAPI.updateAgent(newAgent.agentUri, newAgent.basemodelUri, newAgent.name, newAgent.systemPrompt, newAgent.ragAssetIds, newAgent.functionAssetIds).then(() => {
 							agentsViewProvider.refresh(id);
 							vscode.window.showInformationMessage('Agent name is updated');
 						});	
@@ -83,7 +79,7 @@ namespace AgentsCommands {
 				if (result !== undefined) {
 					result = result ?? "";
 					const systemPrompt = result;
-					AgentsAPI.list().then((response) => {
+					api.AgentsAPI.list().then((response) => {
 						const agent = response.agents.find(agent => agent.id === id);
 						if (!agent) {
 							throw new Error('Agent not found');
@@ -92,7 +88,7 @@ namespace AgentsCommands {
 						}
 					}).then((agent) => {
 						const newAgent = { ...agent, systemPrompt };
-						return AgentsAPI.updateAgent(newAgent.agentUri, newAgent.basemodelUri, newAgent.name, newAgent.systemPrompt, newAgent.ragAssetIds, newAgent.functionAssetIds).then(() => {
+						return api.AgentsAPI.updateAgent(newAgent.agentUri, newAgent.basemodelUri, newAgent.name, newAgent.systemPrompt, newAgent.ragAssetIds, newAgent.functionAssetIds).then(() => {
 							agentsViewProvider.refresh(id);
 							vscode.window.showInformationMessage('System prompt is updated');
 						});	
@@ -104,7 +100,7 @@ namespace AgentsCommands {
 	}
 
 	export function startdeleteAgentFlow(agentsViewProvider: IViewProvider, id: string) {
-		AgentsAPI.deleteAgent(id).then(() => {
+		api.AgentsAPI.deleteAgent(id).then(() => {
 			agentsViewProvider.refresh();
 			vscode.window.showInformationMessage(`Agent is deleted successfully`);
 		})
@@ -119,7 +115,7 @@ namespace AgentsCommands {
 }
 
 async function _showChatLlmOptions(isCreate: boolean, agentsViewProvider: IViewProvider, name: string): Promise<void> {
-	return LanguageModelsAPI.listLanguageModelsChat().then((response) => {
+	return api.LanguageModelsAPI.listLanguageModelsChat().then((response) => {
 		if (response.basemodels.length === 0) {
 			vscode.window.showErrorMessage('No LLM models found, please setup at least one language model provider with models');
 		} else {
@@ -144,7 +140,7 @@ async function _showChatLlmOptions(isCreate: boolean, agentsViewProvider: IViewP
 }
 
 async function _showEmbeddingAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, basemodelOrAgentUri: string, name: string | undefined, selectedEmbeddingIds: string[] = []): Promise<void> {
-	return EmbeddingsAPI.getEmbeddings().then((response) => {
+	return api.EmbeddingsAPI.getEmbeddings().then((response) => {
 		if (response.embeddings.length === 0) {
 			if (consts.AppConfig.ENABLE_FUNCTIONS) {
 				return _showFunctionsAssetIds(isCreate, agentsViewProvider, basemodelOrAgentUri, name, []);
@@ -180,7 +176,7 @@ async function _showEmbeddingAssetIds(isCreate: boolean, agentsViewProvider: IVi
 }
 
 async function _showFunctionsAssetIds(isCreate: boolean, agentsViewProvider: IViewProvider, basemodelOrAgentUri: string, name: string | undefined, embeddings: api.EmbeddingEntity[]): Promise<void> {
-	return FunctionsAPI.listFunctions().then((response) => {
+	return api.FunctionsAPI.listFunctions().then((response) => {
 		if (response.functions.length === 0) {
 			return _createOrUpdateAgent(isCreate, agentsViewProvider, basemodelOrAgentUri, name, embeddings);
 		} else {
@@ -210,11 +206,11 @@ async function _createOrUpdateAgent(isCreate: boolean, agentsViewProvider: IView
 	if (isCreate) {
 		const ragAssetIds = embeddings.map(embedding => embedding.id);
 		const functionAssetIds = functions.map(func => func.id);
-		promise = AgentsAPI.createAgent(basemodelOrAgentUri, name, undefined, ragAssetIds, functionAssetIds);
+		promise = api.AgentsAPI.createAgent(basemodelOrAgentUri, name, undefined, ragAssetIds, functionAssetIds);
 	} else {
 		const ragAssetIds = embeddings.map(embedding => embedding.id);
 		const functionAssetIds = functions.map(func => func.id);
-		promise = AgentsAPI.updateAgent(basemodelOrAgentUri, undefined, name, undefined, ragAssetIds, functionAssetIds);
+		promise = api.AgentsAPI.updateAgent(basemodelOrAgentUri, undefined, name, undefined, ragAssetIds, functionAssetIds);
 	}
 
 	return promise.then(() => {

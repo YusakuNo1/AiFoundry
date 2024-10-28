@@ -1,4 +1,4 @@
-import type { AgentEntity as DatabaseAgentEntity } from "../database/AgentEntity";
+import type { AgentEntity as DatabaseAgentEntity } from "../../database/AgentEntity";
 
 export type AgentEntity = Omit<DatabaseAgentEntity, "ENTITY_NAME" | "version">;
 

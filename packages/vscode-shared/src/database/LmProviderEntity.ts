@@ -1,4 +1,4 @@
-import { LlmFeature } from "../api";
+import { LlmFeature } from "../api/types";
 import { BaseEntity } from "./BaseEntity";
 
 export type LmProviderProperty = {

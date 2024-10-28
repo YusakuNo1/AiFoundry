@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { ApiOutStreamMessage } from '../api';
+import { ApiOutStreamMessage } from '../api/types';
 
 namespace StreamingUtils {
     // Not used in the codebase for now

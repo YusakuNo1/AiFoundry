@@ -1,10 +1,6 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
-import type { api } from 'aifoundry-vscode-shared';
-import { consts } from 'aifoundry-vscode-shared';
-import EmbeddingsAPI from '../api/EmbeddingsAPI';
+import { api, consts } from 'aifoundry-vscode-shared';
 import AifPanel from '../panels/AifPanel';
-import AifPanelTypes from '../panels/types';
 import AifTreeItem from '../types/AifTreeItem';
 import { IViewProvider, VIEW_PROVIDER_RETRY_COUNT, VIEW_PROVIDER_RETRY_INTERVAL } from './base';
 import MiscUtils from '../utils/MiscUtils';
@@ -62,7 +58,7 @@ export class AifEmbeddingsViewProvider implements IViewProvider {
 
 	private _refresh(embeddingId?: string): Promise<boolean> {
 		this._embeddings = undefined;
-		return EmbeddingsAPI.getEmbeddings()
+		return api.EmbeddingsAPI.getEmbeddings()
 			.then((response) => {
 				this._embeddings = response.embeddings;
 				this._onDidChangeTreeData.fire();

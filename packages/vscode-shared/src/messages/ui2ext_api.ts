@@ -1,6 +1,6 @@
-import { TextFormat } from '../api/chat';
+import { TextFormat } from '../api/types/chat';
 import { UploadFileInfo } from '../misc/common';
-import { UpdateLmProviderInfoRequest, UpdateLmProviderModelRequest } from '../api/languageModels';
+import { UpdateLmProviderInfoRequest, UpdateLmProviderModelRequest } from '../api/types/languageModels';
 import * as shared from "./shared";
 
 const MessageApiTypes = [

@@ -1,12 +1,11 @@
 import * as vscode from 'vscode';
-import type { api } from 'aifoundry-vscode-shared';
+import { api } from 'aifoundry-vscode-shared';
 import MiscUtils from '../utils/MiscUtils';
 import { IViewProvider, VIEW_PROVIDER_RETRY_INTERVAL } from './base';
 import AifPanel from '../panels/AifPanel';
 import AifTreeItem from '../types/AifTreeItem';
 import AifPanelEvenHandlers from '../panels/AifPanelEvenHandlers';
 import AifPanelUtils from '../panels/AifPanelUtils';
-import LanguageModelsAPI from '../api/LanguageModelsAPI';
 
 
 const UnknownLmProviderIcon = "icon-unknown-provider.svg";
@@ -85,7 +84,7 @@ export class AifMainViewProvider implements IViewProvider {
 	private async _refreshLmProviders(): Promise<boolean> {
 		// Update the status of LM components
 		try {
-			const lmProviders: api.ListLmProvidersResponse = await LanguageModelsAPI.listLmProviders(true);
+			const lmProviders: api.ListLmProvidersResponse = await api.LanguageModelsAPI.listLmProviders(true);
 			this._lmProviders = lmProviders.providers;
 			AifPanelEvenHandlers.postMessageUpdateLmProviders(this._lmProviders, AifPanel.postMessage);
 			this._onDidChangeTreeData.fire();

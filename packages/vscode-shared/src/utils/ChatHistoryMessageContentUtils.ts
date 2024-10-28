@@ -1,5 +1,5 @@
 import { Marked } from "marked";
-import { TextFormat } from "../api/chat";
+import { TextFormat } from "../api/types/chat";
 import { UploadFileInfo } from "../misc/common";
 import { ChatHistoryMessageContent } from "../database/ChatHistoryEntity";
 

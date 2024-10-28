@@ -1,8 +1,6 @@
 import * as vscode from 'vscode';
-import { type api, consts, type messages } from 'aifoundry-vscode-shared';
-import AgentsAPI from '../api/AgentsAPI';
+import { api, consts } from 'aifoundry-vscode-shared';
 import AifPanel from '../panels/AifPanel';
-import AifPanelTypes from '../panels/types';
 import AifTreeItem from '../types/AifTreeItem';
 import { IViewProvider, VIEW_PROVIDER_RETRY_COUNT, VIEW_PROVIDER_RETRY_INTERVAL } from './base';
 import MiscUtils from '../utils/MiscUtils';
@@ -60,7 +58,7 @@ export class AifAgentsViewProvider implements IViewProvider {
 	}
 
 	private _refresh(agentId?: string): Promise<boolean> {
-		return AgentsAPI.list()
+		return api.AgentsAPI.list()
 			.then((response) => {
 				this._agents = response.agents;
 				this._onDidChangeTreeData.fire();

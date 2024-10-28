@@ -1,17 +1,25 @@
 import { Observable } from 'rxjs';
-import type { api } from "aifoundry-vscode-shared";
-import { consts, StreamingUtils } from "aifoundry-vscode-shared";
-import { APIConfig } from "./config";
-import ApiUtils from "../utils/ApiUtils";
+import {
+    ListLanguageModelsResponse,
+    ListLmProvidersResponse,
+    LmProviderInfoResponse,
+    UpdateLmProviderInfoRequest,
+    UpdateLmProviderModelRequest,
+    UpdateLmProviderResponse,
+    LlmFeature,
+} from "../types/languageModels";
+import { ADMIN_CTRL_PREFIX, QUERY_PARAM_FORCE } from '../../consts/misc';
+import { Config } from "./config";
+import ApiUtils from "./ApiUtils";
 import ApiOutStreamMessageUtils from "../utils/ApiOutStreamMessageUtils";
 
 
 namespace LanguageModelsAPI {
-    export async function listLanguageModelsEmbedding(): Promise<api.ListLanguageModelsResponse> {
+    export async function listLanguageModelsEmbedding(): Promise<ListLanguageModelsResponse> {
         return _listLanguageModels("embedding");
     }
 
-    export async function listLanguageModelsChat(): Promise<api.ListLanguageModelsResponse> {
+    export async function listLanguageModelsChat(): Promise<ListLanguageModelsResponse> {
         return _listLanguageModels("conversational");
     }
 
@@ -20,7 +28,7 @@ namespace LanguageModelsAPI {
     ): Observable<string> {
         return new Observable<string>((subscriber) => {
             const body = JSON.stringify({ id: lmProviderId });
-            const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/setup`;
+            const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/languagemodels/setup`;
 
             fetch(endpoint, {
                 method: "POST",
@@ -59,7 +67,7 @@ namespace LanguageModelsAPI {
         lmProviderId: string,
         id: string
     ): Promise<void> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/crud/${lmProviderId}/${id}`;
+        const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/languagemodels/crud/${lmProviderId}/${id}`;
         return fetch(endpoint, {
             method: "POST",
             headers: {
@@ -72,7 +80,7 @@ namespace LanguageModelsAPI {
         lmProviderId: string,
         id: string
     ): Promise<void> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/crud/${lmProviderId}/${id}`;
+        const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/languagemodels/crud/${lmProviderId}/${id}`;
         fetch(endpoint, {
             method: "DELETE",
             headers: {
@@ -81,34 +89,34 @@ namespace LanguageModelsAPI {
         }).then(response => ApiOutStreamMessageUtils.handleResponse(response.status, response?.body?.getReader()));
     }
 
-    export async function listLmProviders(force: boolean): Promise<api.ListLmProvidersResponse> {
-        const forceParam = force ? `?${consts.QUERY_PARAM_FORCE}=true` : "";
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers${forceParam}`;
+    export async function listLmProviders(force: boolean): Promise<ListLmProvidersResponse> {
+        const forceParam = force ? `?${QUERY_PARAM_FORCE}=true` : "";
+        const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/languagemodels/providers${forceParam}`;
         return fetch(endpoint, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
         })
-            .then(ApiUtils.processApiResponse<api.ListLmProvidersResponse>);
+            .then(ApiUtils.processApiResponse<ListLmProvidersResponse>);
     }
 
-    export async function getLmProvider(id: string, force: boolean): Promise<api.LmProviderInfoResponse> {
-        const forceParam = force ? `?${consts.QUERY_PARAM_FORCE}=true` : "";
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers/${id}${forceParam}`;
+    export async function getLmProvider(id: string, force: boolean): Promise<LmProviderInfoResponse> {
+        const forceParam = force ? `?${QUERY_PARAM_FORCE}=true` : "";
+        const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/languagemodels/providers/${id}${forceParam}`;
         return fetch(endpoint, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
         })
-            .then(ApiUtils.processApiResponse<api.LmProviderInfoResponse>);
+            .then(ApiUtils.processApiResponse<LmProviderInfoResponse>);
     }
 
     export async function updateLmProviderInfo(
-        request: api.UpdateLmProviderInfoRequest
-    ): Promise<api.UpdateLmProviderResponse> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers`;
+        request: UpdateLmProviderInfoRequest
+    ): Promise<UpdateLmProviderResponse> {
+        const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/languagemodels/providers`;
         return fetch(endpoint, {
             method: "POST",
             headers: {
@@ -116,13 +124,13 @@ namespace LanguageModelsAPI {
             },
             body: JSON.stringify(request),
         })
-            .then(ApiUtils.processApiResponse<api.UpdateLmProviderResponse>);
+            .then(ApiUtils.processApiResponse<UpdateLmProviderResponse>);
     }
 
     export async function updateLmProviderModel(
-        request: api.UpdateLmProviderModelRequest
-    ): Promise<api.UpdateLmProviderResponse> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/providers/models`;
+        request: UpdateLmProviderModelRequest
+    ): Promise<UpdateLmProviderResponse> {
+        const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/languagemodels/providers/models`;
         return fetch(endpoint, {
             method: "POST",
             headers: {
@@ -130,20 +138,20 @@ namespace LanguageModelsAPI {
             },
             body: JSON.stringify(request),
         })
-            .then(ApiUtils.processApiResponse<api.UpdateLmProviderResponse>);
+            .then(ApiUtils.processApiResponse<UpdateLmProviderResponse>);
     }
 
     async function _listLanguageModels(
-        llmFeature: api.LlmFeature
-    ): Promise<api.ListLanguageModelsResponse> {
-        const endpoint = `${APIConfig.getApiEndpoint()}${consts.ADMIN_CTRL_PREFIX}/languagemodels/filter/${llmFeature}`;
+        llmFeature: LlmFeature
+    ): Promise<ListLanguageModelsResponse> {
+        const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/languagemodels/filter/${llmFeature}`;
         return fetch(endpoint, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
         })
-            .then(ApiUtils.processApiResponse<api.ListLanguageModelsResponse>);
+            .then(ApiUtils.processApiResponse<ListLanguageModelsResponse>);
     }
 }
 
