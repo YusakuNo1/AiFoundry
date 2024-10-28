@@ -17,14 +17,14 @@ type Props = {
 const LmProviderUpdatePage = (props: Props) => {
     const textColor = React.useMemo(() => getTextColor(), []);
     const lmProviderId = useSelector((state: RootState) => state.serverData.lmProviderId);
-    const lmProviders = useSelector((state: RootState) => state.serverData.lmProviders);
+    const lmProviders: api.LmProviderInfoResponse[] | null = useSelector((state: RootState) => state.serverData.lmProviders);
     // const [provider, setProvider] = React.useState<api.LmProviderInfoResponse | null>(null);
     const [requestProperties, setRequestProperties] = React.useState<Record<string, string>>({});
     const [weight, setWeight] = React.useState<string>("");
     const [models, setModels] = React.useState<api.LmProviderBaseModelInfo[]>([]);
 
     const lmProvider = React.useMemo(() => {
-        for (const _lmProvider of lmProviders) {
+        for (const _lmProvider of (lmProviders ?? [])) {
             if (_lmProvider.id === lmProviderId) {
                 setWeight("" + _lmProvider.weight);
                 setModels(Object.values(_lmProvider.modelMap));

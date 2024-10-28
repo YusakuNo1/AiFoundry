@@ -2,6 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { RootState } from "./store/store";
+import ConfigUtils from "./utils/ConfigUtils";
 
 const Layout = () => {
     const pageType = useSelector((state: RootState) => state.pageInfo.pageType);
@@ -10,6 +11,10 @@ const Layout = () => {
     const location = useLocation();
 
     React.useEffect(() => {
+        if (!ConfigUtils.isAifVsCodeExt()) {
+            return;
+        }
+
         if (pageType === lastPageType) {
             return;
         }

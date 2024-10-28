@@ -2,14 +2,13 @@ import React from "react";
 import { Provider } from "react-redux";
 import ReactDOM from "react-dom/client";
 import { FluentProvider } from "@fluentui/react-components";
-
 import App from "./App";
 import { currentTheme } from "./theme/themes";
 import { store } from "./store/store";
 import { PageContext } from "./contexts";
-import { mockVSCodeExt } from "./AppMockUtils";
+import PlatformSetup from "./PlatformSetup";
 
-mockVSCodeExt();
+PlatformSetup.init();
 const vscode = (globalThis as any).acquireVsCodeApi();
 
 function RootComponent() {

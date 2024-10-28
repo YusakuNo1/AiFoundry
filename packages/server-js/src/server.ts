@@ -1,5 +1,6 @@
 import * as express from "express";
 import * as cookieParser from "cookie-parser";
+import * as cors from 'cors';
 import * as controllers from './controllers';
 import LmManager from './lm/LmManager';
 import Config from './config';
@@ -20,6 +21,7 @@ export async function setupServer() {
     const app = express();
     const apiRouter = express.Router();
     app.use(cookieParser());
+    _allowCors(app);
 
     try {
         const databaseManager = new DatabaseManager();
@@ -41,6 +43,15 @@ export async function setupServer() {
     } catch (error) {
         console.error('Server setup error:', error);
     }
+}
+
+function _allowCors(app) {
+    // Enable CORS for a specific origin
+    const corsOptions = {
+        origin: 'http://localhost:3000', // React app
+        optionsSuccessStatus: 200 
+    };
+    app.use(cors(corsOptions));
 }
 
 if (process.argv.length === 3 && process.argv[2] === "run") {

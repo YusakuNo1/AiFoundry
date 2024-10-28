@@ -14,10 +14,10 @@ interface Props {
 
 const AgentDetailsPage: React.FC<Props> = (props: Props) => {
     const [outputFormatIndex, setOutputFormatIndex] = React.useState<number>(api.TextFormats.indexOf(api.defaultTextFormat));
-    const embeddings = useSelector((state: RootState) => state.serverData.embeddings);
-    // const functions = useSelector((state: RootState) => state.serverData.functions);
+    const embeddings: api.EmbeddingEntity[] | null = useSelector((state: RootState) => state.serverData.embeddings);
+    // const functions: api.FunctionEntity[] | null = useSelector((state: RootState) => state.serverData.functions);
     const agentId = useSelector((state: RootState) => state.serverData.agentId);
-    const agents = useSelector((state: RootState) => state.serverData.agents);
+    const agents: api.AgentEntity[] | null = useSelector((state: RootState) => state.serverData.agents);
 
     React.useEffect(() => {
         const message: messages.MessageApiGetAgents = {
@@ -49,18 +49,18 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
     }, [props]);
 
     const agent = React.useMemo(() => {
-        return agents.find((e) => e.id === agentId);
+        return agents?.find((e) => e.id === agentId);
     }, [agentId, agents]);
 
     const embeddingMap = React.useMemo(() => {
         const map: Record<string, api.EmbeddingEntity> = {};
-        embeddings.forEach(embedding => map[embedding.id] = embedding);
+        embeddings?.forEach(embedding => map[embedding.id] = embedding);
         return map;
     }, [embeddings]);
 
     // const functionMap = React.useMemo(() => {
     //     const map: Record<string, api.FunctionEntity> = {};
-    //     functions.forEach(func => map[func.id] = func);
+    //     functions?.forEach(func => map[func.id] = func);
     //     return map;
     // }, [functions]);
 

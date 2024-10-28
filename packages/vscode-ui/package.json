@@ -6,7 +6,7 @@
   "author": "",
   "main": "dist/index.js",
   "scripts": {
-    "start": "export REACT_APP_AIF_DEBUG=true && react-scripts start",
+    "start": "cross-env REACT_APP_AIF_SETUP=reactapp react-scripts start",
     "clean": "rimraf dist",
     "build": "webpack --config webpack.config.dev.js",
     "copy-assets": "copyfiles -f build/index.js* ../vscode/media",
@@ -27,6 +27,7 @@
     "@testing-library/user-event": "^13.5.0",
     "aifoundry-vscode-shared": "*",
     "copy-webpack-plugin": "^12.0.2",
+    "cross-env": "^7.0.3",
     "install": "^0.13.0",
     "marked": "^14.0.0",
     "npm": "^10.8.2",

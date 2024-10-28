@@ -10,19 +10,21 @@ interface Props {
 
 const EmbeddingDetailsPage: React.FC<Props> = (props: Props) => {
     const embeddingId: string | null = useSelector((state: RootState) => state.serverData.embeddingId);
-    const embeddings: api.EmbeddingEntity[] = useSelector((state: RootState) => state.serverData.embeddings);
+    const embeddings: api.EmbeddingEntity[] | null = useSelector((state: RootState) => state.serverData.embeddings);
 
     React.useEffect(() => {
-        const message: messages.MessageApiGetEmbeddings = {
-            aifMessageType: "api",
-            type: "api:getEmbeddings",
-            data: {},
-        };
-        props.onPostMessage(message);
-    }, [props]);
+        if (!embeddings) {
+            const message: messages.MessageApiGetEmbeddings = {
+                aifMessageType: "api",
+                type: "api:getEmbeddings",
+                data: {},
+            };
+            props.onPostMessage(message);
+        }
+    }, [props, embeddings]);
 
     const embedding = React.useMemo(() => {
-        return embeddings.find((e) => e.id === embeddingId);
+        return embeddings?.find((e) => e.id === embeddingId) ?? null;
     }, [embeddingId, embeddings]);
 
     const onPostMessage = React.useCallback((type: messages.MessageEditInfoEmbeddingsType) => {

@@ -7,10 +7,10 @@ interface ServerDataState {
     embeddingId: string | null,
     functionId: string | null;
     lmProviderId: string | null;
-    agents: api.AgentEntity[];
-    embeddings: api.EmbeddingEntity[];
-	functions: api.FunctionEntity[];
-    lmProviders: api.LmProviderInfoResponse[];
+    agents: api.AgentEntity[] | null;
+    embeddings: api.EmbeddingEntity[] | null;
+	functions: api.FunctionEntity[] | null;
+    lmProviders: api.LmProviderInfoResponse[] | null;
 }
 
 const initialState: ServerDataState = {
@@ -18,10 +18,10 @@ const initialState: ServerDataState = {
     embeddingId: null,
     functionId: null,
     lmProviderId: null,
-    agents: [],
-    embeddings: [],
-    functions: [],
-    lmProviders: [],
+    agents: null,
+    embeddings: null,
+    functions: null,
+    lmProviders: null,
 };
 
 export const serverDataSlice = createSlice({

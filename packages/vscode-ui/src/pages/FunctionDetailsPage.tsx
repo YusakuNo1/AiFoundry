@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
-import { type messages } from "aifoundry-vscode-shared";
+import { api, type messages } from "aifoundry-vscode-shared";
 import { consts } from "aifoundry-vscode-shared";
 import BasePage from "./BasePage";
 import ConfigUtils from "../utils/ConfigUtils";
@@ -12,7 +12,7 @@ interface Props {
 }
 
 const FunctionDetailsPage: React.FC<Props> = (props: Props) => {
-    const functions = useSelector((state: RootState) => state.serverData.functions);
+    const functions: api.FunctionEntity[] | null = useSelector((state: RootState) => state.serverData.functions);
     const functionId = useSelector((state: RootState) => state.serverData.functionId);
 
     React.useEffect(() => {
@@ -26,7 +26,7 @@ const FunctionDetailsPage: React.FC<Props> = (props: Props) => {
 
     // We can't use "function" because it's a reserved keyword
     const functionInfo = React.useMemo(() => {
-        return functions.find((f) => f.id === functionId);
+        return functions?.find((f) => f.id === functionId);
     }, [functionId, functions]);
 
     const homeDir = React.useMemo(() => {
