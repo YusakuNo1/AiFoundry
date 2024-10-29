@@ -28,8 +28,8 @@ describe('LmBaseProvider', () => {
         expect(lmBaseProvider.isLocal).toBeTruthy();
     });
 
-    it('should return listLanguageModels', () => {
-        expect(lmBaseProvider.listLanguageModels('all')).toEqual([]);
+    it('should return listLanguageModels', async () => {
+        expect(await lmBaseProvider.listLanguageModels('all')).toEqual([]);
     });
 
     it('should return getLmProviderInfo', async () => {
