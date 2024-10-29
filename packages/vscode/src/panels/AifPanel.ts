@@ -4,9 +4,6 @@ import * as vscode from 'vscode';
 import { type messages } from 'aifoundry-vscode-shared';
 import { consts } from 'aifoundry-vscode-shared';
 import AifPanelTypes from './types';
-import EmbeddingsCommands from '../commands/embeddings';
-import AgentsCommands from '../commands/agents';
-import FunctionsCommands from '../commands/functions';
 import AifPanelEvenHandlers from './AifPanelEvenHandlers';
 
 

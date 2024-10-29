@@ -1,8 +1,8 @@
 import { Observable } from 'rxjs';
+import { Markup } from "aifoundry-vscode-shared/dist/consts/Markup";
+import { TextFormat } from "aifoundry-vscode-shared/dist/api/types/chat";
+import { COOKIE_AIF_SESSION_ID, HEADER_AIF_AGENT_URI } from "aifoundry-vscode-shared/dist/consts/misc";
 import { Config } from './config';
-import { Markup } from "../../consts/Markup";
-import { TextFormat } from "../types/chat";
-import { COOKIE_AIF_SESSION_ID, HEADER_AIF_AGENT_URI } from '../../consts/misc';
 import CookiesUtils from "./CookiesUtils";
 
 namespace ChatAPI {
@@ -20,7 +20,7 @@ namespace ChatAPI {
         }
         headers.append(HEADER_AIF_AGENT_URI, aifAgentUri);
 
-        const formData = new FormData();
+        const formData: any = new FormData();
         formData.append("input", input);      
 
         // Read files from FileList object "files", and then append them to formData

@@ -1,8 +1,12 @@
-import { AifFunctionType, CreateOrUpdateFunctionResponse, ListFunctionsResponse, UpdateFunctionRequest } from '../types/functions';
-import { ADMIN_CTRL_PREFIX } from '../../consts/misc';
+import {
+    AifFunctionType,
+    CreateOrUpdateFunctionResponse,
+    ListFunctionsResponse,
+    UpdateFunctionRequest,
+} from 'aifoundry-vscode-shared/dist/api/types/functions';
+import { ADMIN_CTRL_PREFIX } from 'aifoundry-vscode-shared/dist/consts/misc';
 import { Config } from "./config";
 import ApiUtils from "./ApiUtils";
-
 
 namespace FunctionsAPI {
     export async function listFunctions(): Promise<ListFunctionsResponse> {

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { AifUtils, api, consts, messages } from 'aifoundry-vscode-shared';
+import { api as apiClient } from 'aifoundry-vscode-shared-client';
 import AifPanelTypes from './types';
 import EmbeddingsCommands from '../commands/embeddings';
 import AgentsCommands from '../commands/agents';
@@ -77,22 +78,22 @@ namespace AifPanelEvenHandlers {
             let requestPromise: Promise<any>;
             if (_message.type === "api:updateLmProviderInfo") {
                 const message = _message as messages.MessageApiUpdateLmProviderInfo;
-                requestPromise = api.LanguageModelsAPI.updateLmProviderInfo(message.data as api.UpdateLmProviderInfoRequest);
+                requestPromise = apiClient.LanguageModelsAPI.updateLmProviderInfo(message.data as api.UpdateLmProviderInfoRequest);
             } else {
                 const message = _message as messages.MessageApiUpdateLmProviderModel;
-                requestPromise = api.LanguageModelsAPI.updateLmProviderModel(message.data as api.UpdateLmProviderModelRequest);
+                requestPromise = apiClient.LanguageModelsAPI.updateLmProviderModel(message.data as api.UpdateLmProviderModelRequest);
             }
 
             const successMessage = _message.type === "api:updateLmProviderInfo" ? "Language model provider setup successfully" : undefined;
             requestPromise.then(() => _updateLmProviders(successMessage, postMessage));
         } else if (_message.type === "api:listLmProviders") {
-            api.LanguageModelsAPI.listLmProviders(false)
+            apiClient.LanguageModelsAPI.listLmProviders(false)
                 .then(response => postMessageUpdateLmProviders(response.providers, postMessage))
                 .catch((error) => {
                     vscode.window.showErrorMessage("Error listing language model providers: " + error);
                 });
         } else if (_message.type === "api:getAgents") {
-            api.AgentsAPI.list()
+            apiClient.AgentsAPI.list()
                 .then(response => {
                     const message: messages.MessageStoreUpdateAgents = {
                         aifMessageType: 'store:update',
@@ -107,7 +108,7 @@ namespace AifPanelEvenHandlers {
                     vscode.window.showErrorMessage("Error getting agents: " + error);
                 });
         } else if (_message.type === "api:getEmbeddings") {
-            api.EmbeddingsAPI.getEmbeddings()
+            apiClient.EmbeddingsAPI.getEmbeddings()
                 .then(response => {
                     const message: messages.MessageStoreUpdateEmbeddings = {
                         aifMessageType: 'store:update',
@@ -122,7 +123,7 @@ namespace AifPanelEvenHandlers {
                     vscode.window.showErrorMessage("Error getting embeddings: " + error);
                 });
         } else if (_message.type === "api:listFunctions") {
-            api.FunctionsAPI.listFunctions()
+            apiClient.FunctionsAPI.listFunctions()
                 .then(response => {
                     const message: messages.MessageStoreUpdateFunctions = {
                         aifMessageType: 'store:update',
@@ -144,7 +145,7 @@ namespace AifPanelEvenHandlers {
                 const id = uriInfo.parts[0];
 
                 vscode.window.showInformationMessage(`Start downloading model ${message.data.modelUri}...`);
-                api.LanguageModelsAPI.downloadLocalLanguageModel(lmProviderId, id).then(() => {
+                apiClient.LanguageModelsAPI.downloadLocalLanguageModel(lmProviderId, id).then(() => {
                     return _updateLmProviders(undefined, postMessage);
                 }).then(() => {
                     vscode.window.showInformationMessage(`Model ${message.data.modelUri} is downloaded.`);
@@ -158,7 +159,7 @@ namespace AifPanelEvenHandlers {
             if (uriInfo && uriInfo.parts.length === 1) {
                 const lmProviderId = uriInfo.protocol;
                 const id = uriInfo.parts[0];
-                api.LanguageModelsAPI.deleteLocalLanguageModel(lmProviderId, id).then(() => {
+                apiClient.LanguageModelsAPI.deleteLocalLanguageModel(lmProviderId, id).then(() => {
                     return _updateLmProviders(undefined, postMessage);
                 }).catch((error) => {
                     vscode.window.showErrorMessage("Error deleting model: " + error);
@@ -166,15 +167,15 @@ namespace AifPanelEvenHandlers {
             }
         } else if (_message.type === "api:setup:lmProvider") {
             const message = _message as messages.MessageApiSetupLmProvider;
-            const sub = api.LanguageModelsAPI.setupLmProvider(message.data.id);
+            const sub = apiClient.LanguageModelsAPI.setupLmProvider(message.data.id);
             sub.subscribe({
                 next: (message) => {
                     const msgObj = JSON.parse(message) as api.ApiOutStreamMessage;
                     api.ApiOutStreamMessageUtils.show(msgObj);
                 },
                 complete: () => {
-                    api.ApiUtils.apiPoller(
-                        () => api.LanguageModelsAPI.getLmProvider(message.data.id, true),
+                    apiClient.ApiUtils.apiPoller(
+                        () => apiClient.LanguageModelsAPI.getLmProvider(message.data.id, true),
                         (response) => response.status === "available",
                         2000,   // 2 seconds
                         10,     // 10 attempts
@@ -203,7 +204,7 @@ namespace AifPanelEvenHandlers {
     }
 
     async function _updateLmProviders(successMessage: string | undefined, postMessage: (message: messages.IMessage) => void) {
-        return api.LanguageModelsAPI.listLmProviders(true)
+        return apiClient.LanguageModelsAPI.listLmProviders(true)
             .then(response => postMessageUpdateLmProviders(response.providers, postMessage))
             .then(() => vscode.commands.executeCommand('AiFoundry.refreshMainView', 1))
             .then(() => successMessage && vscode.window.showInformationMessage(successMessage))
@@ -222,7 +223,7 @@ namespace AifPanelEvenHandlers {
             files.push(file);
         }
 
-        const observable = api.ChatAPI.chat(
+        const observable = apiClient.ChatAPI.chat(
             chatSendApiMessage.data.input,
             files,
             chatSendApiMessage.data.contentTextFormat,

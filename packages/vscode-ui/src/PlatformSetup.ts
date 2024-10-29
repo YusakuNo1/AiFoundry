@@ -1,4 +1,5 @@
-import { api, type messages } from "aifoundry-vscode-shared";
+import { type messages } from "aifoundry-vscode-shared";
+import { api } from "aifoundry-vscode-shared-client";
 import { store } from "./store/store";
 import { updateEmbeddings } from "./store/serverDataSlice";
 import ConfigUtils from "./utils/ConfigUtils";

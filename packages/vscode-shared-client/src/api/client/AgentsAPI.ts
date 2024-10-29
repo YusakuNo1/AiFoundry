@@ -4,10 +4,10 @@ import {
     CreateOrUpdateAgentResponse,
     ListAgentsResponse,
     UpdateAgentRequest,
-} from "../types/agents";
-import { ADMIN_CTRL_PREFIX } from "../../consts/misc";
+} from "aifoundry-vscode-shared/dist/api/types/agents";
+import { ADMIN_CTRL_PREFIX } from "aifoundry-vscode-shared/dist/consts/misc";
+import AifUtils from "aifoundry-vscode-shared/dist/utils/AifUtils";
 import { Config } from "./config";
-import AifUtils from "../../utils/AifUtils";
 import ApiUtils from "./ApiUtils";
 
 namespace AgentsAPI {

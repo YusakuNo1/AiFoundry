@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { api, misc } from 'aifoundry-vscode-shared';
+import { type api, misc } from 'aifoundry-vscode-shared';
+import { api as apiClient } from 'aifoundry-vscode-shared-client';
 import CommandUtils from './utils';
 import { IViewProvider } from '../viewProviders/base';
 import FileUtils from '../utils/FileUtils';
@@ -58,7 +59,7 @@ namespace EmbeddingsCommands {
 		CommandUtils.chooseText('Embedding Name', oldName, 'New embedding name')
 			.then(newName => {
 				if (newName) {
-					api.EmbeddingsAPI.updateEmbedding(aifEmbeddingAssetId, [], newName).then(() => {
+					apiClient.EmbeddingsAPI.updateEmbedding(aifEmbeddingAssetId, [], newName).then(() => {
 						embeddingsViewProvider.refresh(aifEmbeddingAssetId);
 						vscode.window.showInformationMessage('Embedding name is updated');
 					})
@@ -70,7 +71,7 @@ namespace EmbeddingsCommands {
 	}
 
 	export function startDeleteEmbeddingFlow(embeddingsViewProvider: IViewProvider, aifEmbeddingAssetId: string, name?: string) {
-		api.EmbeddingsAPI.deleteEmbedding(aifEmbeddingAssetId).then(() => {
+		apiClient.EmbeddingsAPI.deleteEmbedding(aifEmbeddingAssetId).then(() => {
 			embeddingsViewProvider.refresh();
 			const message = name ? `Embedding ${name} is deleted` : 'Embedding is deleted';
 			vscode.window.showInformationMessage(message);
@@ -85,7 +86,7 @@ namespace EmbeddingsCommands {
 			.then(newSearchTopK => {
 				if (newSearchTopK !== undefined) {
 					const newSearchTopKNumber = parseInt(newSearchTopK);
-					api.EmbeddingsAPI.updateEmbedding(aifEmbeddingAssetId, [], undefined, newSearchTopKNumber).then(() => {
+					apiClient.EmbeddingsAPI.updateEmbedding(aifEmbeddingAssetId, [], undefined, newSearchTopKNumber).then(() => {
 						embeddingsViewProvider.refresh(aifEmbeddingAssetId);
 						vscode.window.showInformationMessage('Search top k is updated');
 					})
@@ -98,7 +99,7 @@ namespace EmbeddingsCommands {
 }
 
 function _showEmbeddingLlmOptions(name: string, embeddingsViewProvider: IViewProvider) {
-	api.LanguageModelsAPI.listLanguageModelsEmbedding().then((response) => {
+	apiClient.LanguageModelsAPI.listLanguageModelsEmbedding().then((response) => {
 		// use `${basemodel.providerId}-${basemodel.name}` as key because there could be multiple basemodels with the same name from different providers
 		const options = Object.fromEntries(response.basemodels.map(basemodel => [`${basemodel.providerId}-${basemodel.name}`, basemodel]));
 		const quickPick = vscode.window.createQuickPick();
@@ -134,14 +135,14 @@ function _createOrUpdateEmbedding(isCreate: boolean, embeddingsViewProvider: IVi
 		})
 		.then((files) => {
 			return isCreate
-				? api.EmbeddingsAPI.createEmbedding(aifBasemodelUriOrAifEmbeddingAssetId, files, name)
-				: api.EmbeddingsAPI.updateEmbedding(aifBasemodelUriOrAifEmbeddingAssetId, files, name);
+				? apiClient.EmbeddingsAPI.createEmbedding(aifBasemodelUriOrAifEmbeddingAssetId, files, name)
+				: apiClient.EmbeddingsAPI.updateEmbedding(aifBasemodelUriOrAifEmbeddingAssetId, files, name);
 		})
 		.then((response: api.CreateOrUpdateEmbeddingsResponse) => {
 			embeddingsViewProvider.refresh(isCreate ? undefined : aifBasemodelUriOrAifEmbeddingAssetId);
 			vscode.window.showInformationMessage(isCreate ? 'Embedding is created' : 'Embedding is updated');
 		}, (error) => {
-			api.ApiUtils.handleApiErrorResponse(error, vscode.window.showErrorMessage);
+			apiClient.ApiUtils.handleApiErrorResponse(error, vscode.window.showErrorMessage);
 		});
 }	
 

@@ -6,12 +6,12 @@ import {
     UpdateLmProviderInfoRequest,
     UpdateLmProviderModelRequest,
     UpdateLmProviderResponse,
-} from "../types/languageModels";
-import { LlmFeature } from "../types";
-import { ADMIN_CTRL_PREFIX, QUERY_PARAM_FORCE } from '../../consts/misc';
+} from "aifoundry-vscode-shared/dist/api/types/languageModels";
+import { LlmFeature } from "aifoundry-vscode-shared/dist/api/types/types";
+import { ADMIN_CTRL_PREFIX, QUERY_PARAM_FORCE } from 'aifoundry-vscode-shared/dist/consts/misc';
+import ApiOutStreamMessageUtils from "aifoundry-vscode-shared/dist/api/utils/ApiOutStreamMessageUtils";
 import { Config } from "./config";
 import ApiUtils from "./ApiUtils";
-import ApiOutStreamMessageUtils from "../utils/ApiOutStreamMessageUtils";
 
 
 namespace LanguageModelsAPI {

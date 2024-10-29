@@ -1,9 +1,7 @@
-import { ListEmbeddingsResponse, CreateOrUpdateEmbeddingsResponse } from "../types/embeddings";
-import { ADMIN_CTRL_PREFIX, HEADER_AIF_BASEMODEL_URI, HEADER_AIF_EMBEDDING_ASSET_ID } from "../../consts/misc";
+import { ListEmbeddingsResponse, CreateOrUpdateEmbeddingsResponse } from "aifoundry-vscode-shared/dist/api/types/embeddings";
+import { ADMIN_CTRL_PREFIX, HEADER_AIF_BASEMODEL_URI, HEADER_AIF_EMBEDDING_ASSET_ID } from "aifoundry-vscode-shared/dist/consts/misc";
 import { Config } from "./config";
 import ApiUtils from "./ApiUtils";
-
-let formData = new FormData();
 
 namespace EmbeddingsAPI {
     export async function getEmbeddings(): Promise<ListEmbeddingsResponse> {
@@ -54,7 +52,7 @@ namespace EmbeddingsAPI {
     ): Promise<CreateOrUpdateEmbeddingsResponse> {
         const endpoint = `${Config.getApiEndpoint()}${ADMIN_CTRL_PREFIX}/embeddings/`;
 
-        formData = new FormData();
+        const formData = new FormData() as any;
         for (const file of files) {
             formData.append("files", file as any);
         }

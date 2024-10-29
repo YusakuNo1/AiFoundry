@@ -1,6 +1,10 @@
 import * as express from "express";
 import { v4 as uuid } from "uuid";
-import { api, consts, type misc } from "aifoundry-vscode-shared";
+import {
+    type api,
+    consts,
+    type misc,
+} from "aifoundry-vscode-shared";
 import ILmManager from "../lm/ILmManager";
 import RouterUtils from "../utils/RouterUtils";
 import ResponseUtils from "../utils/ResponseUtils";

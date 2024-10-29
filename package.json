@@ -9,7 +9,11 @@
   "workspaces": [
     "packages/server-js",
     "packages/vscode-shared",
+    "packages/vscode-shared-client",
     "packages/vscode-ui",
     "packages/vscode"
-  ]
+  ],
+  "engines" : { 
+    "node" : ">=18.0.0"
+  }
 }

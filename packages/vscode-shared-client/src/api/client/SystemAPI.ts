@@ -1,4 +1,4 @@
-import { StatusResponse } from '../types/system';
+import { StatusResponse } from 'aifoundry-vscode-shared/dist/api/types/system';
 import { Config } from './config';
 import ApiUtils from './ApiUtils';
 

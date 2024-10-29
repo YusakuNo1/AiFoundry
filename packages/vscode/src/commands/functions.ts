@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { api } from 'aifoundry-vscode-shared';
+import { api as apiClient } from 'aifoundry-vscode-shared-client';
 import CommandUtils from './utils';
 import FileUtils from '../utils/FileUtils';
 import { IViewProvider } from '../viewProviders/base';
@@ -39,7 +40,7 @@ namespace FunctionsCommands {
 		// Only allow the user to create functions in `~/.aifoundry/assets/functions` folder, so the function path is ""
 		const folderPath = "";
 		try {
-			const response = await api.FunctionsAPI.createFunction(api.AifFunctionType.LOCAL, functionDescriptiveName ?? defaultName, folderPath, functionName);
+			const response = await apiClient.FunctionsAPI.createFunction(api.AifFunctionType.LOCAL, functionDescriptiveName ?? defaultName, folderPath, functionName);
 			functionsViewProvider.refresh(response.id);				
 		} catch (error) {
 			vscode.window.showErrorMessage((error as any)?.message ?? 'Failed to create function');
@@ -49,7 +50,7 @@ namespace FunctionsCommands {
 	export async function startUpdateFunctionNameFlow(functionsViewProvider: IViewProvider, id: string, oldName: string | undefined) {
 		const newName = await CommandUtils.chooseText('Function Name', oldName, 'New function name');
 		if (newName) {
-			api.FunctionsAPI.updateFunction(id, newName).then(() => {
+			apiClient.FunctionsAPI.updateFunction(id, newName).then(() => {
 				functionsViewProvider.refresh(id);
 			})
 			.catch((error) => {
@@ -59,7 +60,7 @@ namespace FunctionsCommands {
 	}
 
 	export function startDeleteFunctionFlow(functionsViewProvider: IViewProvider, id: string) {
-		api.FunctionsAPI.deleteFunction(id).then(() => {
+		apiClient.FunctionsAPI.deleteFunction(id).then(() => {
 			functionsViewProvider.refresh();
 			vscode.window.showInformationMessage(`Function is deleted successfully`);
 		})
