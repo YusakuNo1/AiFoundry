@@ -1,11 +1,12 @@
 import ServerConfig from "../config/ServerConfig";
-import { HttpException } from "../exceptions";
 import { ApiOutStream } from "../types/ApiOutStream";
 
 namespace OllamaUtils {
     export function getHost(): string {
-        // Ollama is running in the host machine, however, we prefer host.docker.internal because we only recommend running the server within a Docker container.
-        return ServerConfig.useLocalServer ? "http://localhost:11434" : "http://host.docker.internal:11434";
+        // Case 1: when the server is running in Docker, as Ollama is running in the host machine, host is: `host.docker.internal`
+        // Case 2: for some reason, `127.0.0.1` can work but `localhost` cannot
+        // return ServerConfig.useLocalServer ? "http://localhost:11434" : "http://host.docker.internal:11434";
+        return ServerConfig.useLocalServer ? "http://127.0.0.1:11434" : "http://host.docker.internal:11434";
     }
 
     export async function isHealthy(): Promise<boolean> {

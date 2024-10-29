@@ -2,7 +2,7 @@ import React from "react";
 import { Provider } from "react-redux";
 import ReactDOM from "react-dom/client";
 import { FluentProvider } from "@fluentui/react-components";
-import App from "./App";
+import App from "./app/App";
 import { currentTheme } from "./theme/themes";
 import { store } from "./store/store";
 import { PageContext } from "./contexts";

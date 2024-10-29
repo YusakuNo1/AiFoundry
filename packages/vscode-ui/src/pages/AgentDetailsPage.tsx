@@ -1,8 +1,9 @@
 import * as React from "react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 import { api, consts, type messages } from "aifoundry-vscode-shared";
 import { store } from "../store/store";
-import { setPageType } from "../store/pageInfoSlice";
+import { setPageUrl } from "../store/pageInfoSlice";
 import BasePage from "./BasePage";
 import { chatInfoSlice, initPlayground } from "../store/chatInfoSlice";
 import { RootState } from '../store/store';
@@ -16,7 +17,8 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
     const [outputFormatIndex, setOutputFormatIndex] = React.useState<number>(api.TextFormats.indexOf(api.defaultTextFormat));
     const embeddings: api.EmbeddingEntity[] | null = useSelector((state: RootState) => state.serverData.embeddings);
     // const functions: api.FunctionEntity[] | null = useSelector((state: RootState) => state.serverData.functions);
-    const agentId = useSelector((state: RootState) => state.serverData.agentId);
+
+    const agentId = useParams<{ agentId: string }>().agentId;
     const agents: api.AgentEntity[] | null = useSelector((state: RootState) => state.serverData.agents);
 
     React.useEffect(() => {
@@ -118,7 +120,7 @@ const AgentDetailsPage: React.FC<Props> = (props: Props) => {
         }
         store.dispatch(chatInfoSlice.actions.reset());
         store.dispatch(initPlayground({ aifAgentUri: agent.agentUri, outputFormat: api.TextFormats[outputFormatIndex] }));
-        store.dispatch(setPageType("modelPlayground"));
+        store.dispatch(setPageUrl("/modelPlayground"));
     }, [agent, outputFormatIndex]);
 
     const outputFormatOptions: string[] = React.useMemo(() => {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Input, Label, Table, TableCell, TableRow, TableBody, Divider } from '@fluentui/react-components';
+import { useParams } from "react-router-dom";
 import { DefaultButton } from '@fluentui/react/lib/Button';
 import { AifUtils, type api, consts, type messages } from 'aifoundry-vscode-shared';
 import { RootState } from '../store/store';
@@ -16,7 +17,8 @@ type Props = {
 }
 const LmProviderUpdatePage = (props: Props) => {
     const textColor = React.useMemo(() => getTextColor(), []);
-    const lmProviderId = useSelector((state: RootState) => state.serverData.lmProviderId);
+
+    const lmProviderId = useParams<{ lmProviderId: string }>().lmProviderId;
     const lmProviders: api.LmProviderInfoResponse[] | null = useSelector((state: RootState) => state.serverData.lmProviders);
     // const [provider, setProvider] = React.useState<api.LmProviderInfoResponse | null>(null);
     const [requestProperties, setRequestProperties] = React.useState<Record<string, string>>({});

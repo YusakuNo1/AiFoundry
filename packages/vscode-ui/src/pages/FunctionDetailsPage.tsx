@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { api, consts, type messages } from "aifoundry-vscode-shared";
 import { RootState } from "../store/store";
-import { api, type messages } from "aifoundry-vscode-shared";
-import { consts } from "aifoundry-vscode-shared";
 import BasePage from "./BasePage";
 import ConfigUtils from "../utils/ConfigUtils";
 
@@ -12,8 +12,8 @@ interface Props {
 }
 
 const FunctionDetailsPage: React.FC<Props> = (props: Props) => {
+    const functionId = useParams<{ functionId: string }>().functionId;
     const functions: api.FunctionEntity[] | null = useSelector((state: RootState) => state.serverData.functions);
-    const functionId = useSelector((state: RootState) => state.serverData.functionId);
 
     React.useEffect(() => {
         const message: messages.MessageApiListFunctions = {

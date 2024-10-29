@@ -1,7 +1,8 @@
 import * as React from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../store/store";
+import { useParams } from "react-router-dom";
 import { type api, type messages } from "aifoundry-vscode-shared";
+import { RootState } from "../store/store";
 import BasePage from "./BasePage";
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
 }
 
 const EmbeddingDetailsPage: React.FC<Props> = (props: Props) => {
-    const embeddingId: string | null = useSelector((state: RootState) => state.serverData.embeddingId);
+    const embeddingId = useParams<{ embeddingId: string }>().embeddingId;
     const embeddings: api.EmbeddingEntity[] | null = useSelector((state: RootState) => state.serverData.embeddings);
 
     React.useEffect(() => {
@@ -88,6 +89,7 @@ const EmbeddingDetailsPage: React.FC<Props> = (props: Props) => {
                 { type: "label", key: "name", label: "Name", item: { name: embedding.name ?? "", onClick: () => onPostMessage("UpdateEmbeddingName") }},
                 { type: "label", key: "model_uri", label: "Model URI", item: { name: embedding.basemodelUri }},
                 { type: "label", key: "vectorStoreProvider", label: "Vector Store Provider", item: { name: embedding.vectorStoreProvider }},
+                { type: "collection", key: "files", label: "Files", item: embedding.fileNames.map(fileName => ({ name: fileName })) },
                 { type: "label", key: "chunk_size", label: "Embedding Chunk Size", item: { name: embedding.splitterParams.chunkSize }},
                 { type: "label", key: "chunk_overlap", label: "Embedding Chunk Overlap", item: { name: embedding.splitterParams.chunkOverlap }},
                 { type: "label", key: "search_top_k", label: "Search Range", item: { name: embedding.searchTopK, onClick: () => onPostMessage("UpdateEmbeddingSearchTopK") }},

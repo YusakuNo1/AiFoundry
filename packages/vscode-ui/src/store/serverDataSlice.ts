@@ -3,10 +3,6 @@ import { type api } from "aifoundry-vscode-shared";
 
 
 interface ServerDataState {
-    agentId: string | null;
-    embeddingId: string | null,
-    functionId: string | null;
-    lmProviderId: string | null;
     agents: api.AgentEntity[] | null;
     embeddings: api.EmbeddingEntity[] | null;
 	functions: api.FunctionEntity[] | null;
@@ -14,10 +10,6 @@ interface ServerDataState {
 }
 
 const initialState: ServerDataState = {
-    agentId: null,
-    embeddingId: null,
-    functionId: null,
-    lmProviderId: null,
     agents: null,
     embeddings: null,
     functions: null,
@@ -28,18 +20,6 @@ export const serverDataSlice = createSlice({
     name: "serverData",
     initialState,
     reducers: {
-        setAgentId: (state, action: PayloadAction<string>) => {
-            state.agentId = action.payload;
-        },
-        setEmbeddingId: (state, action: PayloadAction<string>) => {
-            state.embeddingId = action.payload;
-        },
-        setFunctionId: (state, action: PayloadAction<string>) => {
-            state.functionId = action.payload;
-        },
-        setLmProviderId: (state, action: PayloadAction<string>) => {
-            state.lmProviderId = action.payload;
-        },
         updateAgents: (state, action: PayloadAction<api.AgentEntity[]>) => {
             state.agents = action.payload;
         },
@@ -56,10 +36,6 @@ export const serverDataSlice = createSlice({
 });
 
 export const {
-    setAgentId,
-    setEmbeddingId,
-    setFunctionId,
-    setLmProviderId,
     updateAgents,
     updateEmbeddings,
     updateFunctions,
