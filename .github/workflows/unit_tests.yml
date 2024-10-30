@@ -27,5 +27,5 @@ jobs:
     - run: npm i
     - run: cd packages/vscode-shared && npm i && npm run build && npm run test
     - run: cd packages/vscode-shared-client && npm i && npm run build
-    - run: cd packages/vscode-ui && npm i && npm run build
+    - run: cd packages/vscode-ui && npm i && npm run build && npm run test
     # - run: cd packages/server-js && npm i && npm run build && npm run test

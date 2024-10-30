@@ -12,7 +12,8 @@
     "copy-assets": "copyfiles -f build/index.js* ../vscode/media",
     "build-finish-message": "node -e 'console.log(\"Finished dev build at: \" + new Date())'",
     "watch": "watch 'npm run build && npm run copy-assets && npm run build-finish-message' src/",
-    "release": "webpack --config webpack.config.prod.js && npm run copy-assets && node -e 'console.log(\"Finished prod build at: \" + new Date())'"
+    "release": "webpack --config webpack.config.prod.js && npm run copy-assets && node -e 'console.log(\"Finished prod build at: \" + new Date())'",
+    "test": "jest"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -41,13 +42,19 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.25.9",
+    "@babel/preset-typescript": "^7.26.0",
     "@npmcli/redact": "^2.0.1",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.101",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "babel-jest": "^29.7.0",
     "copyfiles": "^2.4.1",
     "css-loader": "^7.1.2",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.1",
     "watch": "^1.0.2",
     "webpack": "^5.93.0",
