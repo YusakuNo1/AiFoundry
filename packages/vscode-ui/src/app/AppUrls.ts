@@ -6,6 +6,7 @@ namespace AppUrls {
         ModelPlaygroundPage = "modelPlayground",
         LmProviderUpdatePage = "updateLmProvider/:lmProviderId",
     }
+    export const AifRoutes = Object.values(AifRoute);
 
     export const AifRoutePathParams: Record<AifRoute, string[]> = {
         [AifRoute.AgentDetailsPage]: [":agentId"],
@@ -15,7 +16,7 @@ namespace AppUrls {
         [AifRoute.LmProviderUpdatePage]: [":lmProviderId"],
     };
 
-    export function buildPageUrl(route: AifRoute, params: string[]) {
+    export function buildPageUrl(route: AifRoute, params: string[] = []): string {
         if (params.length !== AifRoutePathParams[route].length) {
             throw new Error(`Invalid number of parameters for route ${route}`);
         }

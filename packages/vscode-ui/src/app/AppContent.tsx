@@ -12,6 +12,7 @@ import Layout from './Layout';
 import AppBreadcrumb from './AppBreadcrumb';
 import AppNavigator from './AppNavigator';
 import type { VSCodeInterface } from '../types';
+import AppUrls from './AppUrls';
 
 function AppContent(props: { vscode: VSCodeInterface }) {
     const pageType = useSelector((state: RootState) => state.pageInfo.pageType);
@@ -23,11 +24,11 @@ function AppContent(props: { vscode: VSCodeInterface }) {
 
         <Routes>
             <Route path="/" element={<Layout />}>
-                <Route path="agents/:agentId" element={<AgentDetailsPage onPostMessage={props.vscode.postMessage} />} />
-                <Route path="embeddings/:embeddingId" element={<EmbeddingDetailsPage onPostMessage={props.vscode.postMessage} />} />
-                <Route path="functions/:functionId" element={<FunctionDetailsPage onPostMessage={props.vscode.postMessage} />} />
-                <Route path="modelPlayground" element={<ModelPlaygroundPage onPostMessage={props.vscode.postMessage} />} />
-                <Route path="updateLmProvider/:lmProviderId" element={<LmProviderUpdatePage onPostMessage={props.vscode.postMessage} />} />
+                <Route path={AppUrls.AifRoute.AgentDetailsPage} element={<AgentDetailsPage onPostMessage={props.vscode.postMessage} />} />
+                <Route path={AppUrls.AifRoute.EmbeddingDetailsPage} element={<EmbeddingDetailsPage onPostMessage={props.vscode.postMessage} />} />
+                <Route path={AppUrls.AifRoute.FunctionDetailsPage} element={<FunctionDetailsPage onPostMessage={props.vscode.postMessage} />} />
+                <Route path={AppUrls.AifRoute.ModelPlaygroundPage} element={<ModelPlaygroundPage onPostMessage={props.vscode.postMessage} />} />
+                <Route path={AppUrls.AifRoute.LmProviderUpdatePage} element={<LmProviderUpdatePage onPostMessage={props.vscode.postMessage} />} />
                 <Route path="*" element={<HomePage vscode={props.vscode} />} />
             </Route>
         </Routes>

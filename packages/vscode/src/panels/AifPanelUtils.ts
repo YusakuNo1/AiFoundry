@@ -41,7 +41,7 @@ namespace AifPanelUtils {
 	export function createMessageSetPageContextUpdateLmProvider(lmProviderId: string): messages.MessageSetPageContextUpdateLmProvider {
 		return {
 			aifMessageType: "setPageType",
-			pageType: "page:updateLmProvider",
+			pageType: "page-updateLmProvider",
 			data: lmProviderId,
 		};
 	}

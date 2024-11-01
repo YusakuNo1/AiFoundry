@@ -1,7 +1,12 @@
 import { type messages } from "aifoundry-vscode-shared";
 import { api } from "aifoundry-vscode-shared-client";
 import { store } from "./store/store";
-import { updateAgents, updateEmbeddings, updateFunctions, updateLmProviders } from "./store/serverDataSlice";
+import {
+    updateAgents,
+    updateEmbeddings,
+    // updateFunctions,
+    updateLmProviders,
+} from "./store/serverDataSlice";
 import ConfigUtils from "./utils/ConfigUtils";
 
 namespace PlatformSetup {

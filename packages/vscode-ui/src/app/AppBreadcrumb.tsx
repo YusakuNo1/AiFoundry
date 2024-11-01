@@ -12,7 +12,7 @@ function RenderCurrentPage(props: { pageType: misc.PageType }) {
         (props.pageType === "agents") ? "Agent Details" :
         (props.pageType === "modelPlayground") ? "Playground" :
         (props.pageType === "functions") ? "Function Details" : 
-        (props.pageType === "page:updateLmProvider") ? "Update Language Model Provider" : null;
+        (props.pageType === "page-updateLmProvider") ? "Update Language Model Provider" : null;
 
     if (!pageName) {
         return null;

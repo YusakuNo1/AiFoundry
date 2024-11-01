@@ -130,7 +130,7 @@ export function LmStatusRow(props: LmStatusRowProps) {
     const onClickSetup = React.useCallback((lmProviderId: string) => {
         const message: messages.MessageSetPageContextUpdateLmProvider = {
             aifMessageType: 'setPageType',
-            pageType: 'page:updateLmProvider',
+            pageType: 'page-updateLmProvider',
             data: lmProviderId,
         };
         window.postMessage(message);

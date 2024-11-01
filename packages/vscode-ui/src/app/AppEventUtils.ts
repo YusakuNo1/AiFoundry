@@ -1,4 +1,5 @@
 import { type messages } from "aifoundry-vscode-shared";
+import AppUrls from "./AppUrls";
 import { store } from "../store/store";
 import { pageInfoSlice } from "../store/pageInfoSlice";
 import {
@@ -25,18 +26,38 @@ namespace AppEventUtils {
         isRegistered = true;
         window.addEventListener("message", (event) => {
             if (event.data?.aifMessageType === "setPageType") {
-                if (event.data.pageType === "embeddings") {
-                    const embeddingId = (event.data as messages.MessageSetPageContextEmbeddings).data;
-                    store.dispatch(pageInfoSlice.actions.setPageUrl(`/embeddings/${embeddingId}`));
-                } else if (event.data.pageType === "agents") {
-                    const agentId = (event.data as messages.MessageSetPageContextAgentDetails).data;
-                    store.dispatch(pageInfoSlice.actions.setPageUrl(`/agents/${agentId}`));
-                } else if (event.data.pageType === "page:updateLmProvider") {
-                    const lmProviderId = (event.data as messages.MessageSetPageContextUpdateLmProvider).data;
-                    store.dispatch(pageInfoSlice.actions.setPageUrl(`/updateLmProvider/${lmProviderId}`));
-                } else if (event.data.pageType === "functions") {
-                    const functionId = (event.data as messages.MessageSetPageContextFunctions).data;
-                    store.dispatch(pageInfoSlice.actions.setPageUrl(`/functions/${functionId}`));
+                const _message = event.data as messages.MessageSetPageContext;
+                let pageUrl: string | null = null;
+
+                switch (_message.pageType) {
+                    case "modelPlayground": {
+                        pageUrl = AppUrls.buildPageUrl(AppUrls.AifRoute.ModelPlaygroundPage);
+                        break;
+                    }
+                    case "embeddings": {
+                        const embeddingId = (event.data as messages.MessageSetPageContextEmbeddings).data;
+                        pageUrl = AppUrls.buildPageUrl(AppUrls.AifRoute.EmbeddingDetailsPage, [embeddingId]);
+                        break;
+                    }
+                    case "agents": {
+                        const agentId = (event.data as messages.MessageSetPageContextAgentDetails).data;
+                        pageUrl = AppUrls.buildPageUrl(AppUrls.AifRoute.AgentDetailsPage, [agentId]);
+                        break;
+                    }
+                    case "page-updateLmProvider": {
+                        const lmProviderId = (event.data as messages.MessageSetPageContextUpdateLmProvider).data;
+                        pageUrl = AppUrls.buildPageUrl(AppUrls.AifRoute.LmProviderUpdatePage, [lmProviderId]);
+                        break;
+                    }
+                    case "functions": {
+                        const functionId = (event.data as messages.MessageSetPageContextFunctions).data;
+                        pageUrl = AppUrls.buildPageUrl(AppUrls.AifRoute.FunctionDetailsPage, [functionId]);
+                        break;
+                    }
+                }
+
+                if (pageUrl) {
+                    store.dispatch(pageInfoSlice.actions.setPageUrl(pageUrl));
                 }
             } else if (event.data?.aifMessageType === "store:update") {
                 const message: messages.IStoreUpdate = event.data;
