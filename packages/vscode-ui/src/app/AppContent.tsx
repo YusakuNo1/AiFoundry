@@ -23,7 +23,7 @@ function AppContent(props: { vscode: VSCodeInterface }) {
         <AppBreadcrumb pageType={pageType} />
 
         <Routes>
-            <Route path="/" element={<Layout />}>
+            <Route path="/" element={<Layout onPostMessage={props.vscode.postMessage} />}>
                 <Route path={AppUrls.AifRoute.AgentDetailsPage} element={<AgentDetailsPage onPostMessage={props.vscode.postMessage} />} />
                 <Route path={AppUrls.AifRoute.EmbeddingDetailsPage} element={<EmbeddingDetailsPage onPostMessage={props.vscode.postMessage} />} />
                 <Route path={AppUrls.AifRoute.FunctionDetailsPage} element={<FunctionDetailsPage onPostMessage={props.vscode.postMessage} />} />
