@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Input, Label, Table, TableCell, TableRow, TableBody, Divider } from '@fluentui/react-components';
 import { useParams } from "react-router-dom";
+import { Stack } from '@fluentui/react/lib/Stack';
 import { DefaultButton } from '@fluentui/react/lib/Button';
 import { AifUtils, type api, consts, type messages } from 'aifoundry-vscode-shared';
 import { RootState } from '../store/store';
@@ -181,7 +182,7 @@ const LmProviderUpdatePage = (props: Props) => {
         width: "100%",
         ...(showOllamaSetup ? { height: "64px" } : {}),
     };
-    return (<>
+    return (<Stack horizontal={false}>
         <Label style={{ color: textColor, paddingLeft: "8px" }} size='large' weight='semibold'>{`Setup ${lmProvider.name}`}</Label>
         <Divider style={{ color: textColor, paddingTop: "8px" }} />
         <Table arial-label="lm-provider-setup-table">
@@ -264,7 +265,7 @@ const LmProviderUpdatePage = (props: Props) => {
         {!showOllamaSetup && <>
             <DefaultButton style={{ margin: 8 }} key="setup-button" onClick={onSubmit}>Setup</DefaultButton>
         </>}
-    </>);    
+    </Stack>);    
 };
 
 export default LmProviderUpdatePage;

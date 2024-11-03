@@ -43,38 +43,40 @@ const SetupInstructionOllama = (props: Props) => {
     }, [props]);
     const currentPlatform = React.useMemo(() => ConfigUtils.getConfig(consts.AifConfig.platform), []);
 
-    return (<>
-        <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={500}>Step 1: Download</Text></div>
+    return (
+        <TableRow><TableCell>
+            <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={500}>Step 1: Download</Text></div>
 
-        <Table>
-            <TableBody>
-                {platforms.map(platform => 
-                    <TableRow>
-                        <TableCell style={{ "width": "120px" }}>{ollamaDownloadInstructions[platform].name}</TableCell>
-                        {ollamaDownloadInstructions[platform].url && <TableCell><Link href={ollamaDownloadInstructions[platform].url}>Download</Link></TableCell>}
-                        {!ollamaDownloadInstructions[platform].url && <TableCell>{ollamaDownloadInstructions[platform].instruction}</TableCell>}
-                        {ollamaDownloadInstructions[platform].website && <TableCell style={{ "width": "100px" }}><Link href={ollamaDownloadInstructions[platform].website}>Website</Link></TableCell>}
-                    </TableRow>
-                )}
-            </TableBody>
-        </Table>
+            <Table>
+                <TableBody>
+                    {platforms.map(platform => 
+                        <TableRow key={platform}>
+                            <TableCell style={{ "width": "120px" }}>{ollamaDownloadInstructions[platform].name}</TableCell>
+                            {ollamaDownloadInstructions[platform].url && <TableCell><Link href={ollamaDownloadInstructions[platform].url}>Download</Link></TableCell>}
+                            {!ollamaDownloadInstructions[platform].url && <TableCell>{ollamaDownloadInstructions[platform].instruction}</TableCell>}
+                            {ollamaDownloadInstructions[platform].website && <TableCell style={{ "width": "100px" }}><Link href={ollamaDownloadInstructions[platform].website}>Website</Link></TableCell>}
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
 
-        <Divider></Divider>
-
-        <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={500}>Step 2: Start Ollama server</Text></div>
-
-        <Divider></Divider>
-
-        {currentPlatform === "darwin" && <>
-            <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={300}>Option 1: start with this button: </Text><Button onClick={() => onPostMessage()}>Start</Button></div>
             <Divider></Divider>
-            <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={300}>Option 2: run `ollama serve` from Terminal</Text></div>
-        </>}
 
-        {currentPlatform !== "darwin" && <>
-            <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={300}>Run `ollama serve` from Terminal</Text></div>
-        </>}
-    </>)
+            <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={500}>Step 2: Start Ollama server</Text></div>
+
+            <Divider></Divider>
+
+            {currentPlatform === "darwin" && <>
+                <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={300}>Option 1: start with this button: </Text><Button onClick={() => onPostMessage()}>Start</Button></div>
+                <Divider></Divider>
+                <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={300}>Option 2: run `ollama serve` from Terminal</Text></div>
+            </>}
+
+            {currentPlatform !== "darwin" && <>
+                <div style={{ marginTop: "16px", marginBottom: "16px" }}><Text style={{ margin: "8px" }} size={300}>Run `ollama serve` from Terminal</Text></div>
+            </>}
+        </TableCell></TableRow>
+    );
 };
 
 export default SetupInstructionOllama;
