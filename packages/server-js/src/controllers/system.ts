@@ -1,5 +1,5 @@
 import * as express from "express";
-import ILmManager from "../lm/ILmManager";
+import ILmManager from "../languagemodels/ILmManager";
 
 
 export function registerRoutes(router: express.Router, llmManager: ILmManager) {

@@ -1,7 +1,7 @@
 import * as express from "express";
 import { type api, consts, misc } from 'aifoundry-vscode-shared';
 import Config from "../config";
-import ILmManager from "../lm/ILmManager";
+import ILmManager from "../languagemodels/ILmManager";
 import ResponseUtils from "../utils/ResponseUtils";
 import RouterUtils from "../utils/RouterUtils";
 

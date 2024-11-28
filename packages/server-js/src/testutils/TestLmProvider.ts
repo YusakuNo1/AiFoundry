@@ -1,6 +1,6 @@
 
 import type DatabaseManager from '../database/DatabaseManager';
-import LmBaseProvider from '../lm/LmBaseProvider';
+import LmBaseProvider from '../languagemodels/LmBaseProvider';
 
 class TestLmProvider extends LmBaseProvider {
     private _isHealthy: boolean;

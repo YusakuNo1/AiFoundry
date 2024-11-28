@@ -2,7 +2,7 @@ import * as express from "express";
 import * as cookieParser from "cookie-parser";
 import * as cors from 'cors';
 import * as controllers from './controllers';
-import LmManager from './lm/LmManager';
+import LmManager from './languagemodels/LmManager';
 import Config from './config';
 import DatabaseManager from "./database/DatabaseManager";
 

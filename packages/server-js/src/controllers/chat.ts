@@ -5,7 +5,7 @@ import {
     consts,
     type misc,
 } from "aifoundry-vscode-shared";
-import ILmManager from "../lm/ILmManager";
+import ILmManager from "../languagemodels/ILmManager";
 import RouterUtils from "../utils/RouterUtils";
 import ResponseUtils from "../utils/ResponseUtils";
 import { HttpException } from "../exceptions";
